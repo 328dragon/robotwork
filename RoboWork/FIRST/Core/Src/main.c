@@ -18,6 +18,11 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
+#include "fdcan.h"
+#include "i2c.h"
+#include "i2s.h"
+#include "sai.h"
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
@@ -99,7 +104,28 @@ int main(void)
   MX_TIM8_Init();
   MX_TIM4_Init();
   MX_USART2_UART_Init();
+  MX_ADC3_Init();
+  MX_ADC4_Init();
+  MX_FDCAN1_Init();
+  MX_FDCAN2_Init();
+  MX_I2C1_Init();
+  MX_I2C2_Init();
+  MX_I2S3_Init();
+  MX_SAI1_Init();
+  MX_SPI4_Init();
   /* USER CODE BEGIN 2 */
+//时钟开启
+HAL_TIM_Base_Start_IT(&htim2);
+//电机开启
+HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
+HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_2);
+HAL_TIM_Encoder_Start(&htim3,TIM_CHANNEL_ALL);
+ HAL_TIM_Encoder_Start(&htim5,TIM_CHANNEL_ALL);
+ //舵机开启
+HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_1);
+HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_2);
+HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_3);
+HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_4);
 
   /* USER CODE END 2 */
 
@@ -134,8 +160,8 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV5;
-  RCC_OscInitStruct.PLL.PLLN = 68;
+  RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV6;
+  RCC_OscInitStruct.PLL.PLLN = 85;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
   RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
