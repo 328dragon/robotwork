@@ -1,0 +1,27 @@
+#include "motor.h"
+
+ void step_move(uint16_t step,bool direction){  
+  for (uint32_t i = 0; i < step; i++)
+    {
+        if(direction)
+        {
+					dir_pst;
+            pulse_on;                   
+            delay_us(sp_motor_speed);
+            pulse_off;
+            delay_us(sp_motor_speed);
+     }else 
+		{
+			dir_ngt;
+         pulse_on;
+            delay_us(sp_motor_speed);
+        pulse_off;
+            delay_us(sp_motor_speed);
+		}
+    }
+
+ 
+ 
+ }
+
+

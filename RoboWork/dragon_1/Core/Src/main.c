@@ -18,6 +18,9 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
+#include "dma.h"
+#include "fdcan.h"
 #include "i2c.h"
 #include "spi.h"
 #include "tim.h"
@@ -26,7 +29,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "motor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,7 +50,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+uint16_t ccd_rawdata[1546]; // 储存CCD接收的原始数
+uint16_t ccd_data[128];     // 储存平均后的CCD数据
+	 uint32_t icg_flag;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -58,7 +63,44 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+ void delay_us(uint32_t us)
+{
+    uint32_t delay = (HAL_RCC_GetHCLKFreq() / 4000000 * us);
+    while (delay--)
+    {
+        __NOP(); //防止编译器优化
+    }
+}
 
+ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  if (htim->Instance == htim6.Instance)
+    {
+        if (HAL_GetTick() - icg_flag >= 10)
+        {
+            HAL_GPIO_WritePin(ICG_A_GPIO_Port, ICG_A_Pin, 1);
+            HAL_GPIO_WritePin(SH_A_GPIO_Port, SH_A_Pin, 0);
+            delay_us(2);
+            HAL_GPIO_WritePin(SH_A_GPIO_Port, SH_A_Pin, 1);
+            delay_us(4);
+            HAL_GPIO_WritePin(ICG_A_GPIO_Port, ICG_A_Pin, 0);
+            HAL_ADC_Start_DMA(&hadc3, (uint32_t *)ccd_rawdata, 1546);
+            icg_flag = HAL_GetTick();
+        }
+        else
+        {
+            HAL_GPIO_WritePin(SH_A_GPIO_Port, SH_A_Pin, 0);
+            delay_us(2);
+            HAL_GPIO_WritePin(SH_A_GPIO_Port, SH_A_Pin, 1);
+            delay_us(4);
+        }
+    }
+
+
+
+
+
+}
 /* USER CODE END 0 */
 
 /**
@@ -90,6 +132,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_TIM1_Init();
   MX_USART1_UART_Init();
   MX_USART3_UART_Init();
@@ -102,7 +145,31 @@ int main(void)
   MX_USART2_UART_Init();
   MX_I2C1_Init();
   MX_I2C2_Init();
+  MX_ADC3_Init();
+  MX_TIM6_Init();
+  MX_FDCAN2_Init();
   /* USER CODE BEGIN 2 */
+	//tim1是给两个普通直流电机的，tim3是编码器1，tim5是编码器2，tim2只用于普通定时（利用中断）
+	//tim6是给ccd用，tim8和tim4是用于输出pwm  配置：340-1，10000-1
+//  中断开启
+HAL_TIM_Base_Start_IT(&htim2);
+HAL_TIM_Base_Start_IT(&htim6);
+//
+HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
+HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_2);
+HAL_TIM_Encoder_Start(&htim3,TIM_CHANNEL_ALL);
+HAL_TIM_Encoder_Start(&htim5,TIM_CHANNEL_ALL);
+//舵机
+ HAL_TIM_PWM_Start(&htim8,TIM_CHANNEL_4);
+HAL_TIM_PWM_Start(&htim8,TIM_CHANNEL_3);
+ HAL_TIM_PWM_Start(&htim8,TIM_CHANNEL_2);
+HAL_TIM_PWM_Start(&htim8,TIM_CHANNEL_1);
+ HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_4);
+HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_3);
+ HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_2);
+HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_1);
+
+  
 
   /* USER CODE END 2 */
 
