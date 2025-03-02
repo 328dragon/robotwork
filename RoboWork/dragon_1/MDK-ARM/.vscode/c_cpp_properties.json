@@ -18,6 +18,7 @@
                 "d:\\stmproject\\dragonproject\\contest\\robotwork\\RoboWork\\dragon_1\\MDK-ARM",
                 "d:\\stmproject\\dragonproject\\contest\\robotwork\\RoboWork\\dragon_1\\Core\\Src",
                 "d:\\stmproject\\dragonproject\\contest\\robotwork\\RoboWork\\dragon_1\\Drivers\\STM32G4xx_HAL_Driver\\Src",
+                "d:\\stmproject\\dragonproject\\contest\\robotwork\\RoboWork\\dragon_1\\BSP\\Src",
                 "d:\\stmproject\\dragonproject\\contest\\robotwork\\RoboWork\\dragon_1\\Device\\Src"
             ],
             "defines": [

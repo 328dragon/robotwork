@@ -21,7 +21,13 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "string.h"
+#include <stdio.h>
+char string[40];
+uint8_t R = 0, G = 0, B = 0;
+uint8_t RX_Flag;
+uint8_t RxData;
+uint32_t red, blue, green;
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart1;
@@ -280,6 +286,9 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+    /* USART3 interrupt Init */
+    HAL_NVIC_SetPriority(USART3_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(USART3_IRQn);
   /* USER CODE BEGIN USART3_MspInit 1 */
 
   /* USER CODE END USART3_MspInit 1 */
@@ -343,6 +352,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
     HAL_GPIO_DeInit(GPIOB, GPIO_PIN_10);
 
+    /* USART3 interrupt Deinit */
+    HAL_NVIC_DisableIRQ(USART3_IRQn);
   /* USER CODE BEGIN USART3_MspDeInit 1 */
 
   /* USER CODE END USART3_MspDeInit 1 */
@@ -350,5 +361,54 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 }
 
 /* USER CODE BEGIN 1 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+ if (huart->Instance == USART3)
+    {
 
+        static uint8_t i = 0;
+        static uint8_t j = 0; //
+        HAL_UART_Receive_IT(&huart3 ,&RxData, 1);
+        if (RxData == '+')
+            j = 1;
+        if (RxData == '\r')
+        {
+            string[i] = '\0';
+            i = 0;
+            //length=0;
+            j = 0;
+
+            sscanf(string + 8, "R:%d G:%d B:%d", &red, &green, &blue);
+            {
+                R = red;
+                G = green;
+                B = blue;
+            }
+
+            RX_Flag = 1;
+        }
+        else
+        {
+            if (j)
+            {
+                string[i] = RxData;
+                i++;
+            }
+        }
+    }
+
+}
+
+int fputc(int ch, FILE *f)
+{
+    HAL_UART_Transmit(&huart3, (uint8_t *)&ch, 1, 0xffff);
+    return ch;
+}
+
+int fgetc(FILE *f)
+{
+    uint8_t ch = 0;
+    HAL_UART_Receive(&huart3, &ch, 1, 0xffff);
+    return ch;
+}
 /* USER CODE END 1 */

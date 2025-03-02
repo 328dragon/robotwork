@@ -1,6 +1,26 @@
 #include "motor.h"
  int now_position=1;
- 
+int speed_left = 0;
+int speed_right = 0;
+int speed_all = 0;//总速度，绝对值 
+
+
+//普通电机
+int  encoder_1_flag=0;//当开始用固定距离时把他设为1
+int encoder_2_flag=0;
+int encoder_1_pid;//用于pid
+int encoder_2_pid;
+int encoder_1_distance;//用于距离
+int encoder_2_distance;
+int dest_distance;
+int turn_flag;
+
+float pid_L;
+float pid_R;
+
+int16_t Encode_L;
+int16_t Encode_R;
+
 //步进电机底层转动多少
 void step_move(uint32_t step,int  direction) {
 	sp_motor_on;
@@ -25,6 +45,7 @@ void step_move(uint32_t step,int  direction) {
 		sp_motor_off;
 }
 //步进电机相邻之间位置移动
+
 //需要调cycle和mapping值
 void step_drift(int direction)
 { //转多少圈（cycle）
@@ -58,3 +79,84 @@ void step_arrive(int des_position)
 	step_drift(direction);
 }
 
+
+
+
+
+
+
+/// @brief 用于设置pwm,motor_left是左边的,motor_right是右边的
+/// @param motor_left
+/// @param motor_right
+void set_motor_pwm(int motor_left,int motor_right)
+{
+
+    //限幅
+    if (motor_left > PWM_limit)  motor_left = PWM_limit;
+    if (motor_left < -PWM_limit)  motor_left = -PWM_limit;
+    if (motor_right > PWM_limit)  motor_right = PWM_limit;
+    if (motor_right < -PWM_limit)  motor_right = -PWM_limit;
+//左电机 HTIM5 TIM_CHANNEL1
+    if(motor_left>=0)
+    {
+       motor1_front;
+
+        __HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_1,motor_left);
+
+
+    }
+    else
+    {
+       motor1_back;
+
+        __HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_1, -motor_left);
+
+    }
+//右电机  HTIM5 TIM_CHANNEL2
+    if(motor_right>=0)
+    {
+       motor2_front;
+
+        __HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_2,motor_right);
+
+
+    } else {
+       motor2_back;
+        __HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_2, -motor_right);
+
+    }
+
+
+}
+
+
+
+/// @brief 用于读取编码器值
+/// @param TIMX
+/// @return 编码器值
+void Read_Encoder()
+{
+    Encode_L = __HAL_TIM_GetCounter(&htim3);
+    Encode_R = -__HAL_TIM_GetCounter(&htim5);
+    __HAL_TIM_SetCounter(&htim3, 0);
+    __HAL_TIM_SetCounter(&htim5, 0);
+
+
+}
+
+void go_step(int speed,int destination)
+{
+    
+    speed_all = speed;
+    dest_distance=destination;
+    encoder_1_flag=1;
+    while(1)
+    {
+        if(encoder_1_flag == 0)
+
+            break;
+    }
+   
+    turn_flag=1;
+
+}

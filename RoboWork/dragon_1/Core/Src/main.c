@@ -29,7 +29,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "motor.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -169,8 +169,23 @@ HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_3);
  HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_2);
 HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_1);
 
-  
+ //tcs230配置 
+  HAL_UART_Receive_IT(&huart3, &RxData, 1);
 
+  printf("AT+LIGHT+ON\r\n");
+  printf("AT+LIGHT+ON\r\n");
+  printf("AT+LIGHT+ON\r\n");
+  printf("AT+LIGHT+ON\r\n");
+  printf("AT+LIGHT+ON\r\n");
+  printf("AT+LIGHT+ON\r\n");
+	//普通电机配置
+	   speed_left = 0;
+  speed_right = 0;
+  speed_all = 0;
+	  PID_struct_init(&pid_left, POSITION_PID, 950, 950, 50, 0, 0);
+  PID_struct_init(&pid_right, POSITION_PID, 950, 950, 50, 0, 0);
+	
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */

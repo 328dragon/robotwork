@@ -57,14 +57,14 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define motor_l_Pin GPIO_PIN_0
-#define motor_l_GPIO_Port GPIOC
-#define motor_r_Pin GPIO_PIN_1
-#define motor_r_GPIO_Port GPIOC
-#define PH1_Pin GPIO_PIN_2
-#define PH1_GPIO_Port GPIOF
-#define PH2_Pin GPIO_PIN_2
-#define PH2_GPIO_Port GPIOA
+#define motor_l_pwm_Pin GPIO_PIN_0
+#define motor_l_pwm_GPIO_Port GPIOC
+#define motor_2_pwm_Pin GPIO_PIN_1
+#define motor_2_pwm_GPIO_Port GPIOC
+#define motor_1_ph_Pin GPIO_PIN_2
+#define motor_1_ph_GPIO_Port GPIOF
+#define motor_2_ph_Pin GPIO_PIN_2
+#define motor_2_ph_GPIO_Port GPIOA
 #define cs_1_Pin GPIO_PIN_5
 #define cs_1_GPIO_Port GPIOC
 #define SH_A_Pin GPIO_PIN_0
@@ -96,6 +96,9 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN Private defines */
   void delay_us(uint32_t us);
+	#include "motor.h"
+#include "pid.h"
+#include "stdio.h"
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

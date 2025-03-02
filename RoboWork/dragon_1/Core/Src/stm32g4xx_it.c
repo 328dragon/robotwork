@@ -56,7 +56,9 @@
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_adc3;
+extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim6;
+extern UART_HandleTypeDef huart3;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -211,6 +213,62 @@ void DMA1_Channel1_IRQHandler(void)
   /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
 
   /* USER CODE END DMA1_Channel1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM2 global interrupt.
+  */
+void TIM2_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM2_IRQn 0 */
+		     Read_Encoder();
+  /* USER CODE END TIM2_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim2);
+  /* USER CODE BEGIN TIM2_IRQn 1 */
+			    if(encoder_1_flag==1)
+    {
+        if(dest_distance>=0) {
+            if((encoder_1_distance>=dest_distance)||(encoder_2_distance>=dest_distance)) {
+                encoder_1_distance=0;
+                encoder_2_distance=0;
+                set_motor_pwm(0,0);
+                speed_all = 0;
+                encoder_1_flag=0;
+            }
+        } else if(dest_distance<0) {
+            if((encoder_1_distance<=dest_distance)&&(encoder_2_distance<=dest_distance)) {
+                encoder_1_distance=0;
+                encoder_2_distance=0;
+                set_motor_pwm(0,0);
+                speed_all = 0;
+                encoder_1_flag=0;
+            }
+        }
+        encoder_1_distance+=Encode_L;
+        encoder_2_distance+=Encode_R;
+
+    }
+		
+//		    pid_L=pid_calc(&pid_left,Encode_L,pid_left.set);
+//    pid_R=pid_calc(&pid_right,Encode_R,pid_right.set);
+
+//    set_motor_pwm(pid_L,pid_R);
+		
+  /* USER CODE END TIM2_IRQn 1 */
+}
+
+/**
+  * @brief This function handles USART3 global interrupt / USART3 wake-up interrupt through EXTI line 28.
+  */
+void USART3_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART3_IRQn 0 */
+
+  /* USER CODE END USART3_IRQn 0 */
+  HAL_UART_IRQHandler(&huart3);
+  /* USER CODE BEGIN USART3_IRQn 1 */
+
+  /* USER CODE END USART3_IRQn 1 */
 }
 
 /**
