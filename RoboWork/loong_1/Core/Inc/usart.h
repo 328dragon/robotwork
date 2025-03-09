@@ -29,7 +29,11 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-
+ extern char string[40];
+extern uint8_t R,G,B;
+extern uint8_t RX_Flag;
+extern uint8_t RxData;
+extern uint32_t red,blue,green;
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef huart1;

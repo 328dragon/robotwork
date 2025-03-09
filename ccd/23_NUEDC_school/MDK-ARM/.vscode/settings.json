@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "oled.h": "c",
+        "delay.h": "c",
+        "pid.h": "c",
+        "kalmanfilter.h": "c"
+    }
+}

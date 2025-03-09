@@ -1109,6 +1109,11 @@
               <FileType>1</FileType>
               <FilePath>..\BSP\Src\pid.c</FilePath>
             </File>
+            <File>
+              <FileName>bsp_IR_i2c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\BSP\Src\bsp_IR_i2c.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1126,6 +1131,11 @@
               <FileName>tcs230.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Device\Src\tcs230.c</FilePath>
+            </File>
+            <File>
+              <FileName>TSL1401.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Device\Src\TSL1401.c</FilePath>
             </File>
           </Files>
         </Group>

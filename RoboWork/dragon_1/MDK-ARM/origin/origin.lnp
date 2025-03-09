@@ -38,8 +38,10 @@
 "origin\stm32g4xx_hal_uart_ex.o"
 "origin\system_stm32g4xx.o"
 "origin\pid.o"
+"origin\bsp_ir_i2c.o"
 "origin\motor.o"
 "origin\tcs230.o"
+"origin\tsl1401.o"
 --library_type=microlib --strict --scatter "origin\origin.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

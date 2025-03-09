@@ -1,0 +1,266 @@
+<html>
+<body>
+<pre>
+<h1>礦ision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: μVision V5.40.0.0
+Copyright (C) 2024 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: df df, dff, LIC=9WSKC-7ZRYP-Z9IG9-48KJ6-WNZ0F-6SAIC
+ 
+Tool Versions:
+Toolchain:       MDK-ARM Plus  Version: 5.40.0.3
+Toolchain Path:  D:\keil\MDK\ARM\ARMCLANG\Bin
+C Compiler:      ArmClang.exe V6.22
+Assembler:       Armasm.exe V6.22
+Linker/Locator:  ArmLink.exe V6.22
+Library Manager: ArmAr.exe V6.22
+Hex Converter:   FromElf.exe V6.22
+CPU DLL:         SARMCM3.DLL V5.40.0.3
+Dialog DLL:      DCM.DLL V1.17.5.0
+Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V3.3.0.0
+Dialog DLL:      TCM.DLL V1.56.4.0
+ 
+<h2>Project:</h2>
+D:\stmproject\dragonproject\contest\robotwork\TSL1401线性CCD模块附送资料V3.6-2023.10.16\2.平衡小车专用CCD巡线代码\STM32平衡小车 CCD巡线\HAL库代码\CCD巡线代码【高配版平衡小车F405RGT6-HAL库】\MDK-ARM\CCD-STM32F405RGT6.uvprojx
+Project File Date:  03/07/2025
+
+<h2>Output:</h2>
+*** Using Compiler 'V6.22', folder: 'D:\keil\MDK\ARM\ARMCLANG\Bin'
+Build target 'CCD-STM32F405RGT6'
+assembling startup_stm32f405xx.s...
+compiling main.c...
+compiling stm32f4xx_ll_adc.c...
+../Core/Src/usart.c(26): error: '#pragma import' is an Arm Compiler 5 extension, and is not supported by Arm Compiler for Embedded 6 [-Warmcc-pragma-import]
+   26 | #pragma import(__use_no_semihosting)             
+      |         ^
+../Core/Src/usart.c(28): error: redefinition of '__FILE'
+   28 | struct __FILE 
+      |        ^
+D:\keil\MDK\ARM\ARMCLANG\bin\..\include\stdio.h(119): note: previous definition is here
+  119 | struct __FILE {
+      |        ^
+2 errors generated.
+compiling usart.c...
+compiling stm32f4xx_hal_msp.c...
+compiling gpio.c...
+compiling stm32f4xx_it.c...
+compiling adc.c...
+compiling tim.c...
+compiling stm32f4xx_hal_flash.c...
+compiling stm32f4xx_hal_rcc_ex.c...
+compiling stm32f4xx_hal_flash_ramfunc.c...
+compiling stm32f4xx_hal_rcc.c...
+compiling stm32f4xx_hal_adc.c...
+compiling stm32f4xx_hal_adc_ex.c...
+compiling stm32f4xx_hal_flash_ex.c...
+compiling stm32f4xx_hal_gpio.c...
+compiling stm32f4xx_hal_dma_ex.c...
+compiling stm32f4xx_hal_pwr_ex.c...
+compiling stm32f4xx_hal_pwr.c...
+compiling stm32f4xx_hal.c...
+compiling stm32f4xx_hal_exti.c...
+compiling stm32f4xx_hal_cortex.c...
+compiling stm32f4xx_hal_dma.c...
+compiling system_stm32f4xx.c...
+compiling encoder.c...
+compiling key.c...
+compiling IOI2C.c...
+compiling stm32f4xx_hal_tim_ex.c...
+compiling LED.C...
+compiling DataScope_DP.C...
+compiling delay.c...
+compiling usartx.c...
+compiling filter.c...
+../SYSTEM/sys/sys.c(12): error: expected '(' after 'asm'
+   12 | __asm void WFI_SET(void)
+      |       ^
+../SYSTEM/sys/sys.c(12): error: expected ';' after top-level asm block
+   12 | __asm void WFI_SET(void)
+      |      ^
+      |      ;
+../SYSTEM/sys/sys.c(14): error: use of undeclared identifier 'WFI'
+   14 |         WFI;              
+      |         ^
+../SYSTEM/sys/sys.c(17): error: expected '(' after 'asm'
+   17 | __asm void INTX_DISABLE(void)
+      |       ^
+../SYSTEM/sys/sys.c(17): error: expected ';' after top-level asm block
+   17 | __asm void INTX_DISABLE(void)
+      |      ^
+      |      ;
+../SYSTEM/sys/sys.c(19): error: use of undeclared identifier 'CPSID'
+   19 |         CPSID   I
+      |         ^
+../SYSTEM/sys/sys.c(23): error: expected '(' after 'asm'
+   23 | __asm void INTX_ENABLE(void)
+      |       ^
+../SYSTEM/sys/sys.c(23): error: expected ';' after top-level asm block
+   23 | __asm void INTX_ENABLE(void)
+      |      ^
+      |      ;
+../SYSTEM/sys/sys.c(25): error: use of undeclared identifier 'CPSIE'
+   25 |         CPSIE   I
+      |         ^
+../SYSTEM/sys/sys.c(30): error: expected '(' after 'asm'
+   30 | __asm void MSR_MSP(u32 addr) 
+      |       ^
+../SYSTEM/sys/sys.c(30): error: expected ';' after top-level asm block
+   30 | __asm void MSR_MSP(u32 addr) 
+      |      ^
+      |      ;
+../SYSTEM/sys/sys.c(32): error: use of undeclared identifier 'MSR'
+   32 |         MSR MSP, r0                     //set Main Stack value
+      |         ^
+12 errors generated.
+compiling sys.c...
+compiling stm32f4xx_hal_uart.c...
+compiling control.c...
+compiling stm32f4xx_hal_tim.c...
+compiling inv_mpu_dmp_motion_driver.c...
+../MiniBalance/show/show.c(27): warning: passing 'char[2]' to parameter of type 'const u8 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   27 |                 OLED_ShowString(13,10,".");
+      |                                       ^~~
+../MiniBalance_HARDWARE/OLED\oled.h(33): note: passing argument to parameter 'p' here
+   33 | void OLED_ShowString(u8 x,u8 y,const u8 *p);     
+      |                                          ^
+../MiniBalance/show/show.c(28): warning: passing 'char[3]' to parameter of type 'const u8 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   28 |                 OLED_ShowString(35,10,"`C");
+      |                                       ^~~~
+../MiniBalance_HARDWARE/OLED\oled.h(33): note: passing argument to parameter 'p' here
+   33 | void OLED_ShowString(u8 x,u8 y,const u8 *p);     
+      |                                          ^
+../MiniBalance/show/show.c(30): warning: passing 'char[3]' to parameter of type 'const u8 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   30 |                                             OLED_ShowString(105,10,"mm");
+      |                                                                    ^~~~
+../MiniBalance_HARDWARE/OLED\oled.h(33): note: passing argument to parameter 'p' here
+   33 | void OLED_ShowString(u8 x,u8 y,const u8 *p);     
+      |                                          ^
+../MiniBalance/show/show.c(32): warning: passing 'char[2]' to parameter of type 'const u8 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   32 |                                       OLED_ShowString(00,20,"Z");
+      |                                                             ^~~
+../MiniBalance_HARDWARE/OLED\oled.h(33): note: passing argument to parameter 'p' here
+   33 | void OLED_ShowString(u8 x,u8 y,const u8 *p);     
+      |                                          ^
+../MiniBalance/show/show.c(33): warning: passing 'char[2]' to parameter of type 'const u8 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   33 |                 if( CCD_Zhongzhi<0)             OLED_ShowString(10,20,"-"),
+      |                                                                       ^~~
+../MiniBalance_HARDWARE/OLED\oled.h(33): note: passing argument to parameter 'p' here
+   33 | void OLED_ShowString(u8 x,u8 y,const u8 *p);     
+      |                                          ^
+../MiniBalance/show/show.c(35): warning: passing 'char[2]' to parameter of type 'const u8 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   35 |                 else                    OLED_ShowString(10,20,"+"),
+      |                                                               ^~~
+../MiniBalance_HARDWARE/OLED\oled.h(33): note: passing argument to parameter 'p' here
+   33 | void OLED_ShowString(u8 x,u8 y,const u8 *p);     
+      |                                          ^
+../MiniBalance/show/show.c(37): warning: passing 'char[2]' to parameter of type 'const u8 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   37 |                                                   OLED_ShowString(70,20,"Y");
+      |                                                                         ^~~
+../MiniBalance_HARDWARE/OLED\oled.h(33): note: passing argument to parameter 'p' here
+   33 | void OLED_ShowString(u8 x,u8 y,const u8 *p);     
+      |                                          ^
+../MiniBalance/show/show.c(38): warning: passing 'char[2]' to parameter of type 'const u8 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   38 |                 if( CCD_Yuzhi<0)                OLED_ShowString(80,20,"-"),
+      |                                                                       ^~~
+../MiniBalance_HARDWARE/OLED\oled.h(33): note: passing argument to parameter 'p' here
+   33 | void OLED_ShowString(u8 x,u8 y,const u8 *p);     
+      |                                          ^
+../MiniBalance/show/show.c(40): warning: passing 'char[2]' to parameter of type 'const u8 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   40 |                 else                    OLED_ShowString(80,20,"+"),
+      |                                                               ^~~
+../MiniBalance_HARDWARE/OLED\oled.h(33): note: passing argument to parameter 'p' here
+   33 | void OLED_ShowString(u8 x,u8 y,const u8 *p);     
+      |                                          ^
+../MiniBalance/show/show.c(43): warning: passing 'char[2]' to parameter of type 'const u8 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   43 |                                       OLED_ShowString(00,30,"L");               
+      |                                                             ^~~
+../MiniBalance_HARDWARE/OLED\oled.h(33): note: passing argument to parameter 'p' here
+   33 | void OLED_ShowString(u8 x,u8 y,const u8 *p);     
+      |                                          ^
+../MiniBalance/show/show.c(44): warning: passing 'char[2]' to parameter of type 'const u8 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   44 |                 if(Encoder_Left<0)              OLED_ShowString(10,30,"-"),
+      |                                                                       ^~~
+../MiniBalance_HARDWARE/OLED\oled.h(33): note: passing argument to parameter 'p' here
+   33 | void OLED_ShowString(u8 x,u8 y,const u8 *p);     
+      |                                          ^
+../MiniBalance/show/show.c(46): warning: passing 'char[2]' to parameter of type 'const u8 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   46 |                 else                            OLED_ShowString(10,30,"+"),
+      |                                                                       ^~~
+../MiniBalance_HARDWARE/OLED\oled.h(33): note: passing argument to parameter 'p' here
+   33 | void OLED_ShowString(u8 x,u8 y,const u8 *p);     
+      |                                          ^
+../MiniBalance/show/show.c(48): warning: passing 'char[2]' to parameter of type 'const u8 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   48 |                                                   OLED_ShowString(70,30,"R");           
+      |                                                                         ^~~
+../MiniBalance_HARDWARE/OLED\oled.h(33): note: passing argument to parameter 'p' here
+   33 | void OLED_ShowString(u8 x,u8 y,const u8 *p);     
+      |                                          ^
+../MiniBalance/show/show.c(49): warning: passing 'char[2]' to parameter of type 'const u8 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   49 |                 if(Encoder_Right<0)             OLED_ShowString(80,30,"-"),
+      |                                                                       ^~~
+../MiniBalance_HARDWARE/OLED\oled.h(33): note: passing argument to parameter 'p' here
+   33 | void OLED_ShowString(u8 x,u8 y,const u8 *p);     
+      |                                          ^
+../MiniBalance/show/show.c(51): warning: passing 'char[2]' to parameter of type 'const u8 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   51 |                 else                            OLED_ShowString(80,30,"+"),
+      |                                                                       ^~~
+../MiniBalance_HARDWARE/OLED\oled.h(33): note: passing argument to parameter 'p' here
+   33 | void OLED_ShowString(u8 x,u8 y,const u8 *p);     
+      |                                          ^
+../MiniBalance/show/show.c(54): warning: passing 'char[6]' to parameter of type 'const u8 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   54 |                                       OLED_ShowString(00,40,"Volta");
+      |                                                             ^~~~~~~
+../MiniBalance_HARDWARE/OLED\oled.h(33): note: passing argument to parameter 'p' here
+   33 | void OLED_ShowString(u8 x,u8 y,const u8 *p);     
+      |                                          ^
+../MiniBalance/show/show.c(55): warning: passing 'char[2]' to parameter of type 'const u8 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   55 |                                       OLED_ShowString(58,40,".");
+      |                                                             ^~~
+../MiniBalance_HARDWARE/OLED\oled.h(33): note: passing argument to parameter 'p' here
+   33 | void OLED_ShowString(u8 x,u8 y,const u8 *p);     
+      |                                          ^
+../MiniBalance/show/show.c(56): warning: passing 'char[2]' to parameter of type 'const u8 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   56 |                                       OLED_ShowString(80,40,"V");
+      |                                                             ^~~
+../MiniBalance_HARDWARE/OLED\oled.h(33): note: passing argument to parameter 'p' here
+   33 | void OLED_ShowString(u8 x,u8 y,const u8 *p);     
+      |                                          ^
+../MiniBalance/show/show.c(61): warning: passing 'char[6]' to parameter of type 'const u8 *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   61 |                                       OLED_ShowString(0,50,"Angle");
+      |                                                            ^~~~~~~
+../MiniBalance_HARDWARE/OLED\oled.h(33): note: passing argument to parameter 'p' here
+   33 | void OLED_ShowString(u8 x,u8 y,const u8 *p);     
+      |                                          ^
+19 warnings generated.
+compiling show.c...
+compiling MPU6050.c...
+compiling oled.c...
+compiling inv_mpu.c...
+"..\Output\CCD-STM32F405RGT6.axf" - 14 Error(s), 19 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: ARM
+                https://www.keil.com/pack/ARM.CMSIS.6.1.0.pack
+                ARM::CMSIS@6.1.0
+                CMSIS (Common Microcontroller Software Interface Standard)
+   * Component: CORE Version: 6.1.0
+
+Package Vendor: Keil
+                https://www.keil.com/pack/Keil.STM32F4xx_DFP.3.0.0.pack
+                Keil::STM32F4xx_DFP@3.0.0
+                STMicroelectronics STM32F4 Series Device Support
+
+<h2>Collection of Component include folders:</h2>
+  ./RTE/_CCD-STM32F405RGT6
+  D:/keil/Pack/ARM/CMSIS/6.1.0/CMSIS/Core/Include
+
+<h2>Collection of Component Files used:</h2>
+
+   * Component: ARM::CMSIS:CORE@6.1.0
+      Include file:  CMSIS/Core/Include/tz_context.h
+Target not created.
+Build Time Elapsed:  00:00:02
+</pre>
+</body>
+</html>

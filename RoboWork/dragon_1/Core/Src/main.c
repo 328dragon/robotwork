@@ -53,6 +53,8 @@
 uint16_t ccd_rawdata[1546]; // 储存CCD接收的原始数
 uint16_t ccd_data[128];     // 储存平均后的CCD数据
 	 uint32_t icg_flag;
+	 
+	 uint8_t  ir_x[8] ;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -76,28 +78,8 @@ void SystemClock_Config(void);
 {
   if (htim->Instance == htim6.Instance)
     {
-        if (HAL_GetTick() - icg_flag >= 10)
-        {
-            HAL_GPIO_WritePin(ICG_A_GPIO_Port, ICG_A_Pin, 1);
-            HAL_GPIO_WritePin(SH_A_GPIO_Port, SH_A_Pin, 0);
-            delay_us(2);
-            HAL_GPIO_WritePin(SH_A_GPIO_Port, SH_A_Pin, 1);
-            delay_us(4);
-            HAL_GPIO_WritePin(ICG_A_GPIO_Port, ICG_A_Pin, 0);
-            HAL_ADC_Start_DMA(&hadc3, (uint32_t *)ccd_rawdata, 1546);
-            icg_flag = HAL_GetTick();
-        }
-        else
-        {
-            HAL_GPIO_WritePin(SH_A_GPIO_Port, SH_A_Pin, 0);
-            delay_us(2);
-            HAL_GPIO_WritePin(SH_A_GPIO_Port, SH_A_Pin, 1);
-            delay_us(4);
-        }
+
     }
-
-
-
 
 
 }
@@ -144,7 +126,6 @@ int main(void)
   MX_TIM4_Init();
   MX_USART2_UART_Init();
   MX_I2C1_Init();
-  MX_I2C2_Init();
   MX_ADC3_Init();
   MX_TIM6_Init();
   MX_FDCAN2_Init();
@@ -168,6 +149,12 @@ HAL_TIM_PWM_Start(&htim8,TIM_CHANNEL_1);
 HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_3);
  HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_2);
 HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_1);
+//灰度配置
+//  set_adjust_mode(1);
+//  HAL_Delay(500);
+//
+//  set_adjust_mode(0);
+//  HAL_Delay(500);
 
  //tcs230配置 
   HAL_UART_Receive_IT(&huart3, &RxData, 1);
@@ -182,9 +169,16 @@ HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_1);
 	   speed_left = 0;
   speed_right = 0;
   speed_all = 0;
+	
 	  PID_struct_init(&pid_left, POSITION_PID, 950, 950, 50, 0, 0);
   PID_struct_init(&pid_right, POSITION_PID, 950, 950, 50, 0, 0);
 	
+	
+  set_adjust_mode(1);
+  HAL_Delay(500);
+
+  set_adjust_mode(0);
+  HAL_Delay(500);	
 	
   /* USER CODE END 2 */
 
@@ -195,6 +189,8 @@ HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_1);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+//		deal_IRdata(&ir_x[0],&ir_x[1],&ir_x[2],&ir_x[3],&ir_x[4],&ir_x[5],&ir_x[6],&ir_x[7]);
+		  HAL_Delay(300);
   }
   /* USER CODE END 3 */
 }

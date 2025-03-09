@@ -67,12 +67,12 @@ void Error_Handler(void);
 #define motor_2_ph_GPIO_Port GPIOA
 #define cs_1_Pin GPIO_PIN_5
 #define cs_1_GPIO_Port GPIOC
-#define SH_A_Pin GPIO_PIN_0
-#define SH_A_GPIO_Port GPIOB
+#define SI_A_Pin GPIO_PIN_0
+#define SI_A_GPIO_Port GPIOB
 #define ccd_1_Pin GPIO_PIN_1
 #define ccd_1_GPIO_Port GPIOB
-#define ICG_A_Pin GPIO_PIN_2
-#define ICG_A_GPIO_Port GPIOB
+#define CLK_A_Pin GPIO_PIN_2
+#define CLK_A_GPIO_Port GPIOB
 #define ccd_2_Pin GPIO_PIN_9
 #define ccd_2_GPIO_Port GPIOE
 #define cs_4_Pin GPIO_PIN_11
@@ -98,7 +98,9 @@ void Error_Handler(void);
   void delay_us(uint32_t us);
 	#include "motor.h"
 #include "pid.h"
+#include "bsp_IR_i2c.h"
 #include "stdio.h"
+#include "TSL1401.h"
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
