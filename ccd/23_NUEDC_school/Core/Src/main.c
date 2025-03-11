@@ -124,6 +124,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         if (psc < 30)
             psc = 30;
         htim6.Instance->PSC = psc;
+				
+				
+				
         int16_t ccr_l = (int16_t)__HAL_TIM_GetCounter(&htim1), ccr_r = (int16_t)__HAL_TIM_GetCounter(&htim3);
         __HAL_TIM_SetCounter(&htim1, 0);
         __HAL_TIM_SetCounter(&htim3, 0);
@@ -139,7 +142,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     }
 }
 
-// 128点找左右�?????????????
+// 128点找左右
 void FindLines(uint8_t *l, uint8_t *r, uint16_t *data, uint16_t threshold, uint8_t *l_w, uint8_t *r_w)
 {
     *r = *l = 128;
@@ -272,17 +275,18 @@ int main(void)
             _min = min(_min, ccd_data[i]);
         }
         avg = sum / 128;
-        OLED_ShowChart(ccd_data, 1, 1700, (_max * 7 + _min) / 8);
+//        OLED_ShowChart(ccd_data, 1, 1700, (_max * 7 + _min) / 8);
         FindLines(&l, &r, ccd_data, 500, &l_w, &r_w);
-        HAL_GPIO_WritePin(BUZZ_GPIO_Port, BUZZ_Pin, r_w > 50);
+//        HAL_GPIO_WritePin(BUZZ_GPIO_Port, BUZZ_Pin, r_w > 50);
+				
         if (r_w > 50 && HAL_GetTick() - stop_line_flag >= 500)
         {
             inner_flag = !inner_flag;
             stop_line_flag = HAL_GetTick();
         }
-        OLED_ShowChar(l, 0, 'L', 8, 1);
-        OLED_ShowChar(r, 8, 'R', 8, 1);
-        OLED_Refresh();
+//        OLED_ShowChar(l, 0, 'L', 8, 1);
+//        OLED_ShowChar(r, 8, 'R', 8, 1);
+//        OLED_Refresh();
 
         // for(int i = 0; i < 1500; i++)
         // {

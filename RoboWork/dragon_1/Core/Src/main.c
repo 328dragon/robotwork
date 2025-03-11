@@ -170,7 +170,7 @@ HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_1);
   speed_right = 0;
   speed_all = 0;
 	
-	  PID_struct_init(&pid_left, POSITION_PID, 950, 950, 50, 0, 0);
+	PID_struct_init(&pid_left, POSITION_PID, 950, 950, 50, 0, 0);
   PID_struct_init(&pid_right, POSITION_PID, 950, 950, 50, 0, 0);
 	
 	
@@ -189,6 +189,7 @@ HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_1);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+		__HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_1,500);
 //		deal_IRdata(&ir_x[0],&ir_x[1],&ir_x[2],&ir_x[3],&ir_x[4],&ir_x[5],&ir_x[6],&ir_x[7]);
 		  HAL_Delay(300);
   }
