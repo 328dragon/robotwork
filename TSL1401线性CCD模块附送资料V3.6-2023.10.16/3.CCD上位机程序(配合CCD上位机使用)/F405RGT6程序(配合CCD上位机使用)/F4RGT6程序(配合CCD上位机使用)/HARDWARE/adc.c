@@ -93,6 +93,7 @@ void Dly_us(void)
  void RD_TSL(void) 
 {
   u8 i=0,tslp=0;
+	
   TSL_CLK=1;
 	Dly_us();
   TSL_SI=0; 

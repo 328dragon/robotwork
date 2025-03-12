@@ -1,0 +1,137 @@
+<html>
+<body>
+<pre>
+<h1>�Vision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: ��Vision V5.40.0.0
+Copyright (C) 2024 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: df df, dff, LIC=9WSKC-7ZRYP-Z9IG9-48KJ6-WNZ0F-6SAIC
+ 
+Tool Versions:
+Toolchain:       MDK-ARM Plus  Version: 5.40.0.3
+Toolchain Path:  D:\keil\MDK\ARM\ARMCLANG\Bin
+C Compiler:      ArmClang.exe V6.22
+Assembler:       Armasm.exe V6.22
+Linker/Locator:  ArmLink.exe V6.22
+Library Manager: ArmAr.exe V6.22
+Hex Converter:   FromElf.exe V6.22
+CPU DLL:         SARMCM3.DLL V5.40.0.3
+Dialog DLL:      DCM.DLL V1.17.5.0
+Target DLL:      CMSIS_AGDI.dll V1.33.18.0
+Dialog DLL:      TCM.DLL V1.56.4.0
+ 
+<h2>Project:</h2>
+d:\stmproject\dragonproject\contest\robotwork\RoboWork\loong_1_pc\MDK-ARM\origin.uvprojx
+Project File Date:  03/11/2025
+
+<h2>Output:</h2>
+*** Using Compiler 'V6.22', folder: 'D:\keil\MDK\ARM\ARMCLANG\Bin'
+Build target 'origin'
+../Core/Src/main.c(199): warning: passing 'char[128]' to parameter of type 'const uint8_t *' (aka 'const unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+  199 |         HAL_UART_Transmit(&huart1, t,strlen(t),100);            
+      |                                    ^
+../Drivers/STM32G4xx_HAL_Driver/Inc\stm32g4xx_hal_uart.h(1633): note: passing argument to parameter 'pData' here
+ 1633 | HAL_StatusTypeDef HAL_UART_Transmit(UART_HandleTypeDef *huart, const uint8_t *pData, uint16_t Size, uint32_t Timeout);
+      |                                                                               ^
+1 warning generated.
+compiling main.c...
+compiling stm32g4xx_hal_msp.c...
+compiling fdcan.c...
+compiling gpio.c...
+compiling adc.c...
+compiling stm32g4xx_it.c...
+compiling i2s.c...
+compiling spi.c...
+compiling bsp_IR_i2c.c...
+compiling i2c.c...
+compiling pid.c...
+../Device/Src/motor.c(80): warning: relational comparison result unused [-Wunused-comparison]
+   80 |     for(int i=0; i++; i<=drift)
+      |                       ~^~~~~~~
+1 warning generated.
+compiling motor.c...
+compiling usart.c...
+compiling tim.c...
+compiling tcs230.c...
+../Device/Src/TSL1401.c(75): error: use of undeclared identifier 'huart1'
+   75 |         HAL_UART_Transmit(&huart1,data,len,0xffff);
+      |                            ^
+../Device/Src/TSL1401.c(96): warning: passing 'char[2]' to parameter of type 'uint8_t *' (aka 'unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   96 |         usart1_send("*",1);
+      |                     ^~~
+../Device/Src/TSL1401.c(73): note: passing argument to parameter 'data' here
+   73 | void usart1_send(uint8_t *data,uint8_t len)
+      |                           ^
+../Device/Src/TSL1401.c(97): warning: passing 'char[3]' to parameter of type 'uint8_t *' (aka 'unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+   97 |         usart1_send("LD",2);
+      |                     ^~~~
+../Device/Src/TSL1401.c(73): note: passing argument to parameter 'data' here
+   73 | void usart1_send(uint8_t *data,uint8_t len)
+      |                           ^
+../Device/Src/TSL1401.c(100): error: call to undeclared function 'binToHex_high'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  100 |                 usart1_send(&binToHex_high(SciBuf[i]),1); //以字符形式发送高4位对应的16进制
+      |                              ^
+../Device/Src/TSL1401.c(100): error: cannot take the address of an rvalue of type 'int'
+  100 |                 usart1_send(&binToHex_high(SciBuf[i]),1); //以字符形式发送高4位对应的16进制
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~
+../Device/Src/TSL1401.c(101): error: call to undeclared function 'binToHex_low'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  101 |                 usart1_send(&binToHex_low(SciBuf[i]),1);  //以字符形式发送低4位对应的16进制:
+      |                              ^
+../Device/Src/TSL1401.c(101): error: cannot take the address of an rvalue of type 'int'
+  101 |                 usart1_send(&binToHex_low(SciBuf[i]),1);  //以字符形式发送低4位对应的16进制:
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~
+../Device/Src/TSL1401.c(104): warning: passing 'char[3]' to parameter of type 'uint8_t *' (aka 'unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+  104 |     usart1_send("00",2);   //通信协议要求
+      |                 ^~~~
+../Device/Src/TSL1401.c(73): note: passing argument to parameter 'data' here
+   73 | void usart1_send(uint8_t *data,uint8_t len)
+      |                           ^
+../Device/Src/TSL1401.c(105): warning: passing 'char[2]' to parameter of type 'uint8_t *' (aka 'unsigned char *') converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+  105 |         usart1_send("#",1);    //通信协议要求
+      |                     ^~~
+../Device/Src/TSL1401.c(73): note: passing argument to parameter 'data' here
+   73 | void usart1_send(uint8_t *data,uint8_t len)
+      |                           ^
+../Device/Src/TSL1401.c(186): error: conflicting types for 'binToHex_low'
+  186 |  char binToHex_low(u8 num)
+      |       ^
+../Device/Src/TSL1401.c(101): note: previous implicit declaration is here
+  101 |                 usart1_send(&binToHex_low(SciBuf[i]),1);  //以字符形式发送低4位对应的16进制:
+      |                              ^
+../Device/Src/TSL1401.c(235): error: conflicting types for 'binToHex_high'
+  235 |  char binToHex_high(u8 num)
+      |       ^
+../Device/Src/TSL1401.c(100): note: previous implicit declaration is here
+  100 |                 usart1_send(&binToHex_high(SciBuf[i]),1); //以字符形式发送高4位对应的16进制
+      |                              ^
+4 warnings and 7 errors generated.
+compiling TSL1401.c...
+"origin\origin.axf" - 7 Error(s), 6 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: ARM
+                https://www.keil.com/pack/ARM.CMSIS.6.1.0.pack
+                ARM::CMSIS@6.1.0
+                CMSIS (Common Microcontroller Software Interface Standard)
+   * Component: CORE Version: 6.1.0
+
+Package Vendor: Keil
+                https://www.keil.com/pack/Keil.STM32G4xx_DFP.1.6.0.pack
+                Keil::STM32G4xx_DFP@1.6.0
+                STMicroelectronics STM32G4 Series Device Support, Drivers and Examples
+
+<h2>Collection of Component include folders:</h2>
+  ./RTE/_origin
+  D:/keil/Pack/ARM/CMSIS/6.1.0/CMSIS/Core/Include
+  D:/keil/Pack/Keil/STM32G4xx_DFP/1.6.0/Drivers/CMSIS/Device/ST/STM32G4xx/Include
+
+<h2>Collection of Component Files used:</h2>
+
+   * Component: ARM::CMSIS:CORE@6.1.0
+      Include file:  CMSIS/Core/Include/tz_context.h
+Target not created.
+Build Time Elapsed:  00:00:01
+</pre>
+</body>
+</html>
