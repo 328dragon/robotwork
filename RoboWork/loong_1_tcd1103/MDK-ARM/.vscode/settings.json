@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "tcd1103.h": "c",
+        "limits": "c"
+    }
+}

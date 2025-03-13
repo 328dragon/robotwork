@@ -87,6 +87,7 @@ void DriveMotors(int16_t l, int16_t r)
     HAL_GPIO_WritePin(PH1_GPIO_Port, PH1_Pin, (GPIO_PinState)(l >= 0));
     __HAL_TIM_SetCompare(&htim2, TIM_CHANNEL_1, l > 0 ? l : (0 - l));
     HAL_GPIO_WritePin(PH2_GPIO_Port, PH2_Pin, (GPIO_PinState)(r >= 0));
+		
     __HAL_TIM_SetCompare(&htim2, TIM_CHANNEL_2, r > 0 ? r : (0 - r));
 }
 
@@ -272,8 +273,11 @@ int main(void)
             _min = min(_min, ccd_data[i]);
         }
         avg = sum / 128;
+				
+				
         OLED_ShowChart(ccd_data, 1, 1700, (_max * 7 + _min) / 8);
         FindLines(&l, &r, ccd_data, 500, &l_w, &r_w);
+				
         HAL_GPIO_WritePin(BUZZ_GPIO_Port, BUZZ_Pin, r_w > 50);
         if (r_w > 50 && HAL_GetTick() - stop_line_flag >= 500)
         {
