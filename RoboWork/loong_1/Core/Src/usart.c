@@ -356,14 +356,14 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 }
 
 /* USER CODE BEGIN 1 */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+	 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-    if (huart->Instance == USART3)
+ if (huart->Instance == USART3)
     {
 
         static uint8_t i = 0;
         static uint8_t j = 0; //
-        HAL_UART_Receive_IT(&huart3, &RxData, 1);
+        HAL_UART_Receive_IT(&huart3 ,&RxData, 1);
         if (RxData == '+')
             j = 1;
         if (RxData == '\r')

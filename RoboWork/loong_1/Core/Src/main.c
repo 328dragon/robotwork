@@ -50,16 +50,18 @@
 
 /* Private variables ---------------------------------------------------------*/
 
-
-
-uint8_t  ir_x[8] ;
-uint8_t delay_50,delay_flag,Bi_zhang=0,PID_Send,Flash_Send; //延时和调参等变量
+/* USER CODE BEGIN PV */
+uint16_t ccd_rawdata[1546]; // 储存CCD接收的原始数
+uint16_t ccd_data[128];     // 储存平均后的CCD数据
+uint32_t icg_flag;
+	 
+	 uint8_t  ir_x[8] ;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-void delay_us(uint32_t us)
+	 void delay_us(uint32_t us)
 {
     uint32_t delay = (HAL_RCC_GetHCLKFreq() / 4000000 * us);
     while (delay--)
@@ -68,14 +70,12 @@ void delay_us(uint32_t us)
     }
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	 	if(htim == &htim6)
-	{
-		Flag_Target=!Flag_Target;
-		if(Flag_Target)	RD_TSL();                           		 //===读取线性CCD数据 
-		Find_CCD_Zhongzhi();			          		 //===提取中线 
-	}
+  if (htim->Instance == htim6.Instance)
+    {
+
+    }
 
 
 }
@@ -135,25 +135,25 @@ int main(void)
   MX_SPI4_Init();
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
-    //tim1是给两个普通直流电机的，tim3是编码器1，tim5是编码器2，tim2只用于普通定时（利用中断）
-    //tim6是给ccd用，tim8和tim4是用于输出pwm  配置：340-1，10000-1
+	//tim1是给两个普通直流电机的，tim3是编码器1，tim5是编码器2，tim2只用于普通定时（利用中断）
+	//tim6是给ccd用，tim8和tim4是用于输出pwm  配置：340-1，10000-1
 //  中断开启
-    HAL_TIM_Base_Start_IT(&htim2);
-    HAL_TIM_Base_Start_IT(&htim6);
+HAL_TIM_Base_Start_IT(&htim2);
+HAL_TIM_Base_Start_IT(&htim6);
 //
-    HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
-    HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_2);
-    HAL_TIM_Encoder_Start(&htim3,TIM_CHANNEL_ALL);
-    HAL_TIM_Encoder_Start(&htim5,TIM_CHANNEL_ALL);
+HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
+HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_2);
+HAL_TIM_Encoder_Start(&htim3,TIM_CHANNEL_ALL);
+HAL_TIM_Encoder_Start(&htim5,TIM_CHANNEL_ALL);
 //舵机
-    HAL_TIM_PWM_Start(&htim8,TIM_CHANNEL_4);
-    HAL_TIM_PWM_Start(&htim8,TIM_CHANNEL_3);
-    HAL_TIM_PWM_Start(&htim8,TIM_CHANNEL_2);
-    HAL_TIM_PWM_Start(&htim8,TIM_CHANNEL_1);
-    HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_4);
-    HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_3);
-    HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_2);
-    HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_1);
+ HAL_TIM_PWM_Start(&htim8,TIM_CHANNEL_4);
+HAL_TIM_PWM_Start(&htim8,TIM_CHANNEL_3);
+ HAL_TIM_PWM_Start(&htim8,TIM_CHANNEL_2);
+HAL_TIM_PWM_Start(&htim8,TIM_CHANNEL_1);
+ HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_4);
+HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_3);
+ HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_2);
+HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_1);
 //灰度配置
 //  set_adjust_mode(1);
 //  HAL_Delay(500);
@@ -161,48 +161,40 @@ int main(void)
 //  set_adjust_mode(0);
 //  HAL_Delay(500);
 
-    //tcs230配置
-    HAL_UART_Receive_IT(&huart3, &RxData, 1);
+ //tcs230配置 
+  HAL_UART_Receive_IT(&huart3, &RxData, 1);
 
-    printf("AT+LIGHT+ON\r\n");
-    printf("AT+LIGHT+ON\r\n");
-    printf("AT+LIGHT+ON\r\n");
-    printf("AT+LIGHT+ON\r\n");
-    printf("AT+LIGHT+ON\r\n");
-    printf("AT+LIGHT+ON\r\n");
-    //普通电机配置
-    speed_left = 0;
-    speed_right = 0;
-    speed_all = 0;
+  printf("AT+LIGHT+ON\r\n");
+  printf("AT+LIGHT+ON\r\n");
+  printf("AT+LIGHT+ON\r\n");
+  printf("AT+LIGHT+ON\r\n");
+  printf("AT+LIGHT+ON\r\n");
+  printf("AT+LIGHT+ON\r\n");
+	//普通电机配置
+	   speed_left = 0;
+  speed_right = 0;
+  speed_all = 0;
+	
+	  PID_struct_init(&pid_left, POSITION_PID, 950, 950, 50, 0, 0);
+  PID_struct_init(&pid_right, POSITION_PID, 950, 950, 50, 0, 0);
+	
+	// //灰度循迹配置
+  // set_adjust_mode(1);
+  // HAL_Delay(500);
 
-    PID_struct_init(&pid_left, POSITION_PID, 950, 950, 50, 0, 0);
-    PID_struct_init(&pid_right, POSITION_PID, 950, 950, 50, 0, 0);
-
-    ////灰度循迹配置
-    // set_adjust_mode(1);
-    // HAL_Delay(500);
-
-    // set_adjust_mode(0);
-    // HAL_Delay(500);
-
-		int debug=0;
-			char t[128];
-			sprintf(t,"%d,%d\r\t",CCD_Zhongzhi,CCD_Yuzhi);	
-   
+  // set_adjust_mode(0);
+  // HAL_Delay(500);	
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-    while (1)
-    {
+  while (1)
+  {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-				sprintf(t,"%d,%d\r\n",CCD_Zhongzhi,CCD_Yuzhi);	
-        HAL_UART_Transmit(&huart1, t,strlen(t),100);		
-			 HAL_Delay(100);
-    }
+  }
   /* USER CODE END 3 */
 }
 
@@ -262,11 +254,11 @@ void SystemClock_Config(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-    /* User can add his own implementation to report the HAL error return state */
-    __disable_irq();
-    while (1)
-    {
-    }
+  /* User can add his own implementation to report the HAL error return state */
+  __disable_irq();
+  while (1)
+  {
+  }
   /* USER CODE END Error_Handler_Debug */
 }
 
@@ -281,8 +273,8 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
-    /* User can add his own implementation to report the file name and line number,
-       ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  /* User can add his own implementation to report the file name and line number,
+     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */

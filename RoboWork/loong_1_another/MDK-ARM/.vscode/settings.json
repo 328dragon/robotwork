@@ -1,9 +1,0 @@
-{
-    "files.associations": {
-        "tsl1401.h": "c",
-        "usart.h": "c",
-        "gpio.h": "c",
-        "tim.h": "c",
-        "main.h": "c"
-    }
-}
