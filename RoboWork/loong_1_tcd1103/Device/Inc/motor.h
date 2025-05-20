@@ -7,7 +7,8 @@
 #include "stm32g4xx_hal.h"  
 #include "tim.h"
 #define abs(a) (a>0)?(a):(-a)
-#define sp_motor_speed  20
+#define sp_motor_speed  200
+
 #define sp_motor_on    HAL_GPIO_WritePin(ENA_GPIO_Port,ENA_Pin,1)
 #define sp_motor_off     HAL_GPIO_WritePin(ENA_GPIO_Port,ENA_Pin,0)
 
@@ -48,8 +49,8 @@ extern int  encoder_1_flag;
 extern int encoder_2_flag;
 
 
-extern int16_t Encode_L;
-extern int16_t Encode_R;
+extern int32_t Encode_L;
+extern int32_t Encode_R;
 extern int turn_flag;
 
 

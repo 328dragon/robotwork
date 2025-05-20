@@ -31,7 +31,8 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "string.h"
+#include "stdio.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -91,6 +92,8 @@ void Error_Handler(void);
 #include "bsp_IR_i2c.h"
 #include "stdio.h"
 #include "tcd1103.h"
+#include "bsp_IR_i2c.h"
+extern char huidu[128];
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

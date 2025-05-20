@@ -34,4 +34,4 @@ origin/bsp_ir_i2c.o: ..\BSP\Src\bsp_IR_i2c.c ..\BSP\Inc\bsp_IR_i2c.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_uart.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_uart_ex.h \
   ..\Device\Inc\motor.h ..\Core\Inc\tim.h ..\BSP\Inc\pid.h \
-  ..\Device\Inc\tcd1103.h ..\Core\Inc\adc.h
+  ..\Device\Inc\tcd1103.h ..\Core\Inc\adc.h ..\Core\Inc\i2c.h

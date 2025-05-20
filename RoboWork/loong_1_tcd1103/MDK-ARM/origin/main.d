@@ -35,6 +35,6 @@ origin/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_uart_ex.h \
   ..\Device\Inc\motor.h ..\Core\Inc\tim.h ..\BSP\Inc\pid.h \
   ..\BSP\Inc\bsp_IR_i2c.h ..\Device\Inc\tcd1103.h ..\Core\Inc\adc.h \
-  ..\Core\Inc\dma.h ..\Core\Inc\fdcan.h ..\Core\Inc\i2c.h \
+  ..\Core\Inc\i2c.h ..\Core\Inc\dma.h ..\Core\Inc\fdcan.h \
   ..\Core\Inc\i2s.h ..\Core\Inc\spi.h ..\Core\Inc\usart.h \
   ..\Core\Inc\gpio.h

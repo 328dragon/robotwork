@@ -34,4 +34,5 @@ origin/stm32g4xx_hal_msp.o: ..\Core\Src\stm32g4xx_hal_msp.c \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_uart.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_uart_ex.h \
   ..\Device\Inc\motor.h ..\Core\Inc\tim.h ..\BSP\Inc\pid.h \
-  ..\BSP\Inc\bsp_IR_i2c.h ..\Device\Inc\tcd1103.h ..\Core\Inc\adc.h
+  ..\BSP\Inc\bsp_IR_i2c.h ..\Device\Inc\tcd1103.h ..\Core\Inc\adc.h \
+  ..\Core\Inc\i2c.h

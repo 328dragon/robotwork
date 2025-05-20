@@ -18,8 +18,8 @@ int turn_flag;
 float pid_L;
 float pid_R;
 
-int16_t Encode_L;
-int16_t Encode_R;
+int32_t Encode_L;
+int32_t Encode_R;
 
 //步进电机底层转动多少
 void step_move(uint32_t step,int  direction) {
@@ -99,29 +99,29 @@ void set_motor_pwm(int motor_left,int motor_right)
 //左电机 HTIM5 TIM_CHANNEL1
     if(motor_left>=0)
     {
-       motor1_front;
-
+      
+motor1_back;
         __HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_1,motor_left);
 
 
     }
     else
     {
-       motor1_back;
-
+        
+motor1_front;
         __HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_1, -motor_left);
 
     }
 //右电机  HTIM5 TIM_CHANNEL2
     if(motor_right>=0)
     {
-       motor2_front;
-
+ motor2_back;
         __HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_2,motor_right);
 
 
     } else {
-       motor2_back;
+      
+           motor2_front; 
         __HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_2, -motor_right);
 
     }

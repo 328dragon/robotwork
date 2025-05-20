@@ -1,0 +1,93 @@
+<html>
+<body>
+<pre>
+<h1>礦ision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: μVision V5.40.0.0
+Copyright (C) 2024 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: df df, dff, LIC=9WSKC-7ZRYP-Z9IG9-48KJ6-WNZ0F-6SAIC
+ 
+Tool Versions:
+Toolchain:       MDK-ARM Plus  Version: 5.40.0.3
+Toolchain Path:  D:\keil\MDK\ARM\ARMCLANG\Bin
+C Compiler:      ArmClang.exe V6.22
+Assembler:       Armasm.exe V6.22
+Linker/Locator:  ArmLink.exe V6.22
+Library Manager: ArmAr.exe V6.22
+Hex Converter:   FromElf.exe V6.22
+CPU DLL:         SARMCM3.DLL V5.40.0.3
+Dialog DLL:      DCM.DLL V1.17.5.0
+Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V3.3.0.0
+Dialog DLL:      TCM.DLL V1.56.4.0
+ 
+<h2>Project:</h2>
+D:\stmproject\dragonproject\contest\robotwork\八路灰度STM32上位机源码\I2C\keil\IR_I2C_Test\MDK-ARM\IR_I2C_Test.uvprojx
+Project File Date:  03/20/2025
+
+<h2>Output:</h2>
+*** Using Compiler 'V6.22', folder: 'D:\keil\MDK\ARM\ARMCLANG\Bin'
+Rebuild target 'IR_I2C_Test'
+compiling usart.c...
+compiling stm32f1xx_it.c...
+assembling startup_stm32f103xb.s...
+compiling gpio.c...
+compiling i2c.c...
+compiling stm32f1xx_hal_gpio_ex.c...
+compiling stm32f1xx_hal_msp.c...
+compiling stm32f1xx_hal.c...
+compiling stm32f1xx_hal_rcc_ex.c...
+compiling main.c...
+compiling stm32f1xx_hal_dma.c...
+compiling stm32f1xx_hal_gpio.c...
+compiling stm32f1xx_hal_cortex.c...
+compiling stm32f1xx_hal_rcc.c...
+compiling stm32f1xx_hal_pwr.c...
+compiling stm32f1xx_hal_flash.c...
+compiling stm32f1xx_hal_flash_ex.c...
+compiling stm32f1xx_hal_exti.c...
+compiling stm32f1xx_hal_tim.c...
+compiling stm32f1xx_hal_tim_ex.c...
+compiling system_stm32f1xx.c...
+../BSP/bsp_usart.c(10): error: '#pragma import' is an Arm Compiler 5 extension, and is not supported by Arm Compiler for Embedded 6 [-Warmcc-pragma-import]
+   10 | #pragma import(__use_no_semihosting)             
+      |         ^
+../BSP/bsp_usart.c(12): error: redefinition of '__FILE'
+   12 | struct __FILE 
+      |        ^
+D:\keil\MDK\ARM\ARMCLANG\bin\..\include\stdio.h(119): note: previous definition is here
+  119 | struct __FILE {
+      |        ^
+2 errors generated.
+compiling bsp_usart.c...
+compiling bsp_IR_i2c.c...
+compiling stm32f1xx_hal_uart.c...
+compiling stm32f1xx_hal_i2c.c...
+"..\OBJ\IR_I2C_Test.axf" - 2 Error(s), 0 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: ARM
+                https://www.keil.com/pack/ARM.CMSIS.6.1.0.pack
+                ARM::CMSIS@6.1.0
+                CMSIS (Common Microcontroller Software Interface Standard)
+   * Component: CORE Version: 6.1.0
+
+Package Vendor: Keil
+                https://www.keil.com/pack/Keil.STM32F1xx_DFP.2.4.1.pack
+                Keil::STM32F1xx_DFP@2.4.1
+                STMicroelectronics STM32F1 Series Device Support, Drivers and Examples
+
+<h2>Collection of Component include folders:</h2>
+  ./RTE/_IR_I2C_Test
+  D:/keil/Pack/ARM/CMSIS/6.1.0/CMSIS/Core/Include
+  D:/keil/Pack/Keil/STM32F1xx_DFP/2.4.1/Device/Include
+
+<h2>Collection of Component Files used:</h2>
+
+   * Component: ARM::CMSIS:CORE@6.1.0
+      Include file:  CMSIS/Core/Include/tz_context.h
+Target not created.
+Build Time Elapsed:  00:00:01
+</pre>
+</body>
+</html>

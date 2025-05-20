@@ -1,4 +1,5 @@
 #include "tcd1103.h"
+
 uint16_t ccd_rawdata[1546]; // 储存CCD接收的原始数�???????????
 uint16_t ccd_data[128];     // 储存平均后的CCD数据
 uint32_t icg_flag, stop_line_flag;

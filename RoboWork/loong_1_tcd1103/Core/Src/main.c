@@ -167,8 +167,9 @@ int main(void)
   MX_TIM6_Init();
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
+	//以下是定时器占用说明
 	//tim1是给两个普通直流电机的，tim3是编码器1，tim5是编码器2，tim2只用于普通定时（利用中断）
-	//tim6是给ccd的SH用，tim8是用于输出pwm给ccd的M tim4是用来给舵机用的  配置：340-1，10000-1
+	//tim6是给ccd的SH用，tim7是用来adc触发的  tim8是用于输出pwm给ccd的M tim4是用来给舵机用的  配置：340-1，10000-1
 //  中断开启
 HAL_TIM_Base_Start_IT(&htim2);
 HAL_TIM_Base_Start_IT(&htim6);
@@ -208,17 +209,29 @@ HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_1);
 	speed_left = 0;
   speed_right = 0;
   speed_all = 0;
-	
-	PID_struct_init(&pid_left, POSITION_PID, 950, 950, 50, 0, 0);
-  PID_struct_init(&pid_right, POSITION_PID, 950, 950, 50, 0, 0);
+	PID_struct_init(&pid_left, POSITION_PID, 950, 700, 50, 0.5, 0);
+  PID_struct_init(&pid_right, POSITION_PID, 950, 700, 50, 0.5, 0);
 	
 //ccd
+int debug=0;
 __HAL_TIM_SetCompare(&htim8,TIM_CHANNEL_1,60);
 
-//调试
-char t[128];
-sprintf(t,"l_w=%d,r_w=%d",l_w,r_w);
+ //舵机 ，定时器4：通道3给钩子舵机，通道1，2给圆筒舵机，
+ __HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_3,580);//580最上面到1050最下面
+ int pw_servos=0;
+	__HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_1,1000);
 
+ __HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_2,1000);
+
+//调试
+char t[12];
+sprintf(t,"l_w=%d,r_w=%d",l_w,r_w);
+pid_left.set=15;
+pid_right.set=15;
+char enc[128];
+
+step_move(3200,1);
+  // set_motor_pwm(200,200);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -230,23 +243,40 @@ sprintf(t,"l_w=%d,r_w=%d",l_w,r_w);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    int32_t sum = 0;
-    _max = 0, _min = 65535;
-    for (int i = 0; i < 128; i++)
-    {
-        int32_t data = 0;
-        for (int j = 0; j < 8; j++)
-            data += (ccd_rawdata[272 + i * 8 + j] - 380);
-        ccd_data[i] = (data / 8);
-        sum += ccd_data[i];
-        _max = max(_max, ccd_data[i]);
-        _min = min(_min, ccd_data[i]);
-    }
-    avg = sum / 128;
+//pw_servos=500;
+//__HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_1,pw_servos);
+//__HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_2,pw_servos);		
+//pw_servos=900;
+//HAL_Delay(1000);
+//__HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_1,pw_servos);
+//__HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_2,pw_servos);
+//HAL_Delay(1000);
 		
-   FindLines(&l, &r, ccd_data, 500, &l_w, &r_w); 
-//		sprintf(t,"l_w=%d,r_w=%d",l_w,r_w);
-//		
+//  sprintf(enc,"%ld\r\n",Encode_L);
+//  HAL_UART_Transmit(&huart1,(uint8_t*)enc,strlen(enc),HAL_MAX_DELAY);
+		
+		deal_IRdata(&ir_x1,&ir_x2,&ir_x3,&ir_x4,&ir_x5,&ir_x6,&ir_x7,&ir_x8);
+	
+		sprintf(huidu,"%d,%d,%d,%d,%d,%d,%d,%d\r\t",ir_x1,ir_x2,ir_x3,ir_x4,ir_x5,ir_x6,ir_x7,ir_x8);
+  HAL_UART_Transmit(&huart1,(uint8_t*)huidu,strlen(huidu),HAL_MAX_DELAY);
+	HAL_Delay(300);	
+//    int32_t sum = 0;
+//    _max = 0, _min = 65535;
+//    for (int i = 0; i < 128; i++)
+//    {
+//        int32_t data = 0;
+//        for (int j = 0; j < 8; j++)
+//            data += (ccd_rawdata[272 + i * 8 + j] - 380);
+//        ccd_data[i] = (data / 8);
+//        sum += ccd_data[i];
+//        _max = max(_max, ccd_data[i]);
+//        _min = min(_min, ccd_data[i]);
+//    }
+//    avg = sum / 128;
+		
+//   FindLines(&l, &r, ccd_data, 500, &l_w, &r_w); 
+////		sprintf(t,"l_w=%d,r_w=%d",l_w,r_w);
+////		
 //HAL_UART_Transmit(&huart1,t,strlen(t),50);
 //HAL_Delay(100);		
   }

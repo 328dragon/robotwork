@@ -220,11 +220,44 @@ void DMA1_Channel1_IRQHandler(void)
 void TIM2_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM2_IRQn 0 */
-
+  Read_Encoder();
   /* USER CODE END TIM2_IRQn 0 */
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */
 
+	 ////固定距离
+    if(encoder_1_flag==1)
+    {
+        if(dest_distance>=0) {
+            if((encoder_1_distance>=dest_distance)||(encoder_2_distance>=dest_distance)) {
+                encoder_1_distance=0;
+                encoder_2_distance=0;
+                set_motor_pwm(0,0);
+                speed_all = 0;
+                encoder_1_flag=0;
+            }
+        } else if(dest_distance<0) {
+            if((encoder_1_distance<=dest_distance)&&(encoder_2_distance<=dest_distance)) {
+                encoder_1_distance=0;
+                encoder_2_distance=0;
+                set_motor_pwm(0,0);
+                speed_all = 0;
+                encoder_1_flag=0;
+            }
+        }
+        encoder_1_distance+=Encode_L;
+        encoder_2_distance+=Encode_R;
+
+    }
+//	//确定速度(pid)
+//循迹
+//    See_Gray_F();//看一次当前状态
+//    See_Gray_B();
+//    Gray_Speed();//获得对应速度
+
+   pid_L=pid_calc(&pid_left,Encode_L,pid_left.set);
+   pid_R=pid_calc(&pid_right,Encode_R,pid_right.set);
+   set_motor_pwm(pid_L,pid_R);
   /* USER CODE END TIM2_IRQn 1 */
 }
 
