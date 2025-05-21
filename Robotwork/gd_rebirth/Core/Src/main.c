@@ -18,6 +18,8 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
+#include "dma.h"
 #include "fdcan.h"
 #include "i2c.h"
 #include "usart.h"
@@ -92,13 +94,13 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_FDCAN1_Init();
   MX_FDCAN2_Init();
   MX_FDCAN3_Init();
   MX_I2C1_Init();
   MX_I2C2_Init();
   MX_I2C3_Init();
-  MX_I2C4_Init();
   MX_LPUART1_UART_Init();
   MX_UART5_Init();
   MX_USART1_UART_Init();
@@ -111,6 +113,19 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM5_Init();
   MX_USB_PCD_Init();
+  MX_SPI4_Init();
+  MX_TIM2_Init();
+  MX_TIM4_Init();
+  MX_TIM8_Init();
+  MX_ADC3_Init();
+  MX_TIM6_Init();
+  MX_TIM7_Init();
+  MX_TIM15_Init();
+  MX_TIM16_Init();
+  MX_TIM17_Init();
+  MX_TIM20_Init();
+  MX_ADC4_Init();
+  MX_I2C4_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
