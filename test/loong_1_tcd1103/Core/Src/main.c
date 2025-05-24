@@ -217,7 +217,7 @@ int debug=0;
 __HAL_TIM_SetCompare(&htim8,TIM_CHANNEL_1,60);
 
  //舵机 ，定时器4：通道3给钩子舵机，通道1，2给圆筒舵机，
- __HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_3,580);//580最上面到1050最下面
+ __HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_3,1050);//580最上面到1050最下面
  int pw_servos=0;
 	__HAL_TIM_SetCompare(&htim4,TIM_CHANNEL_1,1000);
 
