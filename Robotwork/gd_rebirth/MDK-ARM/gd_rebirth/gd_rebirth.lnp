@@ -41,6 +41,13 @@
 "gd_rebirth\stm32g4xx_hal_pcd_ex.o"
 "gd_rebirth\stm32g4xx_ll_usb.o"
 "gd_rebirth\system_stm32g4xx.o"
+"gd_rebirth\bsp_fdcan.o"
+"gd_rebirth\dc_motor.o"
+"gd_rebirth\pid.o"
+"gd_rebirth\encoder.o"
+"gd_rebirth\dm_j4310.o"
+"gd_rebirth\tcd1103.o"
+"gd_rebirth\tcs230.o"
 --strict --scatter "gd_rebirth\gd_rebirth.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2025 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2025 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -30,7 +30,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "dm_j4310.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -124,7 +124,22 @@ int main(void)
   MX_ADC4_Init();
   MX_I2C4_Init();
   /* USER CODE BEGIN 2 */
-
+	 
+  HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, 0);
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+  HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
+  HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
+//测试板子fdcan代码
+//  	  DM_4310_Register(&hfdcan2, 0x01, 0x00, pos_vel_mode);
+// 			DM_4310_Register(&hfdcan2, 0x02, 0x03, pos_vel_mode);
+//   Enable_DM(DM_J4310_instnce[0]);
+//  	HAL_Delay(10);
+//  	  Enable_DM(DM_J4310_instnce[1]);
+// 	 DM_J4310_instnce[0]->dm_controller_instance.P_des=0;
+//	 DM_J4310_instnce[0]->dm_controller_instance.V_des=6;
+// 	 	 DM_J4310_instnce[1]->dm_controller_instance.P_des=0;
+// 	 DM_J4310_instnce[1]->dm_controller_instance.V_des=6;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -134,6 +149,10 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+//		       HAL_Delay(10);
+// 		Control_DM( DM_J4310_instnce[0]);
+//   		Control_DM( DM_J4310_instnce[1]);
+//   HAL_Delay(10);
   }
   /* USER CODE END 3 */
 }
