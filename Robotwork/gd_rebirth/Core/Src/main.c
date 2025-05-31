@@ -131,6 +131,7 @@ int main(void)
   HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
 //测试板子fdcan代码
+
 //  	  DM_4310_Register(&hfdcan2, 0x01, 0x00, pos_vel_mode);
 // 			DM_4310_Register(&hfdcan2, 0x02, 0x03, pos_vel_mode);
 //   Enable_DM(DM_J4310_instnce[0]);

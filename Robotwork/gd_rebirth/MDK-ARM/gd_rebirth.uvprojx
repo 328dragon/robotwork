@@ -341,7 +341,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32G473xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32G4xx_HAL_Driver/Inc;../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32G4xx/Include;../Drivers/CMSIS/Include;../mcu_bsp/fdcan;..\mcu_bsp\Motor;..\Device;..\Task;..\mcu_bsp\system_controller;..\mcu_bsp\Encoder</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32G4xx_HAL_Driver/Inc;../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32G4xx/Include;../Drivers/CMSIS/Include;../mcu_bsp/fdcan;..\mcu_bsp\Motor;..\Device;..\Task;..\mcu_bsp\system_controller;..\mcu_bsp\Encoder;..\mcu_bsp\IMU</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -912,6 +912,11 @@
               <FileName>tcs230.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Device\tcs230.c</FilePath>
+            </File>
+            <File>
+              <FileName>icm_42688.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\mcu_bsp\IMU\icm_42688.c</FilePath>
             </File>
           </Files>
         </Group>

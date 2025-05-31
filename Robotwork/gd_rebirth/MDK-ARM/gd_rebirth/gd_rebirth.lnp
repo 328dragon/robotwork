@@ -48,6 +48,7 @@
 "gd_rebirth\dm_j4310.o"
 "gd_rebirth\tcd1103.o"
 "gd_rebirth\tcs230.o"
+"gd_rebirth\icm_42688.o"
 --strict --scatter "gd_rebirth\gd_rebirth.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
