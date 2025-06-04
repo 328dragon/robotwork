@@ -30,7 +30,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+int goods_color=90;
 #include "dm_j4310.h"
+#include "tcs230.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -124,12 +126,32 @@ int main(void)
   MX_ADC4_Init();
   MX_I2C4_Init();
   /* USER CODE BEGIN 2 */
-	 
+
+//舵机配置
+
+	//电机配置 
   HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, 0);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
   HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
+	//颜色传感器添加完成
+	HAL_UART_Receive_IT(&huart1, &RxData, 1);
+
+  printf("AT+LIGHT+ON\r\n");
+  printf("AT+LIGHT+ON\r\n");
+  printf("AT+LIGHT+ON\r\n");
+  printf("AT+LIGHT+ON\r\n");
+  printf("AT+LIGHT+ON\r\n");
+  printf("AT+LIGHT+ON\r\n");
+
+//	 for (int  i = 0; i < 10; i++)
+// {
+//  goods_color=Color_Recognize();
+//HAL_Delay(200);
+// }
+//ccd配置
+
 //测试板子fdcan代码
 
 //  	  DM_4310_Register(&hfdcan2, 0x01, 0x00, pos_vel_mode);

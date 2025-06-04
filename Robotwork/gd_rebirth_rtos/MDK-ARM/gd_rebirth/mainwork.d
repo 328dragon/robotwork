@@ -49,4 +49,6 @@ gd_rebirth/mainwork.o: ..\Core\Src\mainwork.c ..\Core\Inc\mainwork.h \
   ..\Middlewares\Third_Party\FreeRTOS\Source\include\queue.h \
   ..\Middlewares\Third_Party\FreeRTOS\Source\include\semphr.h \
   ..\Middlewares\Third_Party\FreeRTOS\Source\include\event_groups.h \
-  ..\Core\Inc\usart.h
+  ..\Device\tcs230.h ..\Core\Inc\usart.h ..\Device\gray.h \
+  ..\Core\Inc\i2c.h ..\Device\gw_grayscale_sensor.h ..\Device\tcd1103.h \
+  ..\Core\Inc\adc.h

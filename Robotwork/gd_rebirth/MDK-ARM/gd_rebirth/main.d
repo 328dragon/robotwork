@@ -39,4 +39,5 @@ gd_rebirth/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\Core\Inc\i2c.h ..\Core\Inc\usart.h ..\Core\Inc\spi.h \
   ..\Core\Inc\tim.h ..\Core\Inc\usb.h ..\Core\Inc\gpio.h \
   ..\mcu_bsp\Motor\dm_j4310.h ..\mcu_bsp\Motor\motor_def.h \
-  ..\mcu_bsp\fdcan\bsp_fdcan.h
+  ..\mcu_bsp\fdcan\bsp_fdcan.h ..\Device\tcs230.h \
+  ..\mcu_bsp\tools\delay.h

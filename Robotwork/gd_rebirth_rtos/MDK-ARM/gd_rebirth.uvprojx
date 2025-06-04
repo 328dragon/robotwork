@@ -191,7 +191,7 @@
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>0</useUlib>
+            <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <nSecure>0</nSecure>
@@ -395,6 +395,11 @@
         <Group>
           <GroupName>Application/User/Core</GroupName>
           <Files>
+            <File>
+              <FileName>mainwork.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\mainwork.c</FilePath>
+            </File>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
@@ -612,11 +617,6 @@
               <FileName>stm32g4xx_hal_msp.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/stm32g4xx_hal_msp.c</FilePath>
-            </File>
-            <File>
-              <FileName>mainwork.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\mainwork.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -978,6 +978,11 @@
               <FileName>icm_42688.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\mcu_bsp\IMU\icm_42688.c</FilePath>
+            </File>
+            <File>
+              <FileName>gray.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Device\gray.c</FilePath>
             </File>
           </Files>
         </Group>

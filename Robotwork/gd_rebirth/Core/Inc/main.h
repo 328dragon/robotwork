@@ -93,12 +93,10 @@ void Error_Handler(void);
 #define ICM_INT1_GPIO_Port GPIOB
 #define ccd_m1_Pin GPIO_PIN_6
 #define ccd_m1_GPIO_Port GPIOB
-#define LDE_B_Pin GPIO_PIN_7
-#define LDE_B_GPIO_Port GPIOB
-#define ccd_m2_Pin GPIO_PIN_8
-#define ccd_m2_GPIO_Port GPIOB
-#define icg_2_Pin GPIO_PIN_9
-#define icg_2_GPIO_Port GPIOB
+#define ICG_2_Pin GPIO_PIN_7
+#define ICG_2_GPIO_Port GPIOB
+#define cd_m2_Pin GPIO_PIN_9
+#define cd_m2_GPIO_Port GPIOB
 #define sh_2_Pin GPIO_PIN_0
 #define sh_2_GPIO_Port GPIOE
 

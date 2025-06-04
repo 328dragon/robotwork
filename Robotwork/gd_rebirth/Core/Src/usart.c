@@ -21,7 +21,7 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "tcs230.h"
 /* USER CODE END 0 */
 
 UART_HandleTypeDef hlpuart1;
@@ -85,7 +85,7 @@ void MX_USART1_UART_Init(void)
 
   /* USER CODE END USART1_Init 1 */
   huart1.Instance = USART1;
-  huart1.Init.BaudRate = 115200;
+  huart1.Init.BaudRate = 9600;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
   huart1.Init.StopBits = UART_STOPBITS_1;
   huart1.Init.Parity = UART_PARITY_NONE;
@@ -274,6 +274,9 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
+    /* USART1 interrupt Init */
+    HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(USART1_IRQn);
   /* USER CODE BEGIN USART1_MspInit 1 */
 
   /* USER CODE END USART1_MspInit 1 */
@@ -383,6 +386,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
     */
     HAL_GPIO_DeInit(GPIOC, GPIO_PIN_4|GPIO_PIN_5);
 
+    /* USART1 interrupt Deinit */
+    HAL_NVIC_DisableIRQ(USART1_IRQn);
   /* USER CODE BEGIN USART1_MspDeInit 1 */
 
   /* USER CODE END USART1_MspDeInit 1 */
@@ -426,5 +431,54 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 }
 
 /* USER CODE BEGIN 1 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+ if (huart->Instance == USART1)
+    {
 
+        static uint8_t i = 0;
+        static uint8_t j = 0; //
+        HAL_UART_Receive_IT(&huart1 ,&RxData, 1);
+        if (RxData == '+')
+            j = 1;
+        if (RxData == '\r')
+        {
+            tcs_string[i] = '\0';
+            i = 0;
+            //length=0;
+            j = 0;
+
+            sscanf(tcs_string + 8, "R:%d G:%d B:%d", &red, &green, &blue);
+            {
+                R = red;
+                G = green;
+                B = blue;
+            }
+
+            RX_Flag = 1;
+        }
+        else
+        {
+            if (j)
+            {
+                tcs_string[i] = RxData;
+                i++;
+            }
+        }
+    }
+
+}
+
+int fputc(int ch, FILE *f)
+{
+    HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xffff);
+    return ch;
+}
+
+int fgetc(FILE *f)
+{
+    uint8_t ch = 0;
+    HAL_UART_Receive(&huart1, &ch, 1, 0xffff);
+    return ch;
+}
 /* USER CODE END 1 */

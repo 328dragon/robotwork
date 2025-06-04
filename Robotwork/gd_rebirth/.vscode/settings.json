@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "tcs230.h": "c",
+        "cstdint": "c",
+        "string.h": "c",
+        "delay.h": "c"
+    }
+}

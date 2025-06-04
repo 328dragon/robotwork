@@ -32,6 +32,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "dm_j4310.h"
+#include "mainwork.h"
+#include "tcd1103.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,13 +66,62 @@ void MX_FREERTOS_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+static uint32_t fac_us = 0; // us延时倍乘数
+void delay_us(uint32_t nus)
+{
+  uint32_t ticks;
+  uint32_t told, tnow, tcnt = 0;
+  uint32_t reload = SysTick->LOAD; // LOAD的值
+  ticks = nus * fac_us;            // 需要的节拍数
+  told = SysTick->VAL;             // 刚进入时的计数器值
+  while (1)
+  {
+    tnow = SysTick->VAL;
+    if (tnow != told)
+    {
+      if (tnow < told)
+        tcnt += told - tnow; // 这里注意一下SYSTICK是一个递减的计数器就可以了.
+      else
+        tcnt += reload - tnow + told;
+      told = tnow;
+      if (tcnt >= ticks)
+        break; // 时间超过/等于要延迟的时间,则退出.
+    }
+  };
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  if (htim->Instance == htim6.Instance)
+  {
+    if (HAL_GetTick() - icg_flag >= 10)
+    {
+      HAL_GPIO_WritePin(icg_1_GPIO_Port, icg_1_Pin, 1);
+      HAL_GPIO_WritePin(sh_1_GPIO_Port, sh_1_Pin, 0);
+      delay_us(2);
+      HAL_GPIO_WritePin(sh_1_GPIO_Port, sh_1_Pin, 1);
+      delay_us(4);
+      HAL_GPIO_WritePin(icg_1_GPIO_Port, icg_1_Pin, 0);
+      HAL_ADC_Start_DMA(&hadc3, (uint32_t *)ccd_rawdata, 1546);
+      icg_flag = HAL_GetTick();
+    }
+    else
+    {
+      HAL_GPIO_WritePin(sh_1_GPIO_Port, sh_1_Pin, 0);
+      delay_us(2);
+      HAL_GPIO_WritePin(sh_1_GPIO_Port, sh_1_Pin, 1);
+      delay_us(4);
+    }
+  }
+}
+
 
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
+ * @brief  The application entry point.
+ * @retval int
+ */
 int main(void)
 {
 
@@ -126,23 +177,27 @@ int main(void)
   MX_ADC4_Init();
   MX_I2C4_Init();
   /* USER CODE BEGIN 2 */
-	 
+
   HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, 0);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
   HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
-//测试板子fdcan代码
 
-//  	  DM_4310_Register(&hfdcan2, 0x01, 0x00, pos_vel_mode);
-// 			DM_4310_Register(&hfdcan2, 0x02, 0x03, pos_vel_mode);
-//   Enable_DM(DM_J4310_instnce[0]);
-//  	HAL_Delay(10);
-//  	  Enable_DM(DM_J4310_instnce[1]);
-// 	 DM_J4310_instnce[0]->dm_controller_instance.P_des=0;
-//	 DM_J4310_instnce[0]->dm_controller_instance.V_des=6;
-// 	 	 DM_J4310_instnce[1]->dm_controller_instance.P_des=0;
-// 	 DM_J4310_instnce[1]->dm_controller_instance.V_des=6;
+  HAL_TIM_Base_Start(&htim7);
+  __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_1, 60);
+  main_work();
+  // 测试板子fdcan代码
+
+  //  	  DM_4310_Register(&hfdcan2, 0x01, 0x00, pos_vel_mode);
+  // 			DM_4310_Register(&hfdcan2, 0x02, 0x03, pos_vel_mode);
+  //   Enable_DM(DM_J4310_instnce[0]);
+  //  	HAL_Delay(10);
+  //  	  Enable_DM(DM_J4310_instnce[1]);
+  // 	 DM_J4310_instnce[0]->dm_controller_instance.P_des=0;
+  //	 DM_J4310_instnce[0]->dm_controller_instance.V_des=6;
+  // 	 	 DM_J4310_instnce[1]->dm_controller_instance.P_des=0;
+  // 	 DM_J4310_instnce[1]->dm_controller_instance.V_des=6;
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in cmsis_os2.c) */
@@ -160,31 +215,31 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-//		       HAL_Delay(10);
-// 		Control_DM( DM_J4310_instnce[0]);
-//   		Control_DM( DM_J4310_instnce[1]);
-//   HAL_Delay(10);
+    //		       HAL_Delay(10);
+    // 		Control_DM( DM_J4310_instnce[0]);
+    //   		Control_DM( DM_J4310_instnce[1]);
+    //   HAL_Delay(10);
   }
   /* USER CODE END 3 */
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+ * @brief System Clock Configuration
+ * @retval None
+ */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Configure the main internal regulator output voltage
-  */
+   */
   HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1_BOOST);
 
   /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48|RCC_OSCILLATORTYPE_HSE;
+   * in the RCC_OscInitTypeDef structure.
+   */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
@@ -200,9 +255,8 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+   */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
@@ -219,9 +273,9 @@ void SystemClock_Config(void)
 /* USER CODE END 4 */
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -233,14 +287,14 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */

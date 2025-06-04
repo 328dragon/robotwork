@@ -341,7 +341,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32G473xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32G4xx_HAL_Driver/Inc;../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32G4xx/Include;../Drivers/CMSIS/Include;../mcu_bsp/fdcan;..\mcu_bsp\Motor;..\Device;..\Task;..\mcu_bsp\system_controller;..\mcu_bsp\Encoder;..\mcu_bsp\IMU</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32G4xx_HAL_Driver/Inc;../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32G4xx/Include;../Drivers/CMSIS/Include;../mcu_bsp/fdcan;../mcu_bsp/Motor;../Device;../Task;../mcu_bsp/system_controller;../mcu_bsp/Encoder;../mcu_bsp/IMU;..\mcu_bsp\tools</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -889,6 +889,11 @@
               <FileName>encoder.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\mcu_bsp\Encoder\encoder.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\mcu_bsp\tools\delay.c</FilePath>
             </File>
           </Files>
         </Group>

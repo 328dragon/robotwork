@@ -10,9 +10,14 @@
 #define green_value 0
 #define red_value 90
 #define black_value 135
+extern char tcs_string[40];
+extern  uint8_t R , G , B ;
+extern uint8_t RX_Flag;
+extern uint8_t RxData;
+extern uint32_t red, blue, green;
+
 extern uint8_t USARTData;//数据缓冲
 extern uint8_t USARTDataBag[6];//数据存储数组
-extern uint8_t RX_Flag;//数据包接受完成标志位
 
 uint8_t Color_Recognize(void);
 int Get_Color(void);

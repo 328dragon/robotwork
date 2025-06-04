@@ -1,7 +1,7 @@
 #include "tcs230.h"
  #include "string.h"
 #include <stdio.h>
-char string[40];
+char tcs_string[40];
 uint8_t R = 0, G = 0, B = 0;
 uint8_t RX_Flag;
 uint8_t RxData;
@@ -76,7 +76,6 @@ uint8_t Color_Recognize(void)
 		{
 			color = Get_Color();
 
-			//				return (Get_Color());
 
 			if (color != -1)
 				return color;	

@@ -1,5 +1,6 @@
 --cpu=Cortex-M4.fp.sp
 "gd_rebirth\startup_stm32g473xx.o"
+"gd_rebirth\mainwork.o"
 "gd_rebirth\main.o"
 "gd_rebirth\gpio.o"
 "gd_rebirth\app_freertos.o"
@@ -13,7 +14,6 @@
 "gd_rebirth\usb.o"
 "gd_rebirth\stm32g4xx_it.o"
 "gd_rebirth\stm32g4xx_hal_msp.o"
-"gd_rebirth\mainwork.o"
 "gd_rebirth\stm32g4xx_hal_adc.o"
 "gd_rebirth\stm32g4xx_hal_adc_ex.o"
 "gd_rebirth\stm32g4xx_ll_adc.o"
@@ -51,6 +51,7 @@
 "gd_rebirth\tcd1103.o"
 "gd_rebirth\tcs230.o"
 "gd_rebirth\icm_42688.o"
+"gd_rebirth\gray.o"
 "gd_rebirth\croutine.o"
 "gd_rebirth\event_groups.o"
 "gd_rebirth\list.o"
@@ -61,7 +62,7 @@
 "gd_rebirth\cmsis_os.o"
 "gd_rebirth\heap_4.o"
 "gd_rebirth\port.o"
---strict --scatter "gd_rebirth\gd_rebirth.sct"
+--library_type=microlib --strict --scatter "gd_rebirth\gd_rebirth.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
 --list "gd_rebirth.map" -o gd_rebirth\gd_rebirth.axf
