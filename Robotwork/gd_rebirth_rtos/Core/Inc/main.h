@@ -73,28 +73,14 @@ void Error_Handler(void);
 #define TFT_RS_GPIO_Port GPIOF
 #define spi1_cs_Pin GPIO_PIN_0
 #define spi1_cs_GPIO_Port GPIOB
-#define ccd_d1_Pin GPIO_PIN_1
-#define ccd_d1_GPIO_Port GPIOB
 #define spi4_cs_Pin GPIO_PIN_15
 #define spi4_cs_GPIO_Port GPIOE
-#define icg_1_Pin GPIO_PIN_14
-#define icg_1_GPIO_Port GPIOD
-#define sh_1_Pin GPIO_PIN_15
-#define sh_1_GPIO_Port GPIOD
 #define spi3_cs_Pin GPIO_PIN_15
 #define spi3_cs_GPIO_Port GPIOA
 #define LED_G_Pin GPIO_PIN_2
 #define LED_G_GPIO_Port GPIOD
 #define ICM_INT1_Pin GPIO_PIN_3
 #define ICM_INT1_GPIO_Port GPIOB
-#define ccd_m1_Pin GPIO_PIN_6
-#define ccd_m1_GPIO_Port GPIOB
-#define ICG_2_Pin GPIO_PIN_7
-#define ICG_2_GPIO_Port GPIOB
-#define ccd_m2_Pin GPIO_PIN_9
-#define ccd_m2_GPIO_Port GPIOB
-#define sh_2_Pin GPIO_PIN_0
-#define sh_2_GPIO_Port GPIOE
 
 /* USER CODE BEGIN Private defines */
 
