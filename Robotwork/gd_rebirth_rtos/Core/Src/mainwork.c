@@ -1,3 +1,4 @@
+
 // ​​Planner模块​​：负责轨迹规划，提供开环和闭环两种控制模式
 // ​​Controller模块​​：负责控制算法执行和电机控制
 // ​​Kinematic模块​​：负责运动学正逆解计算和里程计更新
@@ -31,7 +32,7 @@ TaskHandle_t gray_read_handle;       // 灰度传感器
 TaskHandle_t tcs230_read_handle;     // tcs230颜色传感器读取
 TaskHandle_t IMU_read_handle;        // IMU读取
 TaskHandle_t LCD_Show_handle;        // 显示
-TaskHandle_t tcd1103_read_handle; // tcd1103读取
+TaskHandle_t wheel_state_read_handle; // tcd1103读取
 void OnChassicControl(void *pvParameters);
 void OnPlannerUpdate(void *pvParameters);
 void Onmaincpp(void *pvParameters);
@@ -39,7 +40,7 @@ void IMU_Read_task(void *pvParameters);
 void LCD_Show_task(void *pvParameters);
 void tcs230_read_task(void *pvParameters);
 void gray_read_task(void *pvParameters);
-void tcd1103_read_task(void *pvParameters);
+void wheel_state_read_task(void *pvParameters);
 
 void main_work(void)
 { // 颜色传感器添加完成
@@ -59,7 +60,7 @@ void main_work(void)
     BaseType_t ok6 = xTaskCreate(LCD_Show_task, "LCD_Show_task", 200, NULL, 1, &LCD_Show_handle);
     BaseType_t ok7 = xTaskCreate(tcs230_read_task, "tcs230_read_task", 200, NULL, 2, &tcs230_read_handle);
     BaseType_t ok8 = xTaskCreate(gray_read_task, "gray_read_task", 200, NULL, 2, &gray_read_handle);
-	BaseType_t ok9 = xTaskCreate(tcd1103_read_task, "tcd1103_read_task", 200, NULL, 2, &tcd1103_read_handle);
+	BaseType_t ok9 = xTaskCreate(wheel_state_read_task, "wheel_state_read_task", 200, NULL, 2, &wheel_state_read_handle);
     if (ok2 != pdPASS || ok3 != pdPASS || ok4 != pdPASS || ok5 != pdPASS||ok6 !=pdPASS||ok7 != pdPASS||ok8 != pdPASS)
     {
         // 任务创建失败，进入死循环
@@ -71,26 +72,12 @@ void main_work(void)
 
 }
 
-void tcd1103_read_task(void *pvParameters)
+void wheel_state_read_task(void *pvParameters)
 {
 
     while(1)
     {
-	    int32_t sum = 0;
-    _max = 0, _min = 65535;
-    for (int i = 0; i < 128; i++)
-    {
-        int32_t data = 0;
-        for (int j = 0; j < 8; j++)
-            data += (ccd_rawdata[272 + i * 8 + j] - 380);
-        ccd_data[i] = (data / 8);
-        sum += ccd_data[i];
-        _max = max(_max, ccd_data[i]);
-        _min = min(_min, ccd_data[i]);
-    }
-    avg = sum / 128;
-		
-   FindLines(&l, &r, ccd_data, 500, &l_w, &r_w); 
+
 
         vTaskDelay(300);
     }
@@ -175,12 +162,14 @@ void IMU_Read_task(void *pvParameters)
 {
     while (1)
     {
-        vTaskDelay(10);
+        vTaskDelay(1000);
+
     }
 }
 
 void Onmaincpp(void *pvParameters)
 {
+
 
     while (1)
     {

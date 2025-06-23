@@ -66,55 +66,15 @@ void MX_FREERTOS_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-static uint32_t fac_us = 0; // us延时倍乘数
-void delay_us(uint32_t nus)
-{
-  uint32_t ticks;
-  uint32_t told, tnow, tcnt = 0;
-  uint32_t reload = SysTick->LOAD; // LOAD的值
-  ticks = nus * fac_us;            // 需要的节拍数
-  told = SysTick->VAL;             // 刚进入时的计数器值
-  while (1)
-  {
-    tnow = SysTick->VAL;
-    if (tnow != told)
-    {
-      if (tnow < told)
-        tcnt += told - tnow; // 这里注意一下SYSTICK是一个递减的计数器就可以了.
-      else
-        tcnt += reload - tnow + told;
-      told = tnow;
-      if (tcnt >= ticks)
-        break; // 时间超过/等于要延迟的时间,则退出.
-    }
-  };
-}
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
+
   if (htim->Instance == htim6.Instance)
   {
-    if (HAL_GetTick() - icg_flag >= 10)
-    {
-      HAL_GPIO_WritePin(icg_1_GPIO_Port, icg_1_Pin, 1);
-      HAL_GPIO_WritePin(sh_1_GPIO_Port, sh_1_Pin, 0);
-      delay_us(2);
-      HAL_GPIO_WritePin(sh_1_GPIO_Port, sh_1_Pin, 1);
-      delay_us(4);
-      HAL_GPIO_WritePin(icg_1_GPIO_Port, icg_1_Pin, 0);
-      HAL_ADC_Start_DMA(&hadc3, (uint32_t *)ccd_rawdata, 1546);
-      icg_flag = HAL_GetTick();
-    }
-    else
-    {
-      HAL_GPIO_WritePin(sh_1_GPIO_Port, sh_1_Pin, 0);
-      delay_us(2);
-      HAL_GPIO_WritePin(sh_1_GPIO_Port, sh_1_Pin, 1);
-      delay_us(4);
-    }
+
   }
 }
-
 
 /* USER CODE END 0 */
 
@@ -174,18 +134,25 @@ int main(void)
   MX_TIM16_Init();
   MX_TIM17_Init();
   MX_TIM20_Init();
-  MX_ADC4_Init();
   MX_I2C4_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, 0);
+  HAL_TIM_Base_Start_IT(&htim16);
+  HAL_TIM_Base_Start_IT(&htim17);
+  //
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
   HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
+  // ccd
 
+  HAL_TIM_Base_Start_IT(&htim6);
   HAL_TIM_Base_Start(&htim7);
+  HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_3);
+  HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_1);
   __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_1, 60);
+  // freertos
   main_work();
   // 测试板子fdcan代码
 

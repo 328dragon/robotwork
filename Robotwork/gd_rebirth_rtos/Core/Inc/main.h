@@ -75,8 +75,6 @@ void Error_Handler(void);
 #define spi1_cs_GPIO_Port GPIOB
 #define ccd_d1_Pin GPIO_PIN_1
 #define ccd_d1_GPIO_Port GPIOB
-#define ccd_d2_Pin GPIO_PIN_8
-#define ccd_d2_GPIO_Port GPIOE
 #define spi4_cs_Pin GPIO_PIN_15
 #define spi4_cs_GPIO_Port GPIOE
 #define icg_1_Pin GPIO_PIN_14
