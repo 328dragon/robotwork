@@ -31,7 +31,7 @@
 /* USER CODE BEGIN Includes */
 #include "dm_j4310.h"
 #include "mainwork.h"
-#include "tcd1103.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -140,13 +140,10 @@ int main(void)
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
   HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
-  // ccd
 
   HAL_TIM_Base_Start_IT(&htim6);
   HAL_TIM_Base_Start(&htim7);
-  HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_3);
-  HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_1);
-  __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_1, 60);
+
   // freertos
   main_work();
   // 测试板子fdcan代码

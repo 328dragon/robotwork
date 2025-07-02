@@ -1,5 +1,6 @@
-gd_rebirth/tcd1103.o: ..\Device\tcd1103.c ..\Device\tcd1103.h \
-  ..\Core\Inc\main.h ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal.h \
+gd_rebirth/bsp_usart.o: ..\mcu_bsp\uart\bsp_usart.c \
+  ..\mcu_bsp\uart\bsp_usart.h ..\Core\Inc\main.h \
+  ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal.h \
   ..\Core\Inc\stm32g4xx_hal_conf.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_rcc.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_def.h \
@@ -14,9 +15,6 @@ gd_rebirth/tcd1103.o: ..\Device\tcd1103.c ..\Device\tcd1103.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_dma.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_dma_ex.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_cortex.h \
-  ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_adc.h \
-  ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_adc.h \
-  ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_adc_ex.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_exti.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_fdcan.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_flash.h \
@@ -34,5 +32,4 @@ gd_rebirth/tcd1103.o: ..\Device\tcd1103.c ..\Device\tcd1103.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_tim.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_tim_ex.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_uart.h \
-  ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_uart_ex.h \
-  ..\Core\Inc\adc.h ..\Core\Inc\i2c.h
+  ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_uart_ex.h

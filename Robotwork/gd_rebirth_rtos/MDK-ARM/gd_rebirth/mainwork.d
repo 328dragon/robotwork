@@ -14,9 +14,6 @@ gd_rebirth/mainwork.o: ..\Core\Src\mainwork.c ..\Core\Inc\mainwork.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_dma.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_dma_ex.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_cortex.h \
-  ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_adc.h \
-  ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_adc.h \
-  ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_adc_ex.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_exti.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_fdcan.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_flash.h \
@@ -50,5 +47,4 @@ gd_rebirth/mainwork.o: ..\Core\Src\mainwork.c ..\Core\Inc\mainwork.h \
   ..\Middlewares\Third_Party\FreeRTOS\Source\include\semphr.h \
   ..\Middlewares\Third_Party\FreeRTOS\Source\include\event_groups.h \
   ..\Device\tcs230.h ..\Core\Inc\usart.h ..\Device\gray.h \
-  ..\Core\Inc\i2c.h ..\Device\gw_grayscale_sensor.h ..\Device\tcd1103.h \
-  ..\Core\Inc\adc.h
+  ..\Core\Inc\i2c.h ..\Device\gw_grayscale_sensor.h

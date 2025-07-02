@@ -10,7 +10,8 @@
 #include "tcs230.h"
 #include "gray.h"
 #include "usart.h"
-#include "tcd1103.h"
+
+
 // #include "lcd.h"
 // #include "lcd_init.h"
 // #include "pic.h"
@@ -23,8 +24,6 @@ unsigned char Normal[8] = {0};
 #define min(a, b) ((a) <= (b) ? (a) : (b))
 // 状态机
 int read_cololr_flag = 0; // 颜色传感器读取标志位
-
-
 TaskHandle_t Chassic_control_handle; // 底盘控制
 TaskHandle_t main_cpp_handle;        // 主函数
 TaskHandle_t Planner_update_handle;  // 轨迹规划
@@ -77,7 +76,7 @@ void wheel_state_read_task(void *pvParameters)
 
     while(1)
     {
-
+        
 
         vTaskDelay(300);
     }
@@ -124,7 +123,7 @@ void gray_read_task(void *pvParameters)
         }
         IIC_Anolog_Normalize(0x00); // 为了下一次循环是非归一化，所以清零
 
-        vTaskDelay(1000); // 延时100ms
+        vTaskDelay(100); // 延时100ms
     }
 }
 
@@ -195,3 +194,44 @@ void OnChassicControl(void *pvParameters)
         vTaskDelay(10);
     }
 }
+
+// 操作步骤：
+// a.根据延时时间和定时器所选时钟频率，计算出定时器要计数的时间数值；
+// b.获取当前数值寄存器的数值；
+// c.以当前数值为基准开始计数；
+// d.当所计数值等于（大于）需要延时的时间数值时退出。
+// 注：计数时间值的计算，我们以延时10us，时钟频率为72MHZ的STM32F103C8T6来计算，
+//         计数值 = 延时时间/1S × 时钟频率 = 0.000 01/1 *72 000 000 =  720
+void delay_us(uint32_t nus)
+{ 
+       uint32_t ticks;
+       uint32_t told,tnow,reload,tcnt=0;
+       if((0x0001&(SysTick->CTRL)) ==0)    //定时器未工作
+              vPortSetupTimerInterrupt();  //初始化定时器
+ 
+       reload = SysTick->LOAD;                     //获取重装载寄存器值
+       ticks = nus * (SystemCoreClock / 1000000);  //计数时间值
+       
+       vTaskSuspendAll();//阻止OS调度，防止打断us延时
+       told=SysTick->VAL;  //获取当前数值寄存器值（开始时数值）
+       while(1)
+       {
+              tnow=SysTick->VAL; //获取当前数值寄存器值
+              if(tnow!=told)  //当前值不等于开始值说明已在计数
+              {         
+                     if(tnow<told)  //当前值小于开始数值，说明未计到0
+                          tcnt+=told-tnow; //计数值=开始值-当前值
+ 
+                     else     //当前值大于开始数值，说明已计到0并重新计数
+                            tcnt+=reload-tnow+told;   //计数值=重装载值-当前值+开始值  （
+                                                      //已从开始值计到0） 
+ 
+                     told=tnow;   //更新开始值
+                     if(tcnt>=ticks)break;  //时间超过/等于要延迟的时间,则退出.
+              } 
+       }  
+       xTaskResumeAll();	//恢复OS调度		   
+} 
+//SystemCoreClock为系统时钟(system_stmf4xx.c中)，通常选择该时钟作为
+//systick定时器时钟，根据具体情况更改
+        
