@@ -5,11 +5,11 @@
 <h2>Tool Versions:</h2>
 IDE-Version: ��Vision V5.40.0.0
 Copyright (C) 2024 ARM Ltd and ARM Germany GmbH. All rights reserved.
-License Information: df df, dff, LIC=9WSKC-7ZRYP-Z9IG9-48KJ6-WNZ0F-6SAIC
+License Information: adsda ada, ada, LIC=MPPLD-8FHM0-PC7J8-3ILKB-ILF2Q-5VC0F
  
 Tool Versions:
 Toolchain:       MDK-ARM Plus  Version: 5.40.0.3
-Toolchain Path:  D:\keil\MDK\ARM\ARMCLANG\Bin
+Toolchain Path:  D:\keil\core\ARM\ARMCLANG\Bin
 C Compiler:      ArmClang.exe V6.22
 Assembler:       Armasm.exe V6.22
 Linker/Locator:  ArmLink.exe V6.22
@@ -22,19 +22,16 @@ Dialog DLL:      TCM.DLL V1.56.4.0
  
 <h2>Project:</h2>
 D:\stmproject\dragonproject\contest\robotwork\Robotwork\gd_rebirth_rtos\MDK-ARM\gd_rebirth.uvprojx
-Project File Date:  07/01/2025
+Project File Date:  07/16/2025
 
 <h2>Output:</h2>
-*** Using Compiler 'V6.22', folder: 'D:\keil\MDK\ARM\ARMCLANG\Bin'
+*** Using Compiler 'V6.22', folder: 'D:\keil\core\ARM\ARMCLANG\Bin'
 Build target 'gd_rebirth'
-compiling tcs230.c...
-compiling stm32g4xx_it.c...
-../Core/Src/mainwork.c(209): error: call to undeclared function 'vPortSetupTimerInterrupt'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-  209 |               vPortSetupTimerInterrupt();  //初始化定时器
-      |               ^
-1 error generated.
 compiling mainwork.c...
-"gd_rebirth\gd_rebirth.axf" - 1 Error(s), 0 Warning(s).
+linking...
+Program Size: Code=37772 RO-data=700 RW-data=20 ZI-data=23668  
+FromELF: creating hex file...
+"gd_rebirth\gd_rebirth.axf" - 0 Error(s), 0 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -45,21 +42,19 @@ Package Vendor: ARM
    * Component: CORE Version: 6.1.0
 
 Package Vendor: Keil
-                https://www.keil.com/pack/Keil.STM32G4xx_DFP.1.6.0.pack
-                Keil::STM32G4xx_DFP@1.6.0
-                STMicroelectronics STM32G4 Series Device Support, Drivers and Examples
+                https://www.keil.com/pack/Keil.STM32G4xx_DFP.2.0.0.pack
+                Keil::STM32G4xx_DFP@2.0.0
+                STMicroelectronics STM32G4 Series Device Support
 
 <h2>Collection of Component include folders:</h2>
   ./RTE/_gd_rebirth
-  D:/keil/Pack/ARM/CMSIS/6.1.0/CMSIS/Core/Include
-  D:/keil/Pack/Keil/STM32G4xx_DFP/1.6.0/Drivers/CMSIS/Device/ST/STM32G4xx/Include
+  D:/keil/pack/ARM/CMSIS/6.1.0/CMSIS/Core/Include
 
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE@6.1.0
       Include file:  CMSIS/Core/Include/tz_context.h
-Target not created.
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:00
 </pre>
 </body>
 </html>
