@@ -1,5 +1,5 @@
-#ifndef DC_MOTOR_H_
-#define DC_MOTOR_H_
+#ifndef _DC_MOTOR_H_
+#define _DC_MOTOR_H_
 
 #include "math.h"
 #include "string.h"
@@ -41,18 +41,14 @@ void DCMotorSetSpeedCloseLoop(dc_motor_t *motor, float speed, int isActive);
 
 extern dc_motor_t motor_0;
 extern dc_motor_t motor_1;
-extern dc_motor_t motor_2;
-extern dc_motor_t motor_3;
-extern dc_motor_t motor_bat;
+
 
 extern inc_encoder_t encoder_0;
 extern inc_encoder_t encoder_1;
-extern inc_encoder_t encoder_2;
-extern inc_encoder_t encoder_3;
+
 
 extern pid_t pid_0;
 extern pid_t pid_1;
-extern pid_t pid_2;
-extern pid_t pid_3;
+
 
 #endif

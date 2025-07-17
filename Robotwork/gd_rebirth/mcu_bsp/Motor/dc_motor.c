@@ -24,53 +24,43 @@
 
 dc_motor_t motor_0;
 dc_motor_t motor_1;
-dc_motor_t motor_2;
-dc_motor_t motor_3;
-dc_motor_t motor_bat;
+
 
 inc_encoder_t encoder_0;
 inc_encoder_t encoder_1;
-inc_encoder_t encoder_2;
-inc_encoder_t encoder_3;
+
 
 pid_t pid_0;
 pid_t pid_1;
-pid_t pid_2;
-pid_t pid_3;
+
 
 void userMotorInitBinding(dc_motor_t *motor)
 {
-    HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
-    HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
-    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
-    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
 }
 
 // !用户需要自行编写每个电机的驱动函数,并在下述userMotorCtlBinding中绑定该函数
 
 void userMotorCtl_0(float spd)
 {
-    __HAL_TIM_SetCompare(&htim2, TIM_CHANNEL_3, (99 * fabsf(spd) / 100.0f));
-    HAL_GPIO_WritePin(GPIOE, GPIO_PIN_15, (spd >= 0) ? 1 : 0);
+        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, (spd >= 0) ? 1 : 0);
+	if(spd!=0)
+    __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_1, (99 * fabsf(spd) / 100.0f));
+	else 
+		__HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_1, 0);
+
 }
 
 void userMotorCtl_1(float spd)
 {
-    __HAL_TIM_SetCompare(&htim2, TIM_CHANNEL_4, (99 * fabsf(spd) / 100.0f));
-    HAL_GPIO_WritePin(GPIOE, GPIO_PIN_14, (spd >= 0) ? 1 : 0);
+        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_5, (spd >= 0) ? 1 : 0);
+		if(spd!=0)
+    __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_2, (99 * fabsf(spd) / 100.0f));
+		else 
+			  __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_2, 0);
 }
 
-void userMotorCtl_2(float spd)
-{
-    __HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_3, (99 * fabsf(spd) / 100.0f));
-    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_5, (spd >= 0) ? 1 : 0);
-}
-
-void userMotorCtl_3(float spd)
-{
-    __HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_4, (99 * fabsf(spd) / 100.0f));
-    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4, (spd >= 0) ? 1 : 0);
-}
 
 
 void userMotorCtlBinding(dc_motor_t *motor)
@@ -83,15 +73,6 @@ void userMotorCtlBinding(dc_motor_t *motor)
     {
         motor->motor_ctl = (void *)userMotorCtl_1;
     }
-    if (motor->id == 2)
-    {
-        motor->motor_ctl = (void *)userMotorCtl_2;
-    }
-    if (motor->id == 3)
-    {
-        motor->motor_ctl = (void *)userMotorCtl_3;
-    }
-
 }
 
 //******************************
@@ -130,8 +111,10 @@ void DCMotorSetSpeedOpenLoop(dc_motor_t *motor, float speed, int isActive)
     {
         motor->velocity_pwm = speed;
     }
+		
     if (motor->polarity == 0)
     {
+
         motor->motor_ctl(motor->velocity_pwm);
     }
     else
@@ -160,10 +143,9 @@ void DCMotorSetSpeedCloseLoop(dc_motor_t *motor, float speed, int isActive)
     if (motor->encoder != NULL)
     {
         DCMotorEncoderUpdate(motor);
-
         if (motor->pid != NULL)
         {
-            DCMotorSetSpeedOpenLoop(motor, pid_calc(motor->pid, motor->velocity, motor->encoder->pulse_real), 1);
+            DCMotorSetSpeedOpenLoop(motor, pid_calc(motor->pid,  motor->encoder->pulse_real,motor->velocity), 1);
         }
     }
 }

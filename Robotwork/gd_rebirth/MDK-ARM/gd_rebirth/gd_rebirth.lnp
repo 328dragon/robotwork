@@ -1,5 +1,6 @@
 --cpu=Cortex-M4.fp.sp
 "gd_rebirth\startup_stm32g473xx.o"
+"gd_rebirth\retarget.o"
 "gd_rebirth\main.o"
 "gd_rebirth\gpio.o"
 "gd_rebirth\adc.o"
@@ -41,16 +42,15 @@
 "gd_rebirth\stm32g4xx_hal_pcd_ex.o"
 "gd_rebirth\stm32g4xx_ll_usb.o"
 "gd_rebirth\system_stm32g4xx.o"
-"gd_rebirth\bsp_fdcan.o"
 "gd_rebirth\dc_motor.o"
 "gd_rebirth\pid.o"
 "gd_rebirth\encoder.o"
-"gd_rebirth\delay.o"
-"gd_rebirth\dm_j4310.o"
+"gd_rebirth\bsp_usart.o"
 "gd_rebirth\tcd1103.o"
 "gd_rebirth\tcs230.o"
 "gd_rebirth\icm_42688.o"
---strict --scatter "gd_rebirth\gd_rebirth.sct"
+"gd_rebirth\gray.o"
+--library_type=microlib --strict --scatter "gd_rebirth\gd_rebirth.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
 --list "gd_rebirth.map" -o gd_rebirth\gd_rebirth.axf

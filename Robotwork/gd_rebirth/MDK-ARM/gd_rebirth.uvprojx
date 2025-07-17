@@ -17,7 +17,7 @@
         <TargetCommonOption>
           <Device>STM32G473VETx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32G4xx_DFP.1.6.0</PackID>
+          <PackID>Keil.STM32G4xx_DFP.2.0.0</PackID>
           <PackURL>https://www.keil.com/pack/</PackURL>
           <Cpu>IRAM(0x20000000-0x2001FFFF) IROM(0x8000000-0x807FFFF) CLOCK(8000000) FPU2 CPUTYPE("Cortex-M4") TZ</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -191,7 +191,7 @@
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>0</useUlib>
+            <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <nSecure>0</nSecure>
@@ -315,7 +315,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
+            <Optim>4</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -341,7 +341,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32G473xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32G4xx_HAL_Driver/Inc;../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32G4xx/Include;../Drivers/CMSIS/Include;../mcu_bsp/fdcan;../mcu_bsp/Motor;../Device;../Task;../mcu_bsp/system_controller;../mcu_bsp/Encoder;../mcu_bsp/IMU;../mcu_bsp/tools</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32G4xx_HAL_Driver/Inc;../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32G4xx/Include;../Drivers/CMSIS/Include;../mcu_bsp/fdcan;../mcu_bsp/Motor;../Device;../Task;../mcu_bsp/system_controller;../mcu_bsp/Encoder;../mcu_bsp/IMU;../mcu_bsp/tools;../mcu_bsp/uart</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -395,6 +395,11 @@
         <Group>
           <GroupName>Application/User/Core</GroupName>
           <Files>
+            <File>
+              <FileName>retarget.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\retarget.c</FilePath>
+            </File>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
@@ -871,11 +876,6 @@
           <GroupName>BSP</GroupName>
           <Files>
             <File>
-              <FileName>bsp_fdcan.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\mcu_bsp\fdcan\bsp_fdcan.c</FilePath>
-            </File>
-            <File>
               <FileName>dc_motor.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\mcu_bsp\Motor\dc_motor.c</FilePath>
@@ -891,9 +891,9 @@
               <FilePath>..\mcu_bsp\Encoder\encoder.c</FilePath>
             </File>
             <File>
-              <FileName>delay.c</FileName>
+              <FileName>bsp_usart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\mcu_bsp\tools\delay.c</FilePath>
+              <FilePath>..\mcu_bsp\uart\bsp_usart.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -903,11 +903,6 @@
         <Group>
           <GroupName>Device</GroupName>
           <Files>
-            <File>
-              <FileName>dm_j4310.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\mcu_bsp\Motor\dm_j4310.c</FilePath>
-            </File>
             <File>
               <FileName>tcd1103.c</FileName>
               <FileType>1</FileType>
@@ -922,6 +917,11 @@
               <FileName>icm_42688.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\mcu_bsp\IMU\icm_42688.c</FilePath>
+            </File>
+            <File>
+              <FileName>gray.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Device\gray.c</FilePath>
             </File>
           </Files>
         </Group>

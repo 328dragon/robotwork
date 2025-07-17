@@ -32,6 +32,10 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#define max(a, b) ((a) >= (b) ? (a) : (b))
+#define min(a, b) ((a) <= (b) ? (a) : (b))
+
+
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -79,10 +83,10 @@ void Error_Handler(void);
 #define ccd_d2_GPIO_Port GPIOE
 #define spi4_cs_Pin GPIO_PIN_15
 #define spi4_cs_GPIO_Port GPIOE
-#define icg_1_Pin GPIO_PIN_14
-#define icg_1_GPIO_Port GPIOD
-#define sh_1_Pin GPIO_PIN_15
-#define sh_1_GPIO_Port GPIOD
+#define ICG_1_Pin GPIO_PIN_14
+#define ICG_1_GPIO_Port GPIOD
+#define SH_1_Pin GPIO_PIN_15
+#define SH_1_GPIO_Port GPIOD
 #define spi3_cs_Pin GPIO_PIN_15
 #define spi3_cs_GPIO_Port GPIOA
 #define LED_G_Pin GPIO_PIN_2
@@ -97,8 +101,8 @@ void Error_Handler(void);
 #define ICG_2_GPIO_Port GPIOB
 #define cd_m2_Pin GPIO_PIN_9
 #define cd_m2_GPIO_Port GPIOB
-#define sh_2_Pin GPIO_PIN_0
-#define sh_2_GPIO_Port GPIOE
+#define SH_2_Pin GPIO_PIN_0
+#define SH_2_GPIO_Port GPIOE
 
 /* USER CODE BEGIN Private defines */
 

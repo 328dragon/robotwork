@@ -35,4 +35,7 @@ gd_rebirth/stm32g4xx_it.o: ..\Core\Src\stm32g4xx_it.c ..\Core\Inc\main.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_tim_ex.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_uart.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_uart_ex.h \
-  ..\Core\Inc\stm32g4xx_it.h
+  ..\Core\Inc\stm32g4xx_it.h ..\Device\tcs230.h ..\Core\Inc\usart.h \
+  ..\mcu_bsp\uart\bsp_usart.h ..\Device\tcd1103.h ..\Core\Inc\adc.h \
+  ..\Core\Inc\i2c.h ..\mcu_bsp\Motor\dc_motor.h ..\Core\Inc\tim.h \
+  ..\mcu_bsp\system_controller\pid.h ..\mcu_bsp\Encoder\encoder.h

@@ -38,5 +38,6 @@ gd_rebirth/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\Core\Inc\adc.h ..\Core\Inc\dma.h ..\Core\Inc\fdcan.h \
   ..\Core\Inc\i2c.h ..\Core\Inc\usart.h ..\Core\Inc\spi.h \
   ..\Core\Inc\tim.h ..\Core\Inc\usb.h ..\Core\Inc\gpio.h \
-  ..\mcu_bsp\Motor\dm_j4310.h ..\mcu_bsp\Motor\motor_def.h \
-  ..\mcu_bsp\fdcan\bsp_fdcan.h ..\Device\tcs230.h
+  ..\Device\tcs230.h ..\mcu_bsp\uart\bsp_usart.h ..\Device\tcd1103.h \
+  ..\mcu_bsp\Motor\dc_motor.h ..\mcu_bsp\system_controller\pid.h \
+  ..\mcu_bsp\Encoder\encoder.h

@@ -269,7 +269,7 @@ step_move(3200,1);
 //            data += (ccd_rawdata[272 + i * 8 + j] - 380);
 //        ccd_data[i] = (data / 8);
 //        sum += ccd_data[i];
-//        _max = max(_max, ccd_data[i]);
+        _max = max(_max, ccd_data[i]);
 //        _min = min(_min, ccd_data[i]);
 //    }
 //    avg = sum / 128;
