@@ -73,7 +73,7 @@ uint8_t Color_Recognize(void)
 	{
 		//			BUZZER();
 		if (Get_RxFlag() && R != 0 && G != 0 && B != 0)
-		{0
+		{
 			color = Get_Color();
 
 

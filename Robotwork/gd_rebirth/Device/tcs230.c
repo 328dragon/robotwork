@@ -84,7 +84,7 @@ uint8_t Color_Recognize(void)
 
 			else
 			{
-			return -1;
+			
 			}
 		}
 		printf("AT+COLOR\r\n");

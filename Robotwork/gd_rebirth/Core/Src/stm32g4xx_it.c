@@ -20,6 +20,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32g4xx_it.h"
+#include "FreeRTOS.h"
+#include "task.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tcs230.h"
@@ -83,19 +85,19 @@ extern TIM_HandleTypeDef htim17;
 
 extern USARTInstance uart2;
 // 颜色传感器使用量
-extern int goods_color ;
-int read_color_flag = 0;
-int read_color_finish_flag = 0;
-int color_recognize_state = 0;
-int color_re_delay = 0;
-int color_reco_count = 0;
+// extern int goods_color ;
+// int read_color_flag = 0;
+// int read_color_finish_flag = 0;
+// int color_recognize_state = 0;
+// int color_re_delay = 0;
+// int color_reco_count = 0;
 // 灰度使用量
-unsigned char Digtal_gray;
-unsigned char Anolog_gray[8] = {0};
-unsigned char Normal[8] = {0};
-int gray_state = 0;
-int gray_delay = 2; // 2*5=10ms
-int gray_tmp_count = 0;
+// unsigned char Digtal_gray;
+// unsigned char Anolog_gray[8] = {0};
+// unsigned char Normal[8] = {0};
+// int gray_state = 0;
+// int gray_delay = 2; // 2*5=10ms
+// int gray_tmp_count = 0;
 // 电机使用量
 int motor_0_speed;
 int motor_1_speed;
@@ -204,19 +206,6 @@ void UsageFault_Handler(void)
 }
 
 /**
- * @brief This function handles System service call via SWI instruction.
- */
-void SVC_Handler(void)
-{
-  /* USER CODE BEGIN SVCall_IRQn 0 */
-
-  /* USER CODE END SVCall_IRQn 0 */
-  /* USER CODE BEGIN SVCall_IRQn 1 */
-
-  /* USER CODE END SVCall_IRQn 1 */
-}
-
-/**
  * @brief This function handles Debug monitor.
  */
 void DebugMon_Handler(void)
@@ -230,19 +219,6 @@ void DebugMon_Handler(void)
 }
 
 /**
- * @brief This function handles Pendable request for system service.
- */
-void PendSV_Handler(void)
-{
-  /* USER CODE BEGIN PendSV_IRQn 0 */
-
-  /* USER CODE END PendSV_IRQn 0 */
-  /* USER CODE BEGIN PendSV_IRQn 1 */
-
-  /* USER CODE END PendSV_IRQn 1 */
-}
-
-/**
  * @brief This function handles System tick timer.
  */
 void SysTick_Handler(void)
@@ -251,6 +227,14 @@ void SysTick_Handler(void)
 
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
+#if (INCLUDE_xTaskGetSchedulerState == 1)
+  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED)
+  {
+#endif /* INCLUDE_xTaskGetSchedulerState */
+    xPortSysTickHandler();
+#if (INCLUDE_xTaskGetSchedulerState == 1)
+  }
+#endif /* INCLUDE_xTaskGetSchedulerState */
   /* USER CODE BEGIN SysTick_IRQn 1 */
 
   /* USER CODE END SysTick_IRQn 1 */
@@ -351,7 +335,6 @@ void TIM1_UP_TIM16_IRQHandler(void)
 /**
  * @brief This function handles TIM1 trigger and commutation interrupts and TIM17 global interrupt.
  */
-
 void TIM1_TRG_COM_TIM17_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_TRG_COM_TIM17_IRQn 0 */
@@ -370,99 +353,6 @@ void TIM1_TRG_COM_TIM17_IRQHandler(void)
   }
   avg = sum / 128;
   FindLines(&l, &r, ccd_data, 500, &l_w, &r_w);
-
-  switch (gray_state)
-  {
-  case 0:
-  {
-    Digtal_gray = IIC_Get_Digtal();
-    // 获取传感器模拟量结果
-    if (IIC_Get_Anolog(Anolog_gray, 8))
-    {
-    }
-    // 获取传感器归一化结果
-    IIC_Anolog_Normalize(0xff); // 所有通道归一化都打开
-    gray_delay = 2;             // 2*5=10ms
-    gray_state += delay_no_conflict(&gray_tmp_count, gray_delay);
-    break;
-  }
-  case 1:
-  {
-    gray_tmp_count = 0;
-    if (IIC_Get_Anolog(Normal, 8))
-    {
-    }
-    IIC_Anolog_Normalize(0x00);                                   // 为了下一次循环是非归一化，所以清零
-    gray_delay = 20;                                              // 20*5=100ms
-    gray_state -= delay_no_conflict(&gray_tmp_count, gray_delay); // 回0
-    break;
-  }
-  default:
-    break;
-  }
-
-  if (read_color_flag == 1)
-  {
-    int color = -1;
-    switch (color_recognize_state)
-    {
-    case 0:
-    {
-      R = 0;
-      G = 0;
-      B = 0;
-      printf("AT+COLOR\r\n");
-      color_re_delay = 100; // 5*100=500ms
-      color_recognize_state += delay_no_conflict(&color_reco_count, color_re_delay);      
-      break;
-    }
-    case 1:
-    {
-			 printf("AT+COLOR\r\n");
-				color_recognize_state++;
-			break;
-		}
-		case 2:
-		{
-				color_reco_count=0;
-      //			BUZZER();
-      if (Get_RxFlag() && R != 0 && G != 0 && B != 0)
-      {
-        color = Get_Color();
-        if (color != -1)
-        {
-          goods_color = color;
-          read_color_finish_flag = 1;
-					color_recognize_state++;			
-					break;
-        }
-        else
-        {
-					color_recognize_state=0;
-          goods_color = -1;
-					read_color_finish_flag=0;
-        }
-      }
-      printf("AT+COLOR\r\n");
-      break;
-    }
-		case 3:
-		{
-		 color_re_delay = 40; // 5*40=200ms
-      color_recognize_state += delay_no_conflict(&color_reco_count, color_re_delay);
-		break;
-		}
-		case 4:
-		{
-					
-		color_recognize_state=0;
-		break;
-			
-		}
-    default:
-      break;
-    }
-  }
 
   //  char string_ccd[30] = {0};
   //  string_ccd[0] = l_w;
@@ -484,9 +374,9 @@ void TIM1_TRG_COM_TIM17_IRQHandler(void)
   int16_t encoder_data[2] = {0};
   encoder_data[0] = encoder_0.pulse;
   encoder_data[1] = encoder_1.pulse;
-  char string_encoder[40] = {0};
+  char string_encoder[20] = {0};
   sprintf(string_encoder, "%d,%d\n", encoder_data[0], encoder_data[1]);
-  USARTSend(&uart2, (uint8_t *)string_encoder, 30, USART_TRANSFER_DMA);
+  USARTSend(&uart2, (uint8_t *)string_encoder, 20, USART_TRANSFER_DMA);
 
   /* USER CODE END TIM1_TRG_COM_TIM17_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
@@ -529,8 +419,9 @@ void USART2_IRQHandler(void)
  */
 void TIM5_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM5_IRQn 0 */ if (step_motor_active == 1)
-    stepmotor_on() else if (step_motor_active == 0)
+  /* USER CODE BEGIN TIM5_IRQn 0 */
+  if (step_motor_active == 1)
+    stepmotor_on() else if (step_motor_active== 0)
         stepmotor_off() if (step_motor_direction == 0) // 正向
         stepmotor_pos() else stepmotor_neg()
 

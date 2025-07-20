@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 #include "adc.h"
 #include "dma.h"
 #include "fdcan.h"
@@ -35,6 +36,7 @@
 #include "tcd1103.h"
 #include "dc_motor.h"
 #include "gray.h"
+#include "mainwork.h"
 int goods_color = 90;
 static uint32_t fac_us = 0; // us延时倍乘数
 USARTInstance uart2 = {0};
@@ -71,6 +73,7 @@ USART_Init_Config_s usart2_config = {
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
 static void delay_us(uint32_t nus)
 {
@@ -201,20 +204,20 @@ int main(void)
   // debug串口
   USARTRegister(&uart2, &usart2_config);
   memset(uart2.recv_buff, 0, uart2.recv_buff_size);
-  // 颜色传感器添加完成
-  HAL_UART_Receive_IT(&huart1, &RxData, 1);
-  printf("AT+LIGHT+ON\r\n");
-  printf("AT+LIGHT+ON\r\n");
-  printf("AT+LIGHT+ON\r\n");
-  printf("AT+LIGHT+ON\r\n");
-  printf("AT+LIGHT+ON\r\n");
-  printf("AT+LIGHT+ON\r\n");
+//  // 颜色传感器添加完成
+//  HAL_UART_Receive_IT(&huart1, &RxData, 1);
+//  printf("AT+LIGHT+ON\r\n");
+//  printf("AT+LIGHT+ON\r\n");
+//  printf("AT+LIGHT+ON\r\n");
+//  printf("AT+LIGHT+ON\r\n");
+//  printf("AT+LIGHT+ON\r\n");
+//  printf("AT+LIGHT+ON\r\n");
 
-  for (int i = 0; i < 10; i++)
-  {
-    goods_color = Color_Recognize();
-    HAL_Delay(200);
-  }
+//  for (int i = 0; i < 10; i++)
+//  {
+//    goods_color = Color_Recognize();
+//    HAL_Delay(200);
+//  }
 //普通灰度
 	while(Ping())
 	{
@@ -232,8 +235,17 @@ int main(void)
 	
   // 定时器5开启，1us的更新中断，原本是电机的encoder读入，现在用作ccd的严格时序运行
   HAL_TIM_Base_Start_IT(&htim5);
-
+main_work();
   /* USER CODE END 2 */
+
+  /* Init scheduler */
+  osKernelInitialize();  /* Call init function for freertos objects (in cmsis_os2.c) */
+  MX_FREERTOS_Init();
+
+  /* Start scheduler */
+  osKernelStart();
+
+  /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
