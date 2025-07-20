@@ -37,6 +37,7 @@
 #include "dc_motor.h"
 #include "gray.h"
 #include "mainwork.h"
+
 int goods_color = 90;
 static uint32_t fac_us = 0; // us延时倍乘数
 USARTInstance uart2 = {0};
@@ -144,7 +145,7 @@ int main(void)
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
-  /* USER CODE BEGIN Init */
+  /* USER CODE BEGIN Init *
 
   /* USER CODE END Init */
 
@@ -199,7 +200,10 @@ int main(void)
   DCMotorInit(&motor_0, 0, 1, &encoder_0, &pid_0);
   DCMotorInit(&motor_1, 1, 0, &encoder_1, &pid_1);
   //舵机配置
-  
+  HAL_TIM_PWM_Start(&htim20,TIM_CHANNEL_1);
+	 HAL_TIM_PWM_Start(&htim20,TIM_CHANNEL_2);
+	  HAL_TIM_PWM_Start(&htim20,TIM_CHANNEL_3);
+
 	
   // debug串口
   USARTRegister(&uart2, &usart2_config);

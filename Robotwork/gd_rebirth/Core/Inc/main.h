@@ -61,6 +61,10 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define hook_servos_Pin GPIO_PIN_2
+#define hook_servos_GPIO_Port GPIOE
+#define up_servos_Pin GPIO_PIN_3
+#define up_servos_GPIO_Port GPIOE
 #define dir1_Pin GPIO_PIN_4
 #define dir1_GPIO_Port GPIOE
 #define dir2_Pin GPIO_PIN_5
@@ -75,6 +79,8 @@ void Error_Handler(void);
 #define TFT_CS_GPIO_Port GPIOC
 #define TFT_RS_Pin GPIO_PIN_9
 #define TFT_RS_GPIO_Port GPIOF
+#define down_servos_Pin GPIO_PIN_2
+#define down_servos_GPIO_Port GPIOF
 #define spi1_cs_Pin GPIO_PIN_0
 #define spi1_cs_GPIO_Port GPIOB
 #define ccd_d1_Pin GPIO_PIN_1

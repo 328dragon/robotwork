@@ -47,4 +47,4 @@ gd_rebirth/mainwork.o: ..\Core\Src\mainwork.c ..\Core\Inc\mainwork.h \
   ..\Middlewares\Third_Party\FreeRTOS\Source\include\list.h \
   ..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS_V2\cmsis_os2.h \
   ..\Device\tcs230.h ..\Core\Inc\usart.h ..\Device\gray.h \
-  ..\Core\Inc\i2c.h ..\Device\gw_grayscale_sensor.h
+  ..\Core\Inc\i2c.h ..\Device\gw_grayscale_sensor.h ..\Core\Inc\tim.h

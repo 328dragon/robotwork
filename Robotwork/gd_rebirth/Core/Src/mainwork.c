@@ -10,7 +10,11 @@
 #include "tcs230.h"
 #include "gray.h"
 #include "usart.h"
+#include "tim.h"
 
+ int debug_hook_pwm=0;
+ int debug_up_pwm=0;
+ int debug_down_pwm=0;
 // 传感器信息
 extern int goods_color ;
 unsigned char Digtal_gray;
@@ -19,7 +23,10 @@ unsigned char Normal[8] = {0};
 #define max(a, b) ((a) >= (b) ? (a) : (b))
 #define min(a, b) ((a) <= (b) ? (a) : (b))
 // 状态机
+
 int read_cololr_flag = 0; // 颜色传感器读取标志位
+//freertos句柄
+TaskHandle_t main_cpp_handle;        // 主函数
 TaskHandle_t gray_read_handle;       // 灰度传感器
 TaskHandle_t tcs230_read_handle;     // tcs230颜色传感器读取
 TaskHandle_t IMU_read_handle;        // IMU读取
@@ -44,13 +51,13 @@ void main_work(void)
     printf("AT+LIGHT+ON\r\n");
     printf("AT+LIGHT+ON\r\n");
 
-
+    BaseType_t ok3 = xTaskCreate(Onmaincpp, "main_cpp", 100, NULL, 4, &main_cpp_handle);
     BaseType_t ok5 = xTaskCreate(IMU_Read_task, "IMU_Read_task", 100, NULL, 4, &IMU_read_handle);
     BaseType_t ok6 = xTaskCreate(LCD_Show_task, "LCD_Show_task", 100, NULL, 1, &LCD_Show_handle);
     BaseType_t ok7 = xTaskCreate(tcs230_read_task, "tcs230_read_task", 100, NULL, 2, &tcs230_read_handle);
     BaseType_t ok8 = xTaskCreate(gray_read_task, "gray_read_task", 100, NULL, 2, &gray_read_handle);
 	BaseType_t ok9 = xTaskCreate(wheel_state_read_task, "wheel_state_read_task", 100, NULL, 2, &wheel_state_read_handle);
-    if ( ok5 != pdPASS||ok6 !=pdPASS||ok7 != pdPASS||ok8 != pdPASS)
+    if ( ok3!= pdPASS|ok5 != pdPASS||ok6 !=pdPASS||ok7 != pdPASS||ok8 != pdPASS)
     {
         // 任务创建失败，进入死循环
         while (1)
@@ -67,7 +74,6 @@ void wheel_state_read_task(void *pvParameters)
     while(1)
     {
         
-
         vTaskDelay(300);
     }
 
@@ -163,8 +169,10 @@ void Onmaincpp(void *pvParameters)
 
     while (1)
     {
-
-        vTaskDelay(200);
+	  __HAL_TIM_SET_COMPARE(&htim20,TIM_CHANNEL_1,550);//900最低，550最高
+		__HAL_TIM_SET_COMPARE(&htim20,TIM_CHANNEL_2,debug_up_pwm);//890最紧，700最松
+			__HAL_TIM_SET_COMPARE(&htim20,TIM_CHANNEL_3,debug_up_pwm);
+        vTaskDelay(100);
     }
 }
 
