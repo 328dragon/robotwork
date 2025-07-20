@@ -34,6 +34,7 @@
 #include "bsp_usart.h"
 #include "tcd1103.h"
 #include "dc_motor.h"
+#include "gray.h"
 int goods_color = 90;
 static uint32_t fac_us = 0; // us延时倍乘数
 USARTInstance uart2 = {0};
@@ -187,13 +188,16 @@ int main(void)
   // 指示灯
   HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, 0);
   // 电机配置
+	//重要：encoder对应引脚记得上拉
   IncEncoderInit(&encoder_0, 0, 1);
   IncEncoderInit(&encoder_1, 1, 1);
-  PID_struct_init(&pid_0, POSITION_PID, 800, 100, 50, 0, 0);
-  PID_struct_init(&pid_1, POSITION_PID, 800, 100, 50, 0,0);
-  DCMotorInit(&motor_0, 0, 0, &encoder_0, &pid_0);
+  PID_struct_init(&pid_0, POSITION_PID, 800, 200, 50, 1, 0);
+  PID_struct_init(&pid_1, POSITION_PID, 800, 200, 50, 1,0);
+  DCMotorInit(&motor_0, 0, 1, &encoder_0, &pid_0);
   DCMotorInit(&motor_1, 1, 0, &encoder_1, &pid_1);
-//__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_2,300);
+  //舵机配置
+  
+	
   // debug串口
   USARTRegister(&uart2, &usart2_config);
   memset(uart2.recv_buff, 0, uart2.recv_buff_size);
@@ -206,12 +210,17 @@ int main(void)
   printf("AT+LIGHT+ON\r\n");
   printf("AT+LIGHT+ON\r\n");
 
-//  for (int i = 0; i < 10; i++)
-//  {
-//    goods_color = Color_Recognize();
-//    HAL_Delay(200);
-//  }
-
+  for (int i = 0; i < 10; i++)
+  {
+    goods_color = Color_Recognize();
+    HAL_Delay(200);
+  }
+//普通灰度
+	while(Ping())
+	{
+	HAL_Delay(5);	
+	}
+	
   // tcd1103配置
   HAL_TIM_Base_Start_IT(&htim6);
   HAL_TIM_Base_Start(&htim7);

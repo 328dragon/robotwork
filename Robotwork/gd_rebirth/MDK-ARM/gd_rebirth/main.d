@@ -40,4 +40,5 @@ gd_rebirth/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\Core\Inc\tim.h ..\Core\Inc\usb.h ..\Core\Inc\gpio.h \
   ..\Device\tcs230.h ..\mcu_bsp\uart\bsp_usart.h ..\Device\tcd1103.h \
   ..\mcu_bsp\Motor\dc_motor.h ..\mcu_bsp\system_controller\pid.h \
-  ..\mcu_bsp\Encoder\encoder.h
+  ..\mcu_bsp\Encoder\encoder.h ..\Device\gray.h \
+  ..\Device\gw_grayscale_sensor.h

@@ -10,6 +10,8 @@ uint32_t red, blue, green;
 uint8_t USARTData;//数据缓冲
 uint8_t USARTDataBag[6];//数据存储数组
 
+
+
 uint8_t Get_RxFlag(void)
 {
 	if (RX_Flag == 1)
@@ -25,7 +27,7 @@ int Get_Color(void)
 	{
 
 		// return 135;
-		return 45;
+		return white_color;
 	} // 白色
 	  //  if(B-R>=20&&B-G>=20&&B>=60)
 //	if (B - R >= 20 && B - G >= 0 && B >= 60)
@@ -34,7 +36,7 @@ int Get_Color(void)
 	{
 
 		// return 0;
-		return 180;
+		return blue_color;
 	} // 蓝色
 	if (G > B && G > R && G >= 20)
 	//   if(G>R&&G>=20)
@@ -42,18 +44,18 @@ int Get_Color(void)
 	{
 
 		// return 180;
-		return 0;
+		return green_color;
 	} // 绿色
 	if (R - B >= 40 && R - G >= 40 && R >= 80)
 	{
 
-		return 90;
+		return red_color;
 	} // 红色
 	if (R <= 50 && G <= 50 && B <= 50)
 	{
 
 		// return 45;
-		return 135;
+		return black_color;
 	} // 黑色
 
 	return -1;
@@ -82,7 +84,7 @@ uint8_t Color_Recognize(void)
 
 			else
 			{
-			
+			return -1;
 			}
 		}
 		printf("AT+COLOR\r\n");

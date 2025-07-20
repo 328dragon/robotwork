@@ -83,6 +83,12 @@ void Error_Handler(void);
 #define ccd_d2_GPIO_Port GPIOE
 #define spi4_cs_Pin GPIO_PIN_15
 #define spi4_cs_GPIO_Port GPIOE
+#define step_mot_en_Pin GPIO_PIN_14
+#define step_mot_en_GPIO_Port GPIOB
+#define step_mot_dir_Pin GPIO_PIN_10
+#define step_mot_dir_GPIO_Port GPIOD
+#define step_mot_pulse_Pin GPIO_PIN_11
+#define step_mot_pulse_GPIO_Port GPIOD
 #define ICG_1_Pin GPIO_PIN_14
 #define ICG_1_GPIO_Port GPIOD
 #define SH_1_Pin GPIO_PIN_15

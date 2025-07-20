@@ -16,7 +16,10 @@ int userEncoderUpdate_0(uint8_t clear)
 {
     if (clear == 0)
     {
- return (__HAL_TIM_GetCounter(&htim2));
+			int16_t tmep_counter=(__HAL_TIM_GetCounter(&htim2));
+		if((tmep_counter-32768)>=0)
+			tmep_counter=tmep_counter-65535;	
+ return tmep_counter;
     }
     else
     {
@@ -28,7 +31,10 @@ int userEncoderUpdate_1(uint8_t clear)
 {
     if (clear == 0)
     {
-         return(__HAL_TIM_GetCounter(&htim3));
+			int16_t tmep_counter=(__HAL_TIM_GetCounter(&htim3));
+		if((tmep_counter-32768)>=0)
+			tmep_counter=tmep_counter-65535;	
+ return tmep_counter;
     }
     else
     {
@@ -69,7 +75,7 @@ void IncEncoderInit(inc_encoder_t *encoder, uint8_t id, float to_real_coefficien
 void IncEncoderUpdate(inc_encoder_t *encoder)
 {
     encoder->pulse = encoder->encoder_update(0);    //读取编码器的值
-    encoder->encoder_update(1);                     //清除编码器的值
+//    encoder->encoder_update(1);                     //清除编码器的值
     encoder->pulse_real = encoder->pulse * encoder->to_real_coefficient;
     encoder->pulse_sum += encoder->pulse;
     encoder->pulse_sum_real += encoder->pulse * encoder->to_real_coefficient;
