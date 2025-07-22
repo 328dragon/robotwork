@@ -29,6 +29,8 @@
 #include "tcd1103.h"
 #include "dc_motor.h"
 #include "gray.h"
+
+  int16_t encoder_data[2] = {0};
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -338,7 +340,7 @@ void TIM1_UP_TIM16_IRQHandler(void)
 void TIM1_TRG_COM_TIM17_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_TRG_COM_TIM17_IRQn 0 */
-  // 5m一次
+  // 5ms一次
   int32_t sum = 0;
   _max = 0, _min = 65535;
   for (int i = 0; i < 128; i++)
@@ -354,6 +356,7 @@ void TIM1_TRG_COM_TIM17_IRQHandler(void)
   avg = sum / 128;
   FindLines(&l, &r, ccd_data, 500, &l_w, &r_w);
 
+	
   //  char string_ccd[30] = {0};
   //  string_ccd[0] = l_w;
   //  string_ccd[1] = avg;
@@ -371,12 +374,12 @@ void TIM1_TRG_COM_TIM17_IRQHandler(void)
   DCMotorSetSpeedCloseLoop(&motor_1, motor_1_speed, motor_1_active);
 
   // 打印信息
-  int16_t encoder_data[2] = {0};
   encoder_data[0] = encoder_0.pulse;
   encoder_data[1] = encoder_1.pulse;
   char string_encoder[20] = {0};
   sprintf(string_encoder, "%d,%d\n", encoder_data[0], encoder_data[1]);
-  USARTSend(&uart2, (uint8_t *)string_encoder, 20, USART_TRANSFER_DMA);
+  USARTSend(&uart2, (uint8_t *)string_encoder, 20, USART_TRANSFER_IT);
+	
 
   /* USER CODE END TIM1_TRG_COM_TIM17_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);

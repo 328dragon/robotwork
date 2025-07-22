@@ -3,7 +3,7 @@
 <title>Static Call Graph - [gd_rebirth\gd_rebirth.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image gd_rebirth\gd_rebirth.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Tue Jul 22 17:27:30 2025
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Tue Jul 22 18:19:24 2025
 <BR><P>
 <H3>Maximum Stack Usage =        336 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -1657,7 +1657,7 @@ Global Symbols
 <LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[ad]"></a>IncEncoderUpdate</STRONG> (Thumb, 52 bytes, Stack size 8 bytes, encoder.o(.text.IncEncoderUpdate))
+<P><STRONG><a name="[ad]"></a>IncEncoderUpdate</STRONG> (Thumb, 60 bytes, Stack size 8 bytes, encoder.o(.text.IncEncoderUpdate))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = IncEncoderUpdate
 </UL>
 <BR>[Called By]<UL><LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DCMotorSetSpeedCloseLoop
@@ -2082,7 +2082,7 @@ Global Symbols
 <P><STRONG><a name="[68]"></a>SystemInit</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, system_stm32g4xx.o(.text.SystemInit))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32g473xx.o(.text)
 </UL>
-<P><STRONG><a name="[24]"></a>TIM1_TRG_COM_TIM17_IRQHandler</STRONG> (Thumb, 380 bytes, Stack size 56 bytes, stm32g4xx_it.o(.text.TIM1_TRG_COM_TIM17_IRQHandler))
+<P><STRONG><a name="[24]"></a>TIM1_TRG_COM_TIM17_IRQHandler</STRONG> (Thumb, 392 bytes, Stack size 56 bytes, stm32g4xx_it.o(.text.TIM1_TRG_COM_TIM17_IRQHandler))
 <BR><BR>[Stack]<UL><LI>Max Depth = 144<LI>Call Chain = TIM1_TRG_COM_TIM17_IRQHandler &rArr; HAL_TIM_IRQHandler &rArr; HAL_TIM_PeriodElapsedCallback &rArr; HAL_ADC_Start_DMA &rArr; HAL_DMA_Start_IT
 </UL>
 <BR>[Calls]<UL><LI><a href="#[144]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USARTSend

@@ -134,7 +134,7 @@ void tcs230_read_task(void *pvParameters)
 
         }
         // 读取颜色传感器数据
-        vTaskDelay(10); // 延时200ms
+        vTaskDelay(100); // 延时200ms
     }
 }
 void gray_read_task(void *pvParameters)
