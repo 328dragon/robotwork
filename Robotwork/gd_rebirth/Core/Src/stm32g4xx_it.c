@@ -30,7 +30,7 @@
 #include "dc_motor.h"
 #include "gray.h"
 
-  int16_t encoder_data[2] = {0};
+int16_t encoder_data[2] = {0};
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -86,20 +86,9 @@ extern TIM_HandleTypeDef htim17;
 #define step_pulse_low() HAL_GPIO_WritePin(step_mot_pulse_GPIO_Port, step_mot_pulse_Pin, 0);
 
 extern USARTInstance uart2;
-// 颜色传感器使用量
-// extern int goods_color ;
-// int read_color_flag = 0;
-// int read_color_finish_flag = 0;
-// int color_recognize_state = 0;
-// int color_re_delay = 0;
-// int color_reco_count = 0;
-// 灰度使用量
-// unsigned char Digtal_gray;
-// unsigned char Anolog_gray[8] = {0};
-// unsigned char Normal[8] = {0};
-// int gray_state = 0;
-// int gray_delay = 2; // 2*5=10ms
-// int gray_tmp_count = 0;
+extern int motor_mode;       // 电机模式
+extern int dc_step_distance; // 步进距离
+extern int step_complete_flag; // 步进模式直流电机完成标志位
 // 电机使用量
 int motor_0_speed;
 int motor_1_speed;
@@ -107,6 +96,10 @@ int motor_0_active;
 int motor_1_active;
 int tem_encoder_a = 0;
 int tem_encoder_b = 0;
+// 电机状态机使用量
+int encoder_l_temp = 0;
+int encoder_r_temp = 0;
+int dc_motor_state = 0;
 // 步进电机使用变量
 int step_motor_active = 0;
 int step_motor_speed = 0;
@@ -133,8 +126,8 @@ int delay_no_conflict(int *delay_temp_count, int delay_time)
 /*           Cortex-M4 Processor Interruption and Exception Handlers          */
 /******************************************************************************/
 /**
-  * @brief This function handles Non maskable interrupt.
-  */
+ * @brief This function handles Non maskable interrupt.
+ */
 void NMI_Handler(void)
 {
   /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
@@ -148,8 +141,8 @@ void NMI_Handler(void)
 }
 
 /**
-  * @brief This function handles Hard fault interrupt.
-  */
+ * @brief This function handles Hard fault interrupt.
+ */
 void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
@@ -163,8 +156,8 @@ void HardFault_Handler(void)
 }
 
 /**
-  * @brief This function handles Memory management fault.
-  */
+ * @brief This function handles Memory management fault.
+ */
 void MemManage_Handler(void)
 {
   /* USER CODE BEGIN MemoryManagement_IRQn 0 */
@@ -178,8 +171,8 @@ void MemManage_Handler(void)
 }
 
 /**
-  * @brief This function handles Prefetch fault, memory access fault.
-  */
+ * @brief This function handles Prefetch fault, memory access fault.
+ */
 void BusFault_Handler(void)
 {
   /* USER CODE BEGIN BusFault_IRQn 0 */
@@ -193,8 +186,8 @@ void BusFault_Handler(void)
 }
 
 /**
-  * @brief This function handles Undefined instruction or illegal state.
-  */
+ * @brief This function handles Undefined instruction or illegal state.
+ */
 void UsageFault_Handler(void)
 {
   /* USER CODE BEGIN UsageFault_IRQn 0 */
@@ -208,8 +201,8 @@ void UsageFault_Handler(void)
 }
 
 /**
-  * @brief This function handles Debug monitor.
-  */
+ * @brief This function handles Debug monitor.
+ */
 void DebugMon_Handler(void)
 {
   /* USER CODE BEGIN DebugMonitor_IRQn 0 */
@@ -221,20 +214,20 @@ void DebugMon_Handler(void)
 }
 
 /**
-  * @brief This function handles System tick timer.
-  */
+ * @brief This function handles System tick timer.
+ */
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
 
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
-#if (INCLUDE_xTaskGetSchedulerState == 1 )
+#if (INCLUDE_xTaskGetSchedulerState == 1)
   if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED)
   {
 #endif /* INCLUDE_xTaskGetSchedulerState */
-  xPortSysTickHandler();
-#if (INCLUDE_xTaskGetSchedulerState == 1 )
+    xPortSysTickHandler();
+#if (INCLUDE_xTaskGetSchedulerState == 1)
   }
 #endif /* INCLUDE_xTaskGetSchedulerState */
   /* USER CODE BEGIN SysTick_IRQn 1 */
@@ -250,8 +243,8 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
-  * @brief This function handles DMA1 channel1 global interrupt.
-  */
+ * @brief This function handles DMA1 channel1 global interrupt.
+ */
 void DMA1_Channel1_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
@@ -264,8 +257,8 @@ void DMA1_Channel1_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles DMA1 channel2 global interrupt.
-  */
+ * @brief This function handles DMA1 channel2 global interrupt.
+ */
 void DMA1_Channel2_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel2_IRQn 0 */
@@ -278,8 +271,8 @@ void DMA1_Channel2_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles DMA1 channel3 global interrupt.
-  */
+ * @brief This function handles DMA1 channel3 global interrupt.
+ */
 void DMA1_Channel3_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel3_IRQn 0 */
@@ -292,8 +285,8 @@ void DMA1_Channel3_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles DMA1 channel4 global interrupt.
-  */
+ * @brief This function handles DMA1 channel4 global interrupt.
+ */
 void DMA1_Channel4_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel4_IRQn 0 */
@@ -306,8 +299,8 @@ void DMA1_Channel4_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles FDCAN1 interrupt 0.
-  */
+ * @brief This function handles FDCAN1 interrupt 0.
+ */
 void FDCAN1_IT0_IRQHandler(void)
 {
   /* USER CODE BEGIN FDCAN1_IT0_IRQn 0 */
@@ -320,8 +313,8 @@ void FDCAN1_IT0_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles TIM1 update interrupt and TIM16 global interrupt.
-  */
+ * @brief This function handles TIM1 update interrupt and TIM16 global interrupt.
+ */
 void TIM1_UP_TIM16_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 0 */
@@ -335,12 +328,12 @@ void TIM1_UP_TIM16_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles TIM1 trigger and commutation interrupts and TIM17 global interrupt.
-  */
+ * @brief This function handles TIM1 trigger and commutation interrupts and TIM17 global interrupt.
+ */
 void TIM1_TRG_COM_TIM17_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_TRG_COM_TIM17_IRQn 0 */
-  // 5ms一次
+  // 5ms一次，对于编码器很合适
   int32_t sum = 0;
   _max = 0, _min = 65535;
   for (int i = 0; i < 128; i++)
@@ -356,30 +349,68 @@ void TIM1_TRG_COM_TIM17_IRQHandler(void)
   avg = sum / 128;
   FindLines(&l, &r, ccd_data, 500, &l_w, &r_w);
 
-	
+if(motor_mode==0)
+{
+dc_motor_state=0;
+step_complete_flag=0;
+}
+
+  if (motor_mode == 1) // 步进模式
+  {
+    switch (dc_motor_state)
+    {
+    case 0:
+    {
+      encoder_l_temp = encoder_0.pulse_sum;
+      encoder_r_temp = encoder_1.pulse_sum;
+      dc_motor_state++;
+      break;
+    }
+    case 1:
+    {
+      int encoder_1_distance = encoder_0.pulse_sum - encoder_l_temp;
+      int encoder_2_distance = encoder_1.pulse_sum - encoder_r_temp;
+      if (dc_step_distance >= 0)
+      {
+        if ((encoder_1_distance >= dc_step_distance) || (encoder_2_distance >= dc_step_distance))
+        {
+          motor_0_speed = 0;
+          motor_1_speed = 0;
+          step_complete_flag=1;
+        }
+      }
+      else if (dc_step_distance < 0)
+      {
+        if ((encoder_1_distance <= dc_step_distance) && (encoder_2_distance <= dc_step_distance))
+        {
+          motor_0_speed = 0;
+          motor_1_speed = 0;
+          step_complete_flag=1;
+        }
+      }
+      break;
+    }
+
+    default:
+      break;
+    }
+  }
   //  char string_ccd[30] = {0};
   //  string_ccd[0] = l_w;
   //  string_ccd[1] = avg;
   //  string_ccd[2] = r_w;
   //  sprintf(string_ccd, "%d,%d,%d\r\n", string_ccd[0], string_ccd[1], string_ccd[2]);
   //  USARTSend(&uart2, (uint8_t *)string_ccd, 30, USART_TRANSFER_DMA);
-  // 电机执行层
-  // 开环模式判断硬件是否完好
-  //	IncEncoderUpdate(&encoder_0);
-  //	IncEncoderUpdate(&encoder_1);
-  //  DCMotorSetSpeedOpenLoop(&motor_0,motor_0_speed,motor_0_active);
-  //  DCMotorSetSpeedOpenLoop(&motor_1,motor_1_speed,motor_1_active);
 
+  // 电机控制,motor_0_speed和motor_1_speed是电机实际输入速度
   DCMotorSetSpeedCloseLoop(&motor_0, motor_0_speed, motor_0_active);
   DCMotorSetSpeedCloseLoop(&motor_1, motor_1_speed, motor_1_active);
-
   // 打印信息
   encoder_data[0] = encoder_0.pulse;
   encoder_data[1] = encoder_1.pulse;
   char string_encoder[20] = {0};
   sprintf(string_encoder, "%d,%d\n", encoder_data[0], encoder_data[1]);
-  USARTSend(&uart2, (uint8_t *)string_encoder, 20, USART_TRANSFER_IT);
-	
+  USARTSend(&uart2, (uint8_t *)string_encoder, 20, USART_TRANSFER_DMA);
 
   /* USER CODE END TIM1_TRG_COM_TIM17_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
@@ -390,8 +421,8 @@ void TIM1_TRG_COM_TIM17_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles USART1 global interrupt / USART1 wake-up interrupt through EXTI line 25.
-  */
+ * @brief This function handles USART1 global interrupt / USART1 wake-up interrupt through EXTI line 25.
+ */
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
@@ -404,8 +435,8 @@ void USART1_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles USART2 global interrupt / USART2 wake-up interrupt through EXTI line 26.
-  */
+ * @brief This function handles USART2 global interrupt / USART2 wake-up interrupt through EXTI line 26.
+ */
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
@@ -418,13 +449,13 @@ void USART2_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles TIM5 global interrupt.
-  */
+ * @brief This function handles TIM5 global interrupt.
+ */
 void TIM5_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM5_IRQn 0 */
   if (step_motor_active == 1)
-    stepmotor_on() else if (step_motor_active== 0)
+    stepmotor_on() else if (step_motor_active == 0)
         stepmotor_off() if (step_motor_direction == 0) // 正向
         stepmotor_pos() else stepmotor_neg()
 
@@ -454,8 +485,8 @@ void TIM5_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles TIM6 global interrupt, DAC1 and DAC3 channel underrun error interrupts.
-  */
+ * @brief This function handles TIM6 global interrupt, DAC1 and DAC3 channel underrun error interrupts.
+ */
 void TIM6_DAC_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
@@ -468,8 +499,8 @@ void TIM6_DAC_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles FDCAN2 interrupt 1.
-  */
+ * @brief This function handles FDCAN2 interrupt 1.
+ */
 void FDCAN2_IT1_IRQHandler(void)
 {
   /* USER CODE BEGIN FDCAN2_IT1_IRQn 0 */

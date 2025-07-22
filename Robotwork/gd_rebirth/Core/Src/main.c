@@ -208,20 +208,7 @@ int main(void)
   // debug串口
   USARTRegister(&uart2, &usart2_config);
   memset(uart2.recv_buff, 0, uart2.recv_buff_size);
-//  // 颜色传感器添加完成
-//  HAL_UART_Receive_IT(&huart1, &RxData, 1);
-//  printf("AT+LIGHT+ON\r\n");
-//  printf("AT+LIGHT+ON\r\n");
-//  printf("AT+LIGHT+ON\r\n");
-//  printf("AT+LIGHT+ON\r\n");
-//  printf("AT+LIGHT+ON\r\n");
-//  printf("AT+LIGHT+ON\r\n");
 
-//  for (int i = 0; i < 10; i++)
-//  {
-//    goods_color = Color_Recognize();
-//    HAL_Delay(200);
-//  }
 //普通灰度
 	while(Ping())
 	{

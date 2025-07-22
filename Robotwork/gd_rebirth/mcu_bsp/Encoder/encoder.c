@@ -77,6 +77,7 @@ void IncEncoderUpdate(inc_encoder_t *encoder)
     encoder->pulse = encoder->encoder_update(0);    //读取编码器的值
    encoder->encoder_update(1);                     //清除编码器的值
     encoder->pulse_real = encoder->pulse * encoder->to_real_coefficient;
+	//普通里程计
     encoder->pulse_sum += encoder->pulse;
     encoder->pulse_sum_real += encoder->pulse * encoder->to_real_coefficient;
 }

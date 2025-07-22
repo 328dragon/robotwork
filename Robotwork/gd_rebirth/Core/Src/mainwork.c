@@ -11,7 +11,23 @@
 #include "gray.h"
 #include "usart.h"
 #include "tim.h"
-
+#include "dc_motor.h"
+// 主函数逻辑
+int main_state = 0;
+// 电机模式
+extern int motor_0_speed;
+extern int motor_1_speed;
+extern int motor_0_active;
+extern int motor_1_active;
+enum MotorMode
+{
+    MOTOR_MODE_NORMAL = 0, // 开环模式
+    MOTOR_MODE_STEP = 1    // 步进模式
+};
+int dc_step_distance = 0;           // 步进距离
+int motor_mode = MOTOR_MODE_NORMAL; // 0:开环,1:闭环
+int step_complete_flag = 0;         // 步进模式直流电机完成标志位
+// 舵机控制量
 int debug_hook_pwm = 0;
 int debug_up_pwm = 0;
 int debug_down_pwm = 0;
@@ -26,21 +42,24 @@ unsigned char Normal[8] = {0};
 
 int read_cololr_flag = 0; // 颜色传感器读取标志位
 int read_color_state = 0; // 颜色传感器读取状态
-int temp_color=-1;
+int temp_color = -1;
 // freertos句柄
 TaskHandle_t main_cpp_handle;         // 主函数
 TaskHandle_t gray_read_handle;        // 灰度传感器
 TaskHandle_t tcs230_read_handle;      // tcs230颜色传感器读取
 TaskHandle_t IMU_read_handle;         // IMU读取
-TaskHandle_t LCD_Show_handle;         // 显示
 TaskHandle_t wheel_state_read_handle; // tcd1103读取
 
 void Onmaincpp(void *pvParameters);
 void IMU_Read_task(void *pvParameters);
-void LCD_Show_task(void *pvParameters);
 void tcs230_read_task(void *pvParameters);
 void gray_read_task(void *pvParameters);
 void wheel_state_read_task(void *pvParameters);
+void vtask_delay_second(int seconds)
+{
+    // FreeRTOS延时函数
+    vTaskDelay(seconds * 1000);
+}
 
 void main_work(void)
 { // 颜色传感器添加完成
@@ -55,11 +74,10 @@ void main_work(void)
 
     BaseType_t ok3 = xTaskCreate(Onmaincpp, "main_cpp", 100, NULL, 4, &main_cpp_handle);
     BaseType_t ok5 = xTaskCreate(IMU_Read_task, "IMU_Read_task", 100, NULL, 4, &IMU_read_handle);
-    BaseType_t ok6 = xTaskCreate(LCD_Show_task, "LCD_Show_task", 100, NULL, 1, &LCD_Show_handle);
     BaseType_t ok7 = xTaskCreate(tcs230_read_task, "tcs230_read_task", 100, NULL, 2, &tcs230_read_handle);
     BaseType_t ok8 = xTaskCreate(gray_read_task, "gray_read_task", 100, NULL, 2, &gray_read_handle);
     BaseType_t ok9 = xTaskCreate(wheel_state_read_task, "wheel_state_read_task", 100, NULL, 2, &wheel_state_read_handle);
-    if (ok3 != pdPASS | ok5 != pdPASS || ok6 != pdPASS || ok7 != pdPASS || ok8 != pdPASS)
+    if (ok3 != pdPASS | ok5 != pdPASS || ok7 != pdPASS || ok8 != pdPASS)
     {
         // 任务创建失败，进入死循环
         while (1)
@@ -123,15 +141,14 @@ void tcs230_read_task(void *pvParameters)
             }
             case 2:
             {
-							temp_color=-1;
+                temp_color = -1;
                 read_color_state = 0; // 重置状态机
-                read_cololr_flag=0;
+                read_cololr_flag = 0;
                 break;
             }
             default:
                 break;
             }
-
         }
         // 读取颜色传感器数据
         vTaskDelay(100); // 延时200ms
@@ -145,6 +162,7 @@ void gray_read_task(void *pvParameters)
     }
     while (1)
     {
+			
         // 读取灰度传感器数据
         Digtal_gray = IIC_Get_Digtal();
 
@@ -165,36 +183,6 @@ void gray_read_task(void *pvParameters)
     }
 }
 
-void LCD_Show_task(void *pvParameters)
-{
-    // 屏幕
-    //    LCD_Init();
-    //    LCD_Fill(0, 0, LCD_W, LCD_H, WHITE);
-    while (1)
-    {
-        //        // 显示
-        //        // 陀螺仪
-        //        LCD_ShowFloatNum1(0, 20, gyro[0], 4, RED, WHITE, 16);
-        //        LCD_ShowString(48, 20, ",", RED, WHITE, 16, 0);
-        //        LCD_ShowFloatNum1(58, 20, gyro[1], 4, RED, WHITE, 16);
-        //        LCD_ShowString(106, 40, ",", RED, WHITE, 16, 0);
-        //        LCD_ShowFloatNum1(116, 20, gyro[2], 4, RED, WHITE, 16);
-        //        // 加速度
-        //        LCD_ShowFloatNum1(0, 40, accel[0], 4, RED, WHITE, 16);
-        //        LCD_ShowString(48, 40, ",", RED, WHITE, 16, 0);
-        //        LCD_ShowFloatNum1(58, 40, accel[1], 4, RED, WHITE, 16);
-        //        LCD_ShowString(106, 40, ",", RED, WHITE, 16, 0);
-        //        LCD_ShowFloatNum1(116, 40, accel[2], 4, RED, WHITE, 16);
-        //        // 显示temp
-        //        LCD_ShowFloatNum1(10, 60, temp, 4, RED, WHITE, 16);
-        //        LCD_ShowString(52, 60, ",", RED, WHITE, 16, 0);
-        //        LCD_ShowString(62, 60, "gyro", RED, WHITE, 16, 0);
-        //        LCD_ShowString(100, 60, ",", RED, WHITE, 16, 0);
-        //        LCD_ShowString(106, 60, "accel", RED, WHITE, 16, 0);
-        vTaskDelay(100);
-    }
-}
-
 void IMU_Read_task(void *pvParameters)
 {
     while (1)
@@ -203,14 +191,73 @@ void IMU_Read_task(void *pvParameters)
     }
 }
 
+// 电机步进模式配置函数，减少重复代码
+static void setMotorStepMode(int8_t speed0, int8_t speed1, int32_t distance) {
+    motor_0_active = 1;
+    motor_1_active = 1;
+    motor_0_speed = speed0;
+    motor_1_speed = speed1;
+    dc_step_distance = distance;
+    motor_mode = MOTOR_MODE_STEP;
+}
+
 void Onmaincpp(void *pvParameters)
 {
 
     while (1)
     {
-//        __HAL_TIM_SET_COMPARE(&htim20, TIM_CHANNEL_1, 550);          // 900最低，550最高
-//        __HAL_TIM_SET_COMPARE(&htim20, TIM_CHANNEL_2, debug_up_pwm); // 890最紧，700最松
-//        __HAL_TIM_SET_COMPARE(&htim20, TIM_CHANNEL_3, debug_up_pwm);
+        switch (main_state)
+        {
+        case 0:
+        {
+
+            vTaskDelay(1000);
+            main_state++;
+            break;
+        }
+        case 1:
+        {
+         setMotorStepMode(6,6, 4000); // 设置电机步进模式，速度6，距离4000
+            main_state++;
+            break;
+        }
+        case 2:
+        {
+            if (step_complete_flag == 1)
+            {
+                motor_mode = MOTOR_MODE_NORMAL; // 设置为正常模式
+                main_state++;
+                vtask_delay_second(4);
+            }
+            break;
+        }
+        case 3:
+        {
+           setMotorStepMode(-6, -6, -4000); // 设置电机步进模式，速度-6，距离-4000
+            main_state++;
+            break;
+        }
+        case 4:
+        {
+            if (step_complete_flag == 1)
+            {
+                motor_mode = MOTOR_MODE_NORMAL; // 设置为正常模式
+                main_state++;
+                vtask_delay_second(2);
+            }
+						break;
+        }
+        case 5:
+        {
+            // 读取颜色传感器
+            read_cololr_flag = 1;
+          setMotorStepMode(6, 6, 4000); // 设置电机步进模式，速度6，距离4000
+            main_state++;
+            break;
+        }
+        default:
+            break;
+        }
         vTaskDelay(100);
     }
 }
