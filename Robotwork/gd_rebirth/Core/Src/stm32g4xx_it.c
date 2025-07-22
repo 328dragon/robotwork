@@ -29,8 +29,8 @@
 #include "tcd1103.h"
 #include "dc_motor.h"
 #include "gray.h"
+#include "mainwork.h"
 
-int16_t encoder_data[2] = {0};
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -90,6 +90,9 @@ extern int motor_mode;       // 电机模式
 extern int dc_step_distance; // 步进距离
 extern int step_complete_flag; // 步进模式直流电机完成标志位
 // 电机使用量
+extern int motor_0_user_speed;
+extern int motor_1_user_speed;
+int16_t encoder_data[2] = {0};
 int motor_0_speed;
 int motor_1_speed;
 int motor_0_active;
@@ -100,6 +103,9 @@ int tem_encoder_b = 0;
 int encoder_l_temp = 0;
 int encoder_r_temp = 0;
 int dc_motor_state = 0;
+//灰度传感器使用量
+int gray_bia=0;
+int gray_bia_p=2;
 // 步进电机使用变量
 int step_motor_active = 0;
 int step_motor_speed = 0;
@@ -348,6 +354,11 @@ void TIM1_TRG_COM_TIM17_IRQHandler(void)
   }
   avg = sum / 128;
   FindLines(&l, &r, ccd_data, 500, &l_w, &r_w);
+
+gray_bia=get_black_line_position();
+
+ motor_1_speed =motor_1_user_speed+gray_bia_p*gray_bia;
+ motor_0_speed =motor_0_user_speed-gray_bia_p*gray_bia;
 
 if(motor_mode==0)
 {

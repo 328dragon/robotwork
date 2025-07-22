@@ -15,6 +15,8 @@
 // 主函数逻辑
 int main_state = 0;
 // 电机模式
+int motor_0_user_speed = 0;
+int motor_1_user_speed = 0;
 extern int motor_0_speed;
 extern int motor_1_speed;
 extern int motor_0_active;
@@ -33,13 +35,14 @@ int debug_up_pwm = 0;
 int debug_down_pwm = 0;
 // 传感器信息
 extern int goods_color;
+uint8_t digital_gray_data[8];
+int sensor_weights[8]={-5,-3,-2,-1,1,2,3,5}; // 传感器权重
 unsigned char Digtal_gray;
 unsigned char Anolog_gray[8] = {0};
 unsigned char Normal[8] = {0};
 #define max(a, b) ((a) >= (b) ? (a) : (b))
 #define min(a, b) ((a) <= (b) ? (a) : (b))
 // 状态机
-
 int read_cololr_flag = 0; // 颜色传感器读取标志位
 int read_color_state = 0; // 颜色传感器读取状态
 int temp_color = -1;
@@ -165,7 +168,11 @@ void gray_read_task(void *pvParameters)
 			
         // 读取灰度传感器数据
         Digtal_gray = IIC_Get_Digtal();
-
+        for(int i=0;i<8;i++)
+        {
+digital_gray_data[i]=1-((Digtal_gray>>i) & 0x01); // 读取数字灰度传感器数据
+            
+        }
         // 获取传感器模拟量结果
         if (IIC_Get_Anolog(Anolog_gray, 8))
         {
@@ -195,69 +202,82 @@ void IMU_Read_task(void *pvParameters)
 static void setMotorStepMode(int8_t speed0, int8_t speed1, int32_t distance) {
     motor_0_active = 1;
     motor_1_active = 1;
-    motor_0_speed = speed0;
-    motor_1_speed = speed1;
+    motor_0_user_speed = speed0;
+    motor_1_user_speed = speed1;
     dc_step_distance = distance;
     motor_mode = MOTOR_MODE_STEP;
 }
-
+// 计算黑线位置（返回值范围：0-7，对应传感器位置）
+ float get_black_line_position(void) {
+  float position_sum = 0.0f;    
+    // 遍历所有传感器，累加黑线位置
+    for (uint8_t i = 0; i < 8; i++) {     
+            position_sum += digital_gray_data[i]* sensor_weights[i];
+    }   
+    // 返回黑线平均位置
+    return position_sum /8.0f;
+}
 void Onmaincpp(void *pvParameters)
 {
 
     while (1)
     {
-        switch (main_state)
-        {
-        case 0:
-        {
+         motor_0_active = 1;
+    motor_1_active = 1;
+        motor_0_user_speed=6;
+        motor_1_user_speed=6;
+        // switch (main_state)
+        // {
+        // case 0:
+        // {
 
-            vTaskDelay(1000);
-            main_state++;
-            break;
-        }
-        case 1:
-        {
-         setMotorStepMode(6,6, 4000); // 设置电机步进模式，速度6，距离4000
-            main_state++;
-            break;
-        }
-        case 2:
-        {
-            if (step_complete_flag == 1)
-            {
-                motor_mode = MOTOR_MODE_NORMAL; // 设置为正常模式
-                main_state++;
-                vtask_delay_second(4);
-            }
-            break;
-        }
-        case 3:
-        {
-           setMotorStepMode(-6, -6, -4000); // 设置电机步进模式，速度-6，距离-4000
-            main_state++;
-            break;
-        }
-        case 4:
-        {
-            if (step_complete_flag == 1)
-            {
-                motor_mode = MOTOR_MODE_NORMAL; // 设置为正常模式
-                main_state++;
-                vtask_delay_second(2);
-            }
-						break;
-        }
-        case 5:
-        {
-            // 读取颜色传感器
-            read_cololr_flag = 1;
-          setMotorStepMode(6, 6, 4000); // 设置电机步进模式，速度6，距离4000
-            main_state++;
-            break;
-        }
-        default:
-            break;
-        }
+        //     vTaskDelay(1000);
+        //     main_state++;
+        //     break;
+        // }
+        // case 1:
+        // {
+        //  setMotorStepMode(6,6, 4000); // 设置电机步进模式，速度6，距离4000
+        //     main_state++;
+        //     break;
+        // }
+        // case 2:
+        // {
+        //     if (step_complete_flag == 1)
+        //     {
+        //         motor_mode = MOTOR_MODE_NORMAL; // 设置为正常模式
+        //         main_state++;
+        //         vtask_delay_second(4);
+        //     }
+        //     break;
+        // }
+        // case 3:
+        // {
+        //    setMotorStepMode(-6, -6, -4000); // 设置电机步进模式，速度-6，距离-4000
+        //     main_state++;
+        //     break;
+        // }
+        // case 4:
+        // {
+        //     if (step_complete_flag == 1)
+        //     {
+        //         motor_mode = MOTOR_MODE_NORMAL; // 设置为正常模式
+        //         main_state++;
+        //         vtask_delay_second(2);
+        //     }
+		// 				break;
+        // }
+        // case 5:
+        // {
+        //     // 读取颜色传感器
+        //     read_cololr_flag = 1;
+        //   setMotorStepMode(6, 6, 4000); // 设置电机步进模式，速度6，距离4000
+        //     main_state++;
+        //     break;
+        // }
+        // default:
+        //     break;
+        // }
         vTaskDelay(100);
     }
 }

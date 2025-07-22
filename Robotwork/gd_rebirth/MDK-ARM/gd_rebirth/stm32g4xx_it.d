@@ -49,4 +49,7 @@ gd_rebirth/stm32g4xx_it.o: ..\Core\Src\stm32g4xx_it.c ..\Core\Inc\main.h \
   ..\Device\tcd1103.h ..\Core\Inc\adc.h ..\Core\Inc\i2c.h \
   ..\mcu_bsp\Motor\dc_motor.h ..\Core\Inc\tim.h \
   ..\mcu_bsp\system_controller\pid.h ..\mcu_bsp\Encoder\encoder.h \
-  ..\Device\gray.h ..\Device\gw_grayscale_sensor.h
+  ..\Device\gray.h ..\Device\gw_grayscale_sensor.h \
+  ..\Core\Inc\mainwork.h \
+  ..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS_V2\cmsis_os.h \
+  ..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS_V2\cmsis_os2.h
