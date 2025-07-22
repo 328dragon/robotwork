@@ -17,13 +17,18 @@
                 "d:\\stmproject\\dragonproject\\contest\\robotwork\\Robotwork\\gd_rebirth\\mcu_bsp\\IMU",
                 "d:\\stmproject\\dragonproject\\contest\\robotwork\\Robotwork\\gd_rebirth\\mcu_bsp\\tools",
                 "d:\\stmproject\\dragonproject\\contest\\robotwork\\Robotwork\\gd_rebirth\\mcu_bsp\\uart",
+                "d:\\stmproject\\dragonproject\\contest\\robotwork\\Robotwork\\gd_rebirth\\Middlewares\\Third_Party\\FreeRTOS\\Source\\include",
+                "d:\\stmproject\\dragonproject\\contest\\robotwork\\Robotwork\\gd_rebirth\\Middlewares\\Third_Party\\FreeRTOS\\Source\\CMSIS_RTOS_V2",
+                "d:\\stmproject\\dragonproject\\contest\\robotwork\\Robotwork\\gd_rebirth\\Middlewares\\Third_Party\\FreeRTOS\\Source\\portable\\RVDS\\ARM_CM4F",
                 "D:\\keil\\core\\ARM\\ARMCLANG\\include",
                 "D:\\keil\\core\\ARM\\ARMCLANG\\include\\arm_linux",
                 "D:\\keil\\core\\ARM\\ARMCLANG\\include\\arm_linux_compat",
                 "D:\\keil\\core\\ARM\\ARMCLANG\\include\\libcxx",
                 "d:\\stmproject\\dragonproject\\contest\\robotwork\\Robotwork\\gd_rebirth\\MDK-ARM",
                 "d:\\stmproject\\dragonproject\\contest\\robotwork\\Robotwork\\gd_rebirth\\Core\\Src",
-                "d:\\stmproject\\dragonproject\\contest\\robotwork\\Robotwork\\gd_rebirth\\Drivers\\STM32G4xx_HAL_Driver\\Src"
+                "d:\\stmproject\\dragonproject\\contest\\robotwork\\Robotwork\\gd_rebirth\\Drivers\\STM32G4xx_HAL_Driver\\Src",
+                "d:\\stmproject\\dragonproject\\contest\\robotwork\\Robotwork\\gd_rebirth\\Middlewares\\Third_Party\\FreeRTOS\\Source",
+                "d:\\stmproject\\dragonproject\\contest\\robotwork\\Robotwork\\gd_rebirth\\Middlewares\\Third_Party\\FreeRTOS\\Source\\portable\\MemMang"
             ],
             "defines": [
                 "USE_HAL_DRIVER",

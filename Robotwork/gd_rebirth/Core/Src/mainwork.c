@@ -12,11 +12,11 @@
 #include "usart.h"
 #include "tim.h"
 
- int debug_hook_pwm=0;
- int debug_up_pwm=0;
- int debug_down_pwm=0;
+int debug_hook_pwm = 0;
+int debug_up_pwm = 0;
+int debug_down_pwm = 0;
 // 传感器信息
-extern int goods_color ;
+extern int goods_color;
 unsigned char Digtal_gray;
 unsigned char Anolog_gray[8] = {0};
 unsigned char Normal[8] = {0};
@@ -25,12 +25,14 @@ unsigned char Normal[8] = {0};
 // 状态机
 
 int read_cololr_flag = 0; // 颜色传感器读取标志位
-//freertos句柄
-TaskHandle_t main_cpp_handle;        // 主函数
-TaskHandle_t gray_read_handle;       // 灰度传感器
-TaskHandle_t tcs230_read_handle;     // tcs230颜色传感器读取
-TaskHandle_t IMU_read_handle;        // IMU读取
-TaskHandle_t LCD_Show_handle;        // 显示
+int read_color_state = 0; // 颜色传感器读取状态
+int temp_color=-1;
+// freertos句柄
+TaskHandle_t main_cpp_handle;         // 主函数
+TaskHandle_t gray_read_handle;        // 灰度传感器
+TaskHandle_t tcs230_read_handle;      // tcs230颜色传感器读取
+TaskHandle_t IMU_read_handle;         // IMU读取
+TaskHandle_t LCD_Show_handle;         // 显示
 TaskHandle_t wheel_state_read_handle; // tcd1103读取
 
 void Onmaincpp(void *pvParameters);
@@ -56,8 +58,8 @@ void main_work(void)
     BaseType_t ok6 = xTaskCreate(LCD_Show_task, "LCD_Show_task", 100, NULL, 1, &LCD_Show_handle);
     BaseType_t ok7 = xTaskCreate(tcs230_read_task, "tcs230_read_task", 100, NULL, 2, &tcs230_read_handle);
     BaseType_t ok8 = xTaskCreate(gray_read_task, "gray_read_task", 100, NULL, 2, &gray_read_handle);
-	BaseType_t ok9 = xTaskCreate(wheel_state_read_task, "wheel_state_read_task", 100, NULL, 2, &wheel_state_read_handle);
-    if ( ok3!= pdPASS|ok5 != pdPASS||ok6 !=pdPASS||ok7 != pdPASS||ok8 != pdPASS)
+    BaseType_t ok9 = xTaskCreate(wheel_state_read_task, "wheel_state_read_task", 100, NULL, 2, &wheel_state_read_handle);
+    if (ok3 != pdPASS | ok5 != pdPASS || ok6 != pdPASS || ok7 != pdPASS || ok8 != pdPASS)
     {
         // 任务创建失败，进入死循环
         while (1)
@@ -65,19 +67,16 @@ void main_work(void)
             // uart_printf("create task failed\n");
         }
     }
-
 }
 
 void wheel_state_read_task(void *pvParameters)
 {
 
-    while(1)
+    while (1)
     {
-        
+
         vTaskDelay(300);
     }
-
-
 }
 
 void tcs230_read_task(void *pvParameters)
@@ -87,12 +86,55 @@ void tcs230_read_task(void *pvParameters)
     {
         if (read_cololr_flag == 1)
         {
-            goods_color = Color_Recognize();
-            read_cololr_flag = 0; // 清除标志位
-                                  // uart_printf("tcs230 read color\n");
+
+            switch (read_color_state)
+            {
+            case 0:
+            {
+                R = 0;
+                G = 0;
+                B = 0;
+                temp_color = -1;
+                printf("AT+COLOR\r\n");
+                vTaskDelay(500);
+                printf("AT+COLOR\r\n");
+                read_color_state++;
+                break;
+            }
+            case 1:
+            {
+                // 读取颜色传感器数据
+                if (Get_RxFlag() && R != 0 && G != 0 && B != 0)
+                {
+                    temp_color = Get_Color();
+                    if (temp_color != -1)
+                    {
+                        goods_color = temp_color;
+                        read_color_state++;
+                    }
+
+                    else
+                    {
+                        // uart_printf("tcs230 read color failed\n");
+                    }
+                }
+                printf("AT+COLOR\r\n");
+                break;
+            }
+            case 2:
+            {
+							temp_color=-1;
+                read_color_state = 0; // 重置状态机
+                read_cololr_flag=0;
+                break;
+            }
+            default:
+                break;
+            }
+
         }
         // 读取颜色传感器数据
-        vTaskDelay(200); // 延时200ms
+        vTaskDelay(10); // 延时200ms
     }
 }
 void gray_read_task(void *pvParameters)
@@ -109,7 +151,6 @@ void gray_read_task(void *pvParameters)
         // 获取传感器模拟量结果
         if (IIC_Get_Anolog(Anolog_gray, 8))
         {
-					
         }
 
         // 获取传感器归一化结果
@@ -159,20 +200,17 @@ void IMU_Read_task(void *pvParameters)
     while (1)
     {
         vTaskDelay(1000);
-
     }
 }
 
 void Onmaincpp(void *pvParameters)
 {
 
-
     while (1)
     {
-	  __HAL_TIM_SET_COMPARE(&htim20,TIM_CHANNEL_1,550);//900最低，550最高
-		__HAL_TIM_SET_COMPARE(&htim20,TIM_CHANNEL_2,debug_up_pwm);//890最紧，700最松
-			__HAL_TIM_SET_COMPARE(&htim20,TIM_CHANNEL_3,debug_up_pwm);
+//        __HAL_TIM_SET_COMPARE(&htim20, TIM_CHANNEL_1, 550);          // 900最低，550最高
+//        __HAL_TIM_SET_COMPARE(&htim20, TIM_CHANNEL_2, debug_up_pwm); // 890最紧，700最松
+//        __HAL_TIM_SET_COMPARE(&htim20, TIM_CHANNEL_3, debug_up_pwm);
         vTaskDelay(100);
     }
 }
-
