@@ -86,9 +86,10 @@ extern TIM_HandleTypeDef htim17;
 #define step_pulse_low() HAL_GPIO_WritePin(step_mot_pulse_GPIO_Port, step_mot_pulse_Pin, 0);
 
 extern USARTInstance uart2;
-extern int motor_mode;       // 电机模式
+
 extern int dc_step_distance; // 步进距离
 extern int step_complete_flag; // 步进模式直流电机完成标志位
+extern int dc_step_flag;
 // 电机使用量
 extern int motor_0_user_speed;
 extern int motor_1_user_speed;
@@ -104,8 +105,15 @@ int encoder_l_temp = 0;
 int encoder_r_temp = 0;
 int dc_motor_state = 0;
 //灰度传感器使用量
-int gray_bia=0;
-int gray_bia_p=2;
+//前面
+float gray_bia=0;
+float gray_bia_p=1.2;
+//背面
+float gray_bia_back=0;
+float gray_bia_p_back=1.2;
+//逻辑总使用量
+float gray_bia_genaral=0;
+float gray_bia_p_general=1.2;
 // 步进电机使用变量
 int step_motor_active = 0;
 int step_motor_speed = 0;
@@ -354,20 +362,33 @@ void TIM1_TRG_COM_TIM17_IRQHandler(void)
   }
   avg = sum / 128;
   FindLines(&l, &r, ccd_data, 500, &l_w, &r_w);
-
-gray_bia=get_black_line_position();
-
- motor_1_speed =motor_1_user_speed+gray_bia_p*gray_bia;
- motor_0_speed =motor_0_user_speed-gray_bia_p*gray_bia;
-
-if(motor_mode==0)
+ 
+gray_bia=get_black_line_position(front);
+gray_bia_back=get_black_line_position(back);	
+switch (motor_mode)
 {
-dc_motor_state=0;
-step_complete_flag=0;
+case MOTOR_MODE_NORMAL:
+{
+
+	gray_bia_genaral=gray_bia;
+	gray_bia_p_general=gray_bia_p	;
+  break;
+}
+case MOTOR_MDOE_NORMAL_BACK:
+{
+  	gray_bia_genaral=gray_bia_back;
+	gray_bia_p_general=gray_bia_p_back;
+  break;
+}
+default:
+  break;
 }
 
-  if (motor_mode == 1) // 步进模式
-  {
+ motor_1_speed =motor_1_user_speed+gray_bia_p_general*gray_bia_genaral;
+ motor_0_speed =motor_0_user_speed-gray_bia_p_general*gray_bia_genaral;
+
+if(dc_step_flag==1)
+{
     switch (dc_motor_state)
     {
     case 0:
@@ -386,7 +407,7 @@ step_complete_flag=0;
         if ((encoder_1_distance >= dc_step_distance) || (encoder_2_distance >= dc_step_distance))
         {
           motor_0_speed = 0;
-          motor_1_speed = 0;
+          motor_1_speed = 0;         
           step_complete_flag=1;
         }
       }
@@ -405,14 +426,20 @@ step_complete_flag=0;
     default:
       break;
     }
-  }
+}
+
+
   //  char string_ccd[30] = {0};
   //  string_ccd[0] = l_w;
   //  string_ccd[1] = avg;
   //  string_ccd[2] = r_w;
   //  sprintf(string_ccd, "%d,%d,%d\r\n", string_ccd[0], string_ccd[1], string_ccd[2]);
   //  USARTSend(&uart2, (uint8_t *)string_ccd, 30, USART_TRANSFER_DMA);
-
+if(motor_mode==MOTOR_STOP)
+{
+motor_0_speed=0;
+motor_1_speed=0;
+}
   // 电机控制,motor_0_speed和motor_1_speed是电机实际输入速度
   DCMotorSetSpeedCloseLoop(&motor_0, motor_0_speed, motor_0_active);
   DCMotorSetSpeedCloseLoop(&motor_1, motor_1_speed, motor_1_active);
