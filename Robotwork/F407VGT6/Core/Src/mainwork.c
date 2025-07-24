@@ -15,6 +15,20 @@
 #include "lcd.h"
 #include "lcd_init.h"
 #include "pic.h"
+#include "string.h"
+#include "bsp_usart.h"
+//
+USARTInstance uart6 = {0};
+void usart6_callback(void)
+{
+
+}
+USART_Init_Config_s uart6_cfg = {
+    .recv_buff_size = 90,
+    .usart_handle = &huart6,
+    .module_callback = usart6_callback,
+};
+//
 float DEBUG = 0.0f;
 float DEBUG2 = 0.0f;
 float DEBUG3 = 0.0f;
@@ -51,13 +65,15 @@ void Onmaincpp(void *pvParameters);
 void IMU_Read_task(void *pvParameters);
 void LCD_Show_task(void *pvParameters);
 
+
 void main_work(void)
 {
     while (BMI088_init())
     {
         ;
     }
-
+		  USARTRegister(&uart6, &uart6_cfg);
+		  memset(uart6.recv_buff, 0, uart6.recv_buff_size);
     // 注意电机编号如下所示
 		
 		Step_ZDT_Init(zdt_stepmotor_ptr[0], 1, &huart3, 0, 0.06f, false);//左上
@@ -154,8 +170,8 @@ int safe_count=0;
                    debug_target_odom = (odom_t){0.5, 0, 0};
                 //    debug_target_vel = (cmd_vel_t){0.1, 0.1, 0.1};
                    debug_target_erro = (odom_t){0.01, 0.01, 0.01};
-                      position_flag++;
-					 Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.5, &debug_target_erro, 0);   
+                   position_flag++;
+									Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.5, &debug_target_erro, 0);   
                }
                break;
            }
@@ -171,7 +187,16 @@ int safe_count=0;
                }
                break;
            }
+					 case 2:
+					 {
+						   if (SimpleStatus_t_isResolved(&planner_ptr->promise))
+               {
+							 						 begin_flag=0;
+					 position_flag=0;
+							 }
 
+					 break;
+					 }
            default:
                break;
            }
@@ -206,7 +231,7 @@ void OnChassicControl(void *pvParameters)
         last_tick = xTaskGetTickCount();
 			if(safe_guard)
 			{
-			        Controller_KinematicAndControlUpdate(ChassisControl_ptr, dt);
+		  Controller_KinematicAndControlUpdate(ChassisControl_ptr, dt);
         // // 步进不需要速度环，此处仅为了读取电机速度
          ChassisControl_ptr->Controller_MotorUpdate(ChassisControl_ptr, dt);		
 			}
