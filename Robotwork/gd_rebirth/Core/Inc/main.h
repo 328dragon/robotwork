@@ -32,6 +32,10 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#define max(a, b) ((a) >= (b) ? (a) : (b))
+#define min(a, b) ((a) <= (b) ? (a) : (b))
+
+
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -57,6 +61,10 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define hook_servos_Pin GPIO_PIN_2
+#define hook_servos_GPIO_Port GPIOE
+#define up_servos_Pin GPIO_PIN_3
+#define up_servos_GPIO_Port GPIOE
 #define dir1_Pin GPIO_PIN_4
 #define dir1_GPIO_Port GPIOE
 #define dir2_Pin GPIO_PIN_5
@@ -71,6 +79,8 @@ void Error_Handler(void);
 #define TFT_CS_GPIO_Port GPIOC
 #define TFT_RS_Pin GPIO_PIN_9
 #define TFT_RS_GPIO_Port GPIOF
+#define down_servos_Pin GPIO_PIN_2
+#define down_servos_GPIO_Port GPIOF
 #define spi1_cs_Pin GPIO_PIN_0
 #define spi1_cs_GPIO_Port GPIOB
 #define ccd_d1_Pin GPIO_PIN_1
@@ -79,10 +89,16 @@ void Error_Handler(void);
 #define ccd_d2_GPIO_Port GPIOE
 #define spi4_cs_Pin GPIO_PIN_15
 #define spi4_cs_GPIO_Port GPIOE
-#define icg_1_Pin GPIO_PIN_14
-#define icg_1_GPIO_Port GPIOD
-#define sh_1_Pin GPIO_PIN_15
-#define sh_1_GPIO_Port GPIOD
+#define step_mot_en_Pin GPIO_PIN_14
+#define step_mot_en_GPIO_Port GPIOB
+#define step_mot_dir_Pin GPIO_PIN_10
+#define step_mot_dir_GPIO_Port GPIOD
+#define step_mot_pulse_Pin GPIO_PIN_11
+#define step_mot_pulse_GPIO_Port GPIOD
+#define ICG_1_Pin GPIO_PIN_14
+#define ICG_1_GPIO_Port GPIOD
+#define SH_1_Pin GPIO_PIN_15
+#define SH_1_GPIO_Port GPIOD
 #define spi3_cs_Pin GPIO_PIN_15
 #define spi3_cs_GPIO_Port GPIOA
 #define LED_G_Pin GPIO_PIN_2
@@ -97,8 +113,8 @@ void Error_Handler(void);
 #define ICG_2_GPIO_Port GPIOB
 #define cd_m2_Pin GPIO_PIN_9
 #define cd_m2_GPIO_Port GPIOB
-#define sh_2_Pin GPIO_PIN_0
-#define sh_2_GPIO_Port GPIOE
+#define SH_2_Pin GPIO_PIN_0
+#define SH_2_GPIO_Port GPIOE
 
 /* USER CODE BEGIN Private defines */
 

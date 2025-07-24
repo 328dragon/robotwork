@@ -35,8 +35,21 @@ gd_rebirth/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_tim_ex.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_uart.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_uart_ex.h \
+  ..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS_V2\cmsis_os.h \
+  ..\Middlewares\Third_Party\FreeRTOS\Source\include\FreeRTOS.h \
+  ..\Core\Inc\FreeRTOSConfig.h \
+  ..\Middlewares\Third_Party\FreeRTOS\Source\include\projdefs.h \
+  ..\Middlewares\Third_Party\FreeRTOS\Source\include\portable.h \
+  ..\Middlewares\Third_Party\FreeRTOS\Source\include\deprecated_definitions.h \
+  ..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM4F\portmacro.h \
+  ..\Middlewares\Third_Party\FreeRTOS\Source\include\mpu_wrappers.h \
+  ..\Middlewares\Third_Party\FreeRTOS\Source\include\task.h \
+  ..\Middlewares\Third_Party\FreeRTOS\Source\include\list.h \
+  ..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS_V2\cmsis_os2.h \
   ..\Core\Inc\adc.h ..\Core\Inc\dma.h ..\Core\Inc\fdcan.h \
   ..\Core\Inc\i2c.h ..\Core\Inc\usart.h ..\Core\Inc\spi.h \
   ..\Core\Inc\tim.h ..\Core\Inc\usb.h ..\Core\Inc\gpio.h \
-  ..\mcu_bsp\Motor\dm_j4310.h ..\mcu_bsp\Motor\motor_def.h \
-  ..\mcu_bsp\fdcan\bsp_fdcan.h ..\Device\tcs230.h
+  ..\Device\tcs230.h ..\mcu_bsp\uart\bsp_usart.h ..\Device\tcd1103.h \
+  ..\mcu_bsp\Motor\dc_motor.h ..\mcu_bsp\system_controller\pid.h \
+  ..\mcu_bsp\Encoder\encoder.h ..\Device\gray.h \
+  ..\Device\gw_grayscale_sensor.h ..\Core\Inc\mainwork.h

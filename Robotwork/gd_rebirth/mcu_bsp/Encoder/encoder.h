@@ -1,5 +1,5 @@
-#ifndef ENCODER_H_
-#define ENCODER_H_
+#ifndef _ENCODER_H_
+#define _ENCODER_H_
 
 #include "main.h"
 #include "string.h"
@@ -24,8 +24,9 @@ typedef struct inc_encoder_t
     IncEncoderUpdateCallback encoder_update;
 } inc_encoder_t;
 
-#endif
 
 void IncEncoderInit(inc_encoder_t *encoder, uint8_t id, float to_real_coefficient);
 void IncEncoderUpdate(inc_encoder_t *encoder);
+
+#endif
 

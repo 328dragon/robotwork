@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 #include "adc.h"
 #include "dma.h"
 #include "fdcan.h"
@@ -30,9 +31,24 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-int goods_color=90;
-#include "dm_j4310.h"
 #include "tcs230.h"
+#include "bsp_usart.h"
+#include "tcd1103.h"
+#include "dc_motor.h"
+#include "gray.h"
+#include "mainwork.h"
+
+int goods_color = 90;
+static uint32_t fac_us = 0; // us延时倍乘数
+USARTInstance uart2 = {0};
+void usart2_callback(void)
+{
+}
+USART_Init_Config_s usart2_config = {
+    .recv_buff_size = 64,
+    .usart_handle = &huart2,
+    .module_callback = usart2_callback,
+};
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,8 +74,54 @@ int goods_color=90;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
-
+static void delay_us(uint32_t nus)
+{
+  uint32_t ticks;
+  uint32_t told, tnow, tcnt = 0;
+  uint32_t reload = SysTick->LOAD; // LOAD的值
+  ticks = nus * fac_us;            // 需要的节拍数
+  told = SysTick->VAL;             // 刚进入时的计数器值
+  while (1)
+  {
+    tnow = SysTick->VAL;
+    if (tnow != told)
+    {
+      if (tnow < told)
+        tcnt += told - tnow; // 这里注意一下SYSTICK是一个递减的计数器就可以了.
+      else
+        tcnt += reload - tnow + told;
+      told = tnow;
+      if (tcnt >= ticks)
+        break; // 时间超过/等于要延迟的时间,则退出.
+    }
+  };
+}
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  if (htim->Instance == htim6.Instance)
+  {
+    if (HAL_GetTick() - icg_flag >= 10)
+    {
+      HAL_GPIO_WritePin(ICG_1_GPIO_Port, ICG_1_Pin, 1);
+      HAL_GPIO_WritePin(SH_1_GPIO_Port, SH_1_Pin, 0);
+      delay_us(2);
+      HAL_GPIO_WritePin(SH_1_GPIO_Port, SH_1_Pin, 1);
+      delay_us(4);
+      HAL_GPIO_WritePin(ICG_1_GPIO_Port, ICG_1_Pin, 0);
+      HAL_ADC_Start_DMA(&hadc3, (uint32_t *)ccd_rawdata, 1546);
+      icg_flag = HAL_GetTick();
+    }
+    else
+    {
+      HAL_GPIO_WritePin(SH_1_GPIO_Port, SH_1_Pin, 0);
+      delay_us(2);
+      HAL_GPIO_WritePin(SH_1_GPIO_Port, SH_1_Pin, 1);
+      delay_us(4);
+    }
+  }
+}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -127,43 +189,54 @@ int main(void)
   MX_I2C4_Init();
   /* USER CODE BEGIN 2 */
 
-//舵机配置
-
-	//电机配置 
+  // 指示灯
   HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, 0);
-  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
-  HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
-  HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
-	//颜色传感器添加完成
-	HAL_UART_Receive_IT(&huart1, &RxData, 1);
+  // 电机配置
+	//重要：encoder对应引脚记得上拉
+  IncEncoderInit(&encoder_0, 0, 1);
+  IncEncoderInit(&encoder_1, 1, 1);
+  PID_struct_init(&pid_0, POSITION_PID, 800, 200, 50, 1, 0);
+  PID_struct_init(&pid_1, POSITION_PID, 800, 200, 50, 1,0);
+  DCMotorInit(&motor_0, 0, 1, &encoder_0, &pid_0);
+  DCMotorInit(&motor_1, 1, 0, &encoder_1, &pid_1);
+  //舵机配置
+  HAL_TIM_PWM_Start(&htim20,TIM_CHANNEL_1);
+	 HAL_TIM_PWM_Start(&htim20,TIM_CHANNEL_2);
+	  HAL_TIM_PWM_Start(&htim20,TIM_CHANNEL_3);
 
-  printf("AT+LIGHT+ON\r\n");
-  printf("AT+LIGHT+ON\r\n");
-  printf("AT+LIGHT+ON\r\n");
-  printf("AT+LIGHT+ON\r\n");
-  printf("AT+LIGHT+ON\r\n");
-  printf("AT+LIGHT+ON\r\n");
+	
+  // debug串口
+  USARTRegister(&uart2, &usart2_config);
+  memset(uart2.recv_buff, 0, uart2.recv_buff_size);
 
-//	 for (int  i = 0; i < 10; i++)
-// {
-//  goods_color=Color_Recognize();
-//HAL_Delay(200);
-// }
-//ccd配置
-
-//测试板子fdcan代码
-
-//  	  DM_4310_Register(&hfdcan2, 0x01, 0x00, pos_vel_mode);
-// 			DM_4310_Register(&hfdcan2, 0x02, 0x03, pos_vel_mode);
-//   Enable_DM(DM_J4310_instnce[0]);
-//  	HAL_Delay(10);
-//  	  Enable_DM(DM_J4310_instnce[1]);
-// 	 DM_J4310_instnce[0]->dm_controller_instance.P_des=0;
-//	 DM_J4310_instnce[0]->dm_controller_instance.V_des=6;
-// 	 	 DM_J4310_instnce[1]->dm_controller_instance.P_des=0;
-// 	 DM_J4310_instnce[1]->dm_controller_instance.V_des=6;
+//普通灰度
+	while(Ping())
+	{
+	HAL_Delay(5);	
+	}
+	
+  // tcd1103配置
+  HAL_TIM_Base_Start_IT(&htim6);
+  HAL_TIM_Base_Start(&htim7);
+  __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_1, 60);
+  // 定时器16开启，1ms的更新中断
+  HAL_TIM_Base_Start_IT(&htim16);
+	// 定时器17开启，5ms的更新中断
+  HAL_TIM_Base_Start_IT(&htim17);
+	
+  // 定时器5开启，1us的更新中断，原本是电机的encoder读入，现在用作ccd的严格时序运行
+  HAL_TIM_Base_Start_IT(&htim5);
+main_work();
   /* USER CODE END 2 */
+
+  /* Init scheduler */
+  osKernelInitialize();  /* Call init function for freertos objects (in cmsis_os2.c) */
+  MX_FREERTOS_Init();
+
+  /* Start scheduler */
+  osKernelStart();
+
+  /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -172,10 +245,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-//		       HAL_Delay(10);
-// 		Control_DM( DM_J4310_instnce[0]);
-//   		Control_DM( DM_J4310_instnce[1]);
-//   HAL_Delay(10);
+
+
   }
   /* USER CODE END 3 */
 }
@@ -244,8 +315,7 @@ void Error_Handler(void)
   }
   /* USER CODE END Error_Handler_Debug */
 }
-
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.

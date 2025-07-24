@@ -3,6 +3,14 @@
         "tcs230.h": "c",
         "cstdint": "c",
         "string.h": "c",
-        "delay.h": "c"
+        "delay.h": "c",
+        "encoder.h": "c",
+        "main.h": "c",
+        "adc.h": "c",
+        "bsp_usart.h": "c",
+        "dc_motor.h": "c",
+        "gray.h": "c",
+        "gw_grayscale_sensor.h": "c",
+        "mainwork.h": "c"
     }
 }
