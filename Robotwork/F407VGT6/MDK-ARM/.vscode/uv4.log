@@ -1,0 +1,15 @@
+*** Using Compiler 'V6.22', folder: 'D:\keil\MDK\ARM\ARMCLANG\Bin'
+Build target 'origin'
+../mcu_bsp/planning/controller.c(1): warning: In file included from...../mcu_bsp/planning\controller.h(4): error: 'Lib_pormise.h' file not found
+    4 | #include "Lib_pormise.h"
+      |          ^~~~~~~~~~~~~~~
+1 error generated.
+compiling controller.c...
+../mcu_bsp/planning/planner.c(1): warning: In file included from...../mcu_bsp/planning\planner.h(4): error: 'Lib_Math.h' file not found
+    4 | #include "Lib_Math.h"
+      |          ^~~~~~~~~~~~
+1 error generated.
+compiling planner.c...
+"origin\origin.axf" - 2 Error(s), 0 Warning(s).
+Target not created.
+Build Time Elapsed:  00:00:02
