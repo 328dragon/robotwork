@@ -24,6 +24,7 @@
 #define BUZZER_OFF HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin, 1);
 //主函数状态机
 int main_state=0;
+int motor_mode=0;
 //颜色传感器 状态机
 int goods_color = 90;
 int read_cololr_flag = 0; // 颜色传感器读取标志位
@@ -241,7 +242,7 @@ void gray_read_task(void *pvParameters)
         }
         IIC_Anolog_Normalize(0xff); // 为了下一次循环是非归一化，所以清零
 
-        vTaskDelay(100); // 延时100ms
+        vTaskDelay(10); // 延时100ms
     }
 }
 void LCD_Show_task(void *pvParameters)
@@ -306,42 +307,84 @@ void Onmaincpp(void *pvParameters)
 int safe_count=0;//保护锁
     while (1)
     {
-        // 速度位置式有问题
-        //             Controller_set_pos_vel_target(ChassisControl_ptr, deubg_target_odom, debug_target_vel, false);
         // 纯速度式验证没问题
 //      Controller_set_vel_target(ChassisControl_ptr, debug_target_vel, false);
 			safe_count++;
 			if(safe_count>=3)
 			{
+					safe_guard=1;//保护锁打开
 	switch(main_state)
 	{
 		case 0:
 		{
+			motor_mode=0;
 		debug_target_vel=(cmd_vel_t){0.3,0,0};
 		main_state++;
 		}
 		case 1:
 		{
+			motor_mode=0;
 				if(  real_time_gray_state == all_black)
 		{
 		debug_target_vel=(cmd_vel_t){0,0,0};
+				main_state++;
 		}
-		main_state=0;
+				break;
+		}
+		case 2:
+		{
+			motor_mode=1;
+                   debug_target_odom = (odom_t){-0.1, 0, 0};
+                   debug_target_erro = (odom_t){0.01, 0.01, 0.01};
+                   position_flag++;
+									Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.5, &debug_target_erro, 0); 
+									 
+main_state++;	
+			break;
+		}
+		case 3:
+		{
+		if (SimpleStatus_t_isResolved(&planner_ptr->promise))
+		{
+					motor_mode=0;
+		debug_target_vel=(cmd_vel_t){0.3,0,0};
+		main_state++;	
 		}
 
-			break;
-		
+		break;}
+		case 4:
+		{
+				motor_mode=0;
+				if(  real_time_gray_state == all_black)
+		{
+		debug_target_vel=(cmd_vel_t){0,0,0};
+				main_state++;
+		}
+				break;
+	
+	
+	}
 		default:
 			break;
 	
 
 	}
-					
-		 Controller_set_vel_target(ChassisControl_ptr, debug_target_vel, false);	
+
 			}
 
-         
-        vTaskDelay(200);
+  switch(motor_mode)
+	{
+		case 0:
+		{ Controller_set_vel_target(ChassisControl_ptr, debug_target_vel, false);	}
+		case 1:
+		{
+		    Controller_set_pos_vel_target(ChassisControl_ptr, debug_target_odom, debug_target_vel, true);
+		}
+		default:
+			break;
+	}		
+		      
+        vTaskDelay(100);
     }
 }
 
