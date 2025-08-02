@@ -71,6 +71,8 @@ void Error_Handler(void);
 #define servos_1_GPIO_Port GPIOB
 #define servos_2_Pin GPIO_PIN_1
 #define servos_2_GPIO_Port GPIOB
+#define BUZZER_Pin GPIO_PIN_10
+#define BUZZER_GPIO_Port GPIOE
 #define LCD_RS_Pin GPIO_PIN_12
 #define LCD_RS_GPIO_Port GPIOB
 #define LCD_SCK_Pin GPIO_PIN_13

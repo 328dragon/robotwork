@@ -132,7 +132,7 @@ void position_state_manage_task(void *pvParameters)
 
             case 0:
             {
-                if (digital_gray_data[0] == 1||digital_gray_data[1] == 1)
+                if (digital_gray_data[0] == 1)
                 {
 
                     turn_state++;
@@ -141,11 +141,12 @@ void position_state_manage_task(void *pvParameters)
             }
             case 1:
             {
-                if (digital_gray_data[1] == 1||   digital_gray_data[2] == 1)
+                if (digital_gray_data[1] == 1)
 
                 {
 
-                    turn_state++;
+                  			turn_stop_flag = 1;
+                    turn_state = 0;
                 }
 
                 break;
@@ -245,7 +246,7 @@ void gray_read_task(void *pvParameters)
         Digtal_gray_back = IIC_Get_Digtal(back);
         for (int i = 0; i < 8; i++)
         {
-            digital_gray_data[i] = 1 - ((Digtal_gray >> i) & 0x01);           // 读取数字灰度传感器数据
+            digital_gray_data[i] = 1 - ((Digtal_gray >> i) & 0x01);           // 读取数 �灰度传感器数据
             digital_gray_data_back[i] = 1 - ((Digtal_gray_back >> i) & 0x01); // 读取背面数字灰度传感器数据
         }
 
@@ -254,7 +255,7 @@ void gray_read_task(void *pvParameters)
         {
         }
 
-        if (digital_gray_data[2] == 1 && digital_gray_data[3] == 1 && digital_gray_data[4] == 1 && digital_gray_data[5] == 1)
+        if ( digital_gray_data[3] == 1 && digital_gray_data[4] == 1 && digital_gray_data[2] == 1 &&digital_gray_data[5] == 1)//中间4个
         {
             BUZZER_ON
             real_time_gray_state = all_black;
@@ -463,7 +464,7 @@ void Onmaincpp(void *pvParameters)
         case 8:
     {
     
-            setMotorStepMode(8, 8, 800, 0); // 设置电机步进模式，速度6，距离400
+            setMotorStepMode(5, 8, 800, 0); // 设置电机步进模式，速度6，距离400
             main_state++;
                   break;
     }

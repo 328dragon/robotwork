@@ -21,7 +21,7 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "tcs230.h"
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart4;
@@ -44,7 +44,7 @@ void MX_UART4_Init(void)
 
   /* USER CODE END UART4_Init 1 */
   huart4.Instance = UART4;
-  huart4.Init.BaudRate = 115200;
+  huart4.Init.BaudRate = 9600;
   huart4.Init.WordLength = UART_WORDLENGTH_8B;
   huart4.Init.StopBits = UART_STOPBITS_1;
   huart4.Init.Parity = UART_PARITY_NONE;
@@ -201,6 +201,9 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     GPIO_InitStruct.Alternate = GPIO_AF8_UART4;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+    /* UART4 interrupt Init */
+    HAL_NVIC_SetPriority(UART4_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(UART4_IRQn);
   /* USER CODE BEGIN UART4_MspInit 1 */
 
   /* USER CODE END UART4_MspInit 1 */
@@ -360,6 +363,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
     */
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_0|GPIO_PIN_1);
 
+    /* UART4 interrupt Deinit */
+    HAL_NVIC_DisableIRQ(UART4_IRQn);
   /* USER CODE BEGIN UART4_MspDeInit 1 */
 
   /* USER CODE END UART4_MspDeInit 1 */
@@ -445,5 +450,55 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 }
 
 /* USER CODE BEGIN 1 */
-//uint8_t rx_buff[USART_REC_LEN];
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  //串口1作为颜色传感器的接收
+ if (huart->Instance == UART4)
+    {
+
+        static uint8_t i = 0;
+        static uint8_t j = 0; //
+        HAL_UART_Receive_IT(&huart4 ,&RxData, 1);
+        if (RxData == '+')
+            j = 1;
+        if (RxData == '\r')
+        {
+            tcs_string[i] = '\0';
+            i = 0;
+            //length=0;
+            j = 0;
+
+            sscanf(tcs_string + 8, "R:%d G:%d B:%d", &red, &green, &blue);
+            {
+                R = red;
+                G = green;
+                B = blue;
+            }
+
+            RX_Flag = 1;
+        }
+        else
+        {
+            if (j)
+            {
+                tcs_string[i] = RxData;
+                i++;
+            }
+        }
+    }
+
+}
+
+int fputc(int ch, FILE *f)
+{
+    HAL_UART_Transmit(&huart4, (uint8_t *)&ch, 1, 0xffff);
+    return ch;
+}
+
+int fgetc(FILE *f)
+{
+    uint8_t ch = 0;
+    HAL_UART_Receive(&huart4, &ch, 1, 0xffff);
+    return ch;
+}
 /* USER CODE END 1 */

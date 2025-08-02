@@ -20,6 +20,7 @@
                 "d:\\stmproject\\dragonproject\\contest\\robotwork\\Robotwork\\F407VGT6\\mcu_bsp\\IMU",
                 "d:\\stmproject\\dragonproject\\contest\\robotwork\\Robotwork\\F407VGT6\\mcu_bsp\\LCD",
                 "d:\\stmproject\\dragonproject\\contest\\robotwork\\Robotwork\\F407VGT6\\mcu_bsp\\uart",
+                "d:\\stmproject\\dragonproject\\contest\\robotwork\\Robotwork\\F407VGT6\\Device",
                 "D:\\keil\\core\\ARM\\ARMCLANG\\include",
                 "D:\\keil\\core\\ARM\\ARMCLANG\\include\\arm_linux",
                 "D:\\keil\\core\\ARM\\ARMCLANG\\include\\arm_linux_compat",
