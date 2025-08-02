@@ -3,7 +3,7 @@
 <title>Static Call Graph - [gd_rebirth\gd_rebirth.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image gd_rebirth\gd_rebirth.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Thu Jul 24 23:50:23 2025
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Sat Aug  2 04:09:21 2025
 <BR><P>
 <H3>Maximum Stack Usage =        336 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -20,7 +20,6 @@ Mutually Recursive functions
  <LI><a href="#[7d]">StartDefaultTask</a>&nbsp;&nbsp;&nbsp;&rArr;&nbsp;&nbsp;&nbsp;<a href="#[7d]">StartDefaultTask</a><BR>
  <LI><a href="#[5]">UsageFault_Handler</a>&nbsp;&nbsp;&nbsp;&rArr;&nbsp;&nbsp;&nbsp;<a href="#[5]">UsageFault_Handler</a><BR>
  <LI><a href="#[89]">gray_read_task</a>&nbsp;&nbsp;&nbsp;&rArr;&nbsp;&nbsp;&nbsp;<a href="#[89]">gray_read_task</a><BR>
- <LI><a href="#[8a]">position_state_manage_task</a>&nbsp;&nbsp;&nbsp;&rArr;&nbsp;&nbsp;&nbsp;<a href="#[8a]">position_state_manage_task</a><BR>
 </UL>
 <P>
 <H3>
@@ -984,6 +983,7 @@ Global Symbols
 <LI><a href="#[119]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_GPIO_Init
 <LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 <LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_PeriodElapsedCallback
+<LI><a href="#[89]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gray_read_task
 <LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;userMotorCtl_1
 <LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;userMotorCtl_0
 </UL>
@@ -1346,8 +1346,6 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 88<LI>Call Chain = HAL_TIM_IRQHandler &rArr; HAL_TIM_PeriodElapsedCallback &rArr; HAL_ADC_Start_DMA &rArr; HAL_DMA_Start_IT
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_PeriodElapsedCallback
-<LI><a href="#[ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIMEx_BreakCallback
-<LI><a href="#[e7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_OC_DelayElapsedCallback
 <LI><a href="#[e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_IC_CaptureCallback
 <LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_PWM_PulseFinishedCallback
 <LI><a href="#[f1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIMEx_TransitionErrorCallback
@@ -1357,6 +1355,8 @@ Global Symbols
 <LI><a href="#[ed]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIMEx_CommutCallback
 <LI><a href="#[ec]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_TriggerCallback
 <LI><a href="#[eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIMEx_Break2Callback
+<LI><a href="#[ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIMEx_BreakCallback
+<LI><a href="#[e7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_OC_DelayElapsedCallback
 </UL>
 <BR>[Called By]<UL><LI><a href="#[40]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM6_DAC_IRQHandler
 <LI><a href="#[3c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM5_IRQHandler
@@ -1419,8 +1419,8 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 64<LI>Call Chain = HAL_TIM_PeriodElapsedCallback &rArr; HAL_ADC_Start_DMA &rArr; HAL_DMA_Start_IT
 </UL>
 <BR>[Calls]<UL><LI><a href="#[b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_ADC_Start_DMA
-<LI><a href="#[f5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_WritePin
 <LI><a href="#[a7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
+<LI><a href="#[f5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_WritePin
 </UL>
 <BR>[Called By]<UL><LI><a href="#[e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_IRQHandler
 </UL>
@@ -2011,7 +2011,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32g473xx.o(RESET)
 </UL>
-<P><STRONG><a name="[86]"></a>Onmaincpp</STRONG> (Thumb, 404 bytes, Stack size 0 bytes, mainwork.o(.text.Onmaincpp))
+<P><STRONG><a name="[86]"></a>Onmaincpp</STRONG> (Thumb, 492 bytes, Stack size 0 bytes, mainwork.o(.text.Onmaincpp))
 <BR><BR>[Stack]<UL><LI>Max Depth = 96<LI>Call Chain = Onmaincpp &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[10e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
@@ -2064,7 +2064,7 @@ Global Symbols
 <P><STRONG><a name="[68]"></a>SystemInit</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, system_stm32g4xx.o(.text.SystemInit))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32g473xx.o(.text)
 </UL>
-<P><STRONG><a name="[24]"></a>TIM1_TRG_COM_TIM17_IRQHandler</STRONG> (Thumb, 716 bytes, Stack size 56 bytes, stm32g4xx_it.o(.text.TIM1_TRG_COM_TIM17_IRQHandler))
+<P><STRONG><a name="[24]"></a>TIM1_TRG_COM_TIM17_IRQHandler</STRONG> (Thumb, 732 bytes, Stack size 56 bytes, stm32g4xx_it.o(.text.TIM1_TRG_COM_TIM17_IRQHandler))
 <BR><BR>[Stack]<UL><LI>Max Depth = 144<LI>Call Chain = TIM1_TRG_COM_TIM17_IRQHandler &rArr; HAL_TIM_IRQHandler &rArr; HAL_TIM_PeriodElapsedCallback &rArr; HAL_ADC_Start_DMA &rArr; HAL_DMA_Start_IT
 </UL>
 <BR>[Calls]<UL><LI><a href="#[144]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USARTSend
@@ -2212,11 +2212,12 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[24]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM1_TRG_COM_TIM17_IRQHandler
 </UL>
 
-<P><STRONG><a name="[89]"></a>gray_read_task</STRONG> (Thumb, 308 bytes, Stack size 0 bytes, mainwork.o(.text.gray_read_task))
+<P><STRONG><a name="[89]"></a>gray_read_task</STRONG> (Thumb, 316 bytes, Stack size 0 bytes, mainwork.o(.text.gray_read_task))
 <BR><BR>[Stack]<UL><LI>Max Depth = 120 + In Cycle
 <LI>Call Chain = gray_read_task &rArr;  gray_read_task (Cycle)
 </UL>
-<BR>[Calls]<UL><LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Get_Anolog
+<BR>[Calls]<UL><LI><a href="#[f5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_WritePin
+<LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Get_Anolog
 <LI><a href="#[10d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Get_Digtal
 <LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Anolog_Normalize
 <LI><a href="#[13c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Ping
@@ -2328,14 +2329,10 @@ Global Symbols
 <P><STRONG><a name="[7f]"></a>pid_reset</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, pid.o(.text.pid_reset))
 <BR>[Address Reference Count : 1]<UL><LI> pid.o(.text.PID_struct_init)
 </UL>
-<P><STRONG><a name="[8a]"></a>position_state_manage_task</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, mainwork.o(.text.position_state_manage_task))
-<BR><BR>[Stack]<UL><LI>Max Depth = 96 + In Cycle
-<LI>Call Chain = position_state_manage_task &rArr;  position_state_manage_task (Cycle)
+<P><STRONG><a name="[8a]"></a>position_state_manage_task</STRONG> (Thumb, 150 bytes, Stack size 0 bytes, mainwork.o(.text.position_state_manage_task))
+<BR><BR>[Stack]<UL><LI>Max Depth = 96<LI>Call Chain = position_state_manage_task &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
-<BR>[Calls]<UL><LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;position_state_manage_task
-<LI><a href="#[10e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
-</UL>
-<BR>[Called By]<UL><LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;position_state_manage_task
+<BR>[Calls]<UL><LI><a href="#[10e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> mainwork.o(.text.main_work)
 </UL>

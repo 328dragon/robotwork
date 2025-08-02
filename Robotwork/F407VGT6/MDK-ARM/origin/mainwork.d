@@ -53,4 +53,4 @@ origin/mainwork.o: ..\Core\Src\mainwork.c ..\Core\Inc\mainwork.h \
   ..\mcu_bsp\planning\planner.h ..\Lib\Lib_Math.h ..\Core\Inc\usart.h \
   ..\mcu_bsp\IMU\BMI088driver.h ..\mcu_bsp\IMU\BMI_struct_typedef.h \
   ..\mcu_bsp\LCD\lcd.h ..\mcu_bsp\LCD\lcd_init.h ..\mcu_bsp\LCD\pic.h \
-  ..\mcu_bsp\uart\bsp_usart.h
+  ..\mcu_bsp\uart\bsp_usart.h ..\Core\Inc\tim.h

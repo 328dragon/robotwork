@@ -9,6 +9,7 @@ typedef enum MotorMode
    
     MOTOR_MODE_NORMAL = 0, // 正常向前循迹
     MOTOR_MDOE_NORMAL_BACK = 1,
+    MOTOR_MODE_TURN=2,
 	 MOTOR_STOP=10000,
 }MotorMode;
 typedef enum POSITION
@@ -34,9 +35,10 @@ place_G_PLUS
 typedef enum gray_state
 {
     orgin_gray=0,
-   all_black,
+     all_black,//全黑
    primary_gray,
-     senior_gray
+    senior_gray,
+    undetermined_gray
    
 } gray_state;
 extern MotorMode motor_mode;

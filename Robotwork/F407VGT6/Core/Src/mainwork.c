@@ -17,7 +17,11 @@
 #include "pic.h"
 #include "string.h"
 #include "bsp_usart.h"
-//
+#include "tim.h"
+
+int debug_pwm=0;
+int close_flag=0;
+int safe_flag=0;
 USARTInstance uart6 = {0};
 void usart6_callback(void)
 {
@@ -140,6 +144,23 @@ void IMU_Read_task(void *pvParameters)
     while (1)
     {
         BMI088_read(gyro, accel, &temp);
+			safe_flag++;
+			if(safe_flag>=20)
+			{
+								__HAL_TIM_SET_COMPARE(&htim5,TIM_CHANNEL_3 ,debug_pwm);//抬升，500最低，800中间，1800最高
+			if(close_flag==1)
+			{
+					__HAL_TIM_SET_COMPARE(&htim9,TIM_CHANNEL_1 ,1200);//夹爪，1800紧，1500松
+		__HAL_TIM_SET_COMPARE(&htim9,TIM_CHANNEL_2 ,1800);//夹爪1100锁紧，1500松
+			}
+			else 
+			{
+								__HAL_TIM_SET_COMPARE(&htim9,TIM_CHANNEL_1 ,1500);//夹爪，1800紧，1500松
+		__HAL_TIM_SET_COMPARE(&htim9,TIM_CHANNEL_2 ,1500);//夹爪1100锁紧，1500松
+			}
+			
+			}
+
         vTaskDelay(10);
     }
 }

@@ -107,7 +107,7 @@ int dc_motor_state = 0;
 //灰度传感器使用量
 //前面
 float gray_bia=0;
-float gray_bia_p=1.2;
+float gray_bia_p=1.8;
 //背面
 float gray_bia_back=0;
 float gray_bia_p_back=1.2;
@@ -140,8 +140,8 @@ int delay_no_conflict(int *delay_temp_count, int delay_time)
 /*           Cortex-M4 Processor Interruption and Exception Handlers          */
 /******************************************************************************/
 /**
- * @brief This function handles Non maskable interrupt.
- */
+  * @brief This function handles Non maskable interrupt.
+  */
 void NMI_Handler(void)
 {
   /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
@@ -155,8 +155,8 @@ void NMI_Handler(void)
 }
 
 /**
- * @brief This function handles Hard fault interrupt.
- */
+  * @brief This function handles Hard fault interrupt.
+  */
 void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
@@ -170,8 +170,8 @@ void HardFault_Handler(void)
 }
 
 /**
- * @brief This function handles Memory management fault.
- */
+  * @brief This function handles Memory management fault.
+  */
 void MemManage_Handler(void)
 {
   /* USER CODE BEGIN MemoryManagement_IRQn 0 */
@@ -185,8 +185,8 @@ void MemManage_Handler(void)
 }
 
 /**
- * @brief This function handles Prefetch fault, memory access fault.
- */
+  * @brief This function handles Prefetch fault, memory access fault.
+  */
 void BusFault_Handler(void)
 {
   /* USER CODE BEGIN BusFault_IRQn 0 */
@@ -200,8 +200,8 @@ void BusFault_Handler(void)
 }
 
 /**
- * @brief This function handles Undefined instruction or illegal state.
- */
+  * @brief This function handles Undefined instruction or illegal state.
+  */
 void UsageFault_Handler(void)
 {
   /* USER CODE BEGIN UsageFault_IRQn 0 */
@@ -215,8 +215,8 @@ void UsageFault_Handler(void)
 }
 
 /**
- * @brief This function handles Debug monitor.
- */
+  * @brief This function handles Debug monitor.
+  */
 void DebugMon_Handler(void)
 {
   /* USER CODE BEGIN DebugMonitor_IRQn 0 */
@@ -228,20 +228,20 @@ void DebugMon_Handler(void)
 }
 
 /**
- * @brief This function handles System tick timer.
- */
+  * @brief This function handles System tick timer.
+  */
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
 
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
-#if (INCLUDE_xTaskGetSchedulerState == 1)
+#if (INCLUDE_xTaskGetSchedulerState == 1 )
   if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED)
   {
 #endif /* INCLUDE_xTaskGetSchedulerState */
-    xPortSysTickHandler();
-#if (INCLUDE_xTaskGetSchedulerState == 1)
+  xPortSysTickHandler();
+#if (INCLUDE_xTaskGetSchedulerState == 1 )
   }
 #endif /* INCLUDE_xTaskGetSchedulerState */
   /* USER CODE BEGIN SysTick_IRQn 1 */
@@ -257,8 +257,8 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
- * @brief This function handles DMA1 channel1 global interrupt.
- */
+  * @brief This function handles DMA1 channel1 global interrupt.
+  */
 void DMA1_Channel1_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
@@ -271,8 +271,8 @@ void DMA1_Channel1_IRQHandler(void)
 }
 
 /**
- * @brief This function handles DMA1 channel2 global interrupt.
- */
+  * @brief This function handles DMA1 channel2 global interrupt.
+  */
 void DMA1_Channel2_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel2_IRQn 0 */
@@ -285,8 +285,8 @@ void DMA1_Channel2_IRQHandler(void)
 }
 
 /**
- * @brief This function handles DMA1 channel3 global interrupt.
- */
+  * @brief This function handles DMA1 channel3 global interrupt.
+  */
 void DMA1_Channel3_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel3_IRQn 0 */
@@ -299,8 +299,8 @@ void DMA1_Channel3_IRQHandler(void)
 }
 
 /**
- * @brief This function handles DMA1 channel4 global interrupt.
- */
+  * @brief This function handles DMA1 channel4 global interrupt.
+  */
 void DMA1_Channel4_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel4_IRQn 0 */
@@ -313,8 +313,8 @@ void DMA1_Channel4_IRQHandler(void)
 }
 
 /**
- * @brief This function handles FDCAN1 interrupt 0.
- */
+  * @brief This function handles FDCAN1 interrupt 0.
+  */
 void FDCAN1_IT0_IRQHandler(void)
 {
   /* USER CODE BEGIN FDCAN1_IT0_IRQn 0 */
@@ -327,8 +327,8 @@ void FDCAN1_IT0_IRQHandler(void)
 }
 
 /**
- * @brief This function handles TIM1 update interrupt and TIM16 global interrupt.
- */
+  * @brief This function handles TIM1 update interrupt and TIM16 global interrupt.
+  */
 void TIM1_UP_TIM16_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 0 */
@@ -342,8 +342,8 @@ void TIM1_UP_TIM16_IRQHandler(void)
 }
 
 /**
- * @brief This function handles TIM1 trigger and commutation interrupts and TIM17 global interrupt.
- */
+  * @brief This function handles TIM1 trigger and commutation interrupts and TIM17 global interrupt.
+  */
 void TIM1_TRG_COM_TIM17_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_TRG_COM_TIM17_IRQn 0 */
@@ -365,6 +365,7 @@ void TIM1_TRG_COM_TIM17_IRQHandler(void)
  
 gray_bia=get_black_line_position(front);
 gray_bia_back=get_black_line_position(back);	
+
 switch (motor_mode)
 {
 case MOTOR_MODE_NORMAL:
@@ -378,6 +379,11 @@ case MOTOR_MDOE_NORMAL_BACK:
 {
   	gray_bia_genaral=gray_bia_back;
 	gray_bia_p_general=gray_bia_p_back;
+  break;
+}
+case MOTOR_MODE_TURN:
+{
+gray_bia_p_general=0;//让车子速度完全等于命令值
   break;
 }
 default:
@@ -459,8 +465,8 @@ motor_1_speed=0;
 }
 
 /**
- * @brief This function handles USART1 global interrupt / USART1 wake-up interrupt through EXTI line 25.
- */
+  * @brief This function handles USART1 global interrupt / USART1 wake-up interrupt through EXTI line 25.
+  */
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
@@ -473,8 +479,8 @@ void USART1_IRQHandler(void)
 }
 
 /**
- * @brief This function handles USART2 global interrupt / USART2 wake-up interrupt through EXTI line 26.
- */
+  * @brief This function handles USART2 global interrupt / USART2 wake-up interrupt through EXTI line 26.
+  */
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
@@ -487,8 +493,8 @@ void USART2_IRQHandler(void)
 }
 
 /**
- * @brief This function handles TIM5 global interrupt.
- */
+  * @brief This function handles TIM5 global interrupt.
+  */
 void TIM5_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM5_IRQn 0 */
@@ -523,8 +529,8 @@ void TIM5_IRQHandler(void)
 }
 
 /**
- * @brief This function handles TIM6 global interrupt, DAC1 and DAC3 channel underrun error interrupts.
- */
+  * @brief This function handles TIM6 global interrupt, DAC1 and DAC3 channel underrun error interrupts.
+  */
 void TIM6_DAC_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
@@ -537,8 +543,8 @@ void TIM6_DAC_IRQHandler(void)
 }
 
 /**
- * @brief This function handles FDCAN2 interrupt 1.
- */
+  * @brief This function handles FDCAN2 interrupt 1.
+  */
 void FDCAN2_IT1_IRQHandler(void)
 {
   /* USER CODE BEGIN FDCAN2_IT1_IRQn 0 */

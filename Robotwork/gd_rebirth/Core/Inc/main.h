@@ -81,6 +81,8 @@ void Error_Handler(void);
 #define TFT_RS_GPIO_Port GPIOF
 #define down_servos_Pin GPIO_PIN_2
 #define down_servos_GPIO_Port GPIOF
+#define BUZZER_Pin GPIO_PIN_4
+#define BUZZER_GPIO_Port GPIOA
 #define spi1_cs_Pin GPIO_PIN_0
 #define spi1_cs_GPIO_Port GPIOB
 #define ccd_d1_Pin GPIO_PIN_1

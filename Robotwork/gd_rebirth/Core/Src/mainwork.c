@@ -12,6 +12,8 @@
 #include "usart.h"
 #include "tim.h"
 #include "dc_motor.h"
+#define BUZZER_ON HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin, 0);
+#define BUZZER_OFF HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin, 1);
 // 主函数逻辑
 int main_state = 0;
 // 位置
@@ -30,8 +32,13 @@ extern int motor_1_active;
 int dc_step_flag = 0;
 int dc_step_distance = 0;                 // 步进距离
 MotorMode motor_mode = MOTOR_MODE_NORMAL; // 0:开环,1:闭环
-int step_complete_flag = 0;               // 步进模式直流电机完成标志位
-int stop_motor_flag = 0;                  // 停止电机标志位
+__IO int step_complete_flag = 0;          // 步进模式直流电机完成标志位
+__IO int stop_motor_flag = 0;             // 停止电机标志位
+__IO int turn_stop_flag = 0;              // 转弯停止标志位
+int turn_dir_all = -1;
+__IO int turn_state = 0;
+int debug_flag = 0;
+
 // 舵机控制量
 int debug_hook_pwm = 0;
 int debug_up_pwm = 0;
@@ -45,8 +52,10 @@ int all_black_count = 0;                      // 全黑计数
 int primary_gray_count = 0;                   // 初级灰度计数
 int senior_gray_count = 0;                    // 高级灰度计数
 // 前面灰度
+int gray_count = 0;      // 前面灰度计数
+int gray_count_last = 0; // 上次前面灰度计数
 uint8_t digital_gray_data[8];
-int sensor_weights[8] = {-5, -3, -2, -1, 1, 2, 3, 5}; // 传感器权重
+int sensor_weights[8] = {-7, -4, -3, -2, 2, 3, 4, 7}; // 传感器权重
 unsigned char Digtal_gray;
 unsigned char Anolog_gray[8] = {0};
 unsigned char Normal[8] = {0};
@@ -91,12 +100,12 @@ void main_work(void)
     printf("AT+LIGHT+ON\r\n");
     printf("AT+LIGHT+ON\r\n");
 
-    BaseType_t ok3 = xTaskCreate(Onmaincpp, "main_cpp", 300, NULL, 4, &main_cpp_handle);
+    BaseType_t ok3 = xTaskCreate(Onmaincpp, "main_cpp", 200, NULL, 4, &main_cpp_handle);
     BaseType_t ok5 = xTaskCreate(IMU_Read_task, "IMU_Read_task", 100, NULL, 4, &IMU_read_handle);
     BaseType_t ok7 = xTaskCreate(tcs230_read_task, "tcs230_read_task", 100, NULL, 2, &tcs230_read_handle);
     BaseType_t ok8 = xTaskCreate(gray_read_task, "gray_read_task", 100, NULL, 2, &gray_read_handle);
     BaseType_t ok9 = xTaskCreate(position_state_manage_task, "position_state_manage_task", 100, NULL, 2, &position_state_manage_handle);
-    if (ok3 != pdPASS | ok5 != pdPASS || ok7 != pdPASS || ok8 != pdPASS)
+    if (ok3 != pdPASS | ok5 != pdPASS || ok7 != pdPASS || ok8 != pdPASS|| ok9!=pdPASS)
     {
         // 任务创建失败，进入死循环
         while (1)
@@ -111,8 +120,57 @@ void position_state_manage_task(void *pvParameters)
 
     while (1)
     {
+        if (turn_dir_all == -1)
+        {
+            turn_stop_flag = 0;
+            turn_state = 0;
+        }
+        if ((turn_dir_all == 0) && (real_time_gray_state != all_black))
+        {
+            switch (turn_state)
+            {
 
-        vTaskDelay(2);
+            case 0:
+            {
+                if (digital_gray_data[0] == 1||digital_gray_data[1] == 1)
+                {
+
+                    turn_state++;
+                }
+                break;
+            }
+            case 1:
+            {
+                if (digital_gray_data[1] == 1||   digital_gray_data[2] == 1)
+
+                {
+
+                    turn_state++;
+                }
+
+                break;
+            }
+            case 2:
+            {
+                if (digital_gray_data[2] == 1)
+
+                {
+									turn_stop_flag = 1;
+                    turn_state = 0;
+                }
+
+                break;
+            }
+
+            default:
+                break;
+            }
+        }
+        else if (turn_dir_all == 1)
+        {
+        }
+
+        vTaskDelay(10);
     }
 }
 
@@ -181,6 +239,7 @@ void gray_read_task(void *pvParameters)
     }
     while (1)
     {
+        gray_count++;
         // 读取灰度传感器数据
         Digtal_gray = IIC_Get_Digtal(front);
         Digtal_gray_back = IIC_Get_Digtal(back);
@@ -195,14 +254,17 @@ void gray_read_task(void *pvParameters)
         {
         }
 
-        if (digital_gray_data[0] == 1 && digital_gray_data[1] == 1 && digital_gray_data[2] == 1 && digital_gray_data[3] == 1 && digital_gray_data[4] == 1 && digital_gray_data[5] == 1 && digital_gray_data[6] == 1 && digital_gray_data[7] == 1)
+        if (digital_gray_data[2] == 1 && digital_gray_data[3] == 1 && digital_gray_data[4] == 1 && digital_gray_data[5] == 1)
         {
+            BUZZER_ON
             real_time_gray_state = all_black;
         }
         else
         {
+            BUZZER_OFF
             real_time_gray_state = orgin_gray;
         }
+
         // 获取传感器归一化结果
         IIC_Anolog_Normalize(0xff, front); // 所有通道归一化都打开
         IIC_Anolog_Normalize(0xff, back);
@@ -252,6 +314,36 @@ static void setMotorStepMode(int8_t speed0, int8_t speed1, int32_t distance, int
     dc_step_distance = distance;
     dc_step_flag = 1; // 设置步进模式标志位
 }
+
+static int setMotorTurn(int turn_dir)
+{
+    dc_motor_state = 0;
+    dc_step_flag = 0;
+    int stop_please_flag = 0;
+    turn_dir_all = turn_dir;
+    motor_mode = MOTOR_MODE_TURN;
+    if (turn_stop_flag == 1)
+    {
+        motor_0_user_speed = 0;
+        motor_1_user_speed = 0;
+        stop_please_flag = 1;
+            turn_dir_all = -1;
+        return stop_please_flag;
+    }
+
+    if (turn_dir == 0)
+    {
+        motor_0_user_speed = 3;
+        motor_1_user_speed = -3;
+    }
+    else if (turn_dir == 1)
+    {
+        motor_0_user_speed = -6;
+        motor_1_user_speed = 6;
+    }
+
+    return 0;
+}
 // 计算黑线位置（返回值范围：0-7，对应传感器位置）
 float get_black_line_position(int ordinal)
 {
@@ -279,17 +371,7 @@ float get_black_line_position(int ordinal)
         return position_sum_back / 8.0f;
     }
 }
-static void setmotor_stop_tang(int8_t speed0, int8_t speed1, int mode_temp)
-{
-            // 设置电机正常模式，速度8,直到碰到黑线
-            setMotorNormal(speed0, speed1, mode_temp);
-            if (stop_motor_flag == 1)
-            {
-                stop_motor_flag=0;
-                main_state++;
-            }
 
-}
 void Onmaincpp(void *pvParameters)
 {
     motor_0_active = 1;
@@ -305,21 +387,21 @@ void Onmaincpp(void *pvParameters)
             main_state++;
             break;
         }
-       
+
         case 1:
         {
             // 设置电机正常模式，速度8,直到碰到黑线
-            setMotorNormal(10, 10, 0);
+            setMotorNormal(8, 8, 0);
             if (stop_motor_flag == 1)
             {
-                stop_motor_flag=0;
+                stop_motor_flag = 0;
                 main_state++;
             }
             break;
         }
         case 2:
         {
-            setMotorStepMode(8,8, 450, 0); // 设置电机步进模式，速度6，距离400
+            setMotorStepMode(8, 8, 450, 0); // 设置电机步进模式，速度6，距离400
             main_state++;
             break;
         }
@@ -328,11 +410,11 @@ void Onmaincpp(void *pvParameters)
             if (step_complete_flag == 1)
             {
                 // 设置电机正常模式，速度8,直到碰到黑线
-                setMotorNormal(10, 10, 0);
+                setMotorNormal(11, 11, 0);
                 if (stop_motor_flag == 1)
                 {
-                    stop_motor_flag=0;
-                    step_complete_flag=0;
+                    stop_motor_flag = 0;
+                    step_complete_flag = 0;
                     main_state++;
                 }
             }
@@ -340,27 +422,51 @@ void Onmaincpp(void *pvParameters)
         }
         case 4:
         {
-              setMotorStepMode(8, 8, 450, 0); // 设置电机步进模式，速度6，距离400
+            setMotorStepMode(8, 8, 450, 0); // 设置电机步进模式，速度6，距离400
             main_state++;
             break;
         }
         case 5:
         {
-               
             if (step_complete_flag == 1)
             {
                 // 设置电机正常模式，速度8,直到碰到黑线
-                setMotorNormal(8, 8, 0);
+                setMotorNormal(11, 11, 0);
                 if (stop_motor_flag == 1)
                 {
-                    stop_motor_flag=0;
-                    step_complete_flag=0;
+                    stop_motor_flag = 0;
+                    step_complete_flag = 0;
                     main_state++;
                 }
             }
+            break;
+        }
+        case 6:
+        {
+            setMotorStepMode(8, 8, 450, 0); // 设置电机步进模式，速度6，距离400
             main_state++;
             break;
         }
+
+        case 7:
+        {
+            if (step_complete_flag == 1)
+            {
+                if (setMotorTurn(0) == 1)
+                {
+                    main_state++;
+                }
+            }
+
+            break;
+        }
+        case 8:
+    {
+    
+            setMotorStepMode(8, 8, 800, 0); // 设置电机步进模式，速度6，距离400
+            main_state++;
+                  break;
+    }
         //**************** */ 这里是defualt：break线********************************************************************************
         default:
             break;
