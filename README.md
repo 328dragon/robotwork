@@ -6,65 +6,68 @@ IMU_Read_task读取板子上自带imu，但是零飘很严重
 Onmaincpp是主函数运行，点到点的运行方式例子如下：
 从（0，0，0）到（0.5，0，0）再到（{-0.5, -0.5, 0}）
 void Onmaincpp(void *pvParameters)
-{   
-int safe_count=0;
+{
+
+    int safe_count = 0; // 保护锁
     while (1)
     {
-        // 速度位置式有问题
-        //             Controller_set_pos_vel_target(ChassisControl_ptr, deubg_target_odom, debug_target_vel, false);
         // 纯速度式验证没问题
-//      Controller_set_vel_target(ChassisControl_ptr, debug_target_vel, false);
-			safe_count++;
-			if(safe_count>=3)
-			{
-			       if (begin_flag == 1)
-       {
-				safe_guard=1;
-					switch (position_flag)
-           {
-           case 0:
-           {              
-               if (SimpleStatus_t_isResolved(&planner_ptr->promise))
-               {
+        //      Controller_set_vel_target(ChassisControl_ptr, debug_target_vel, false);
+        safe_count++;
+        if (safe_count >= 3)
+        {
+            safe_guard = 1; // 保护锁打开
+            switch (main_state)
+            {
+            case 0:
+            {
+                move_to_next_line();
+                break;
+            }
+            case 1:
+            {
+                motor_mode = 1;
+                debug_target_odom = (odom_t){0.1, 0, 0};
+                debug_target_erro = (odom_t){0.01, 0.01, 0.01};
+                position_flag++;
+								Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.5, &debug_target_erro, 1);
+                main_state++;
+                break;
+            }
+            case 2:
+            {
+				
+                if (SimpleStatus_t_isResolved(&planner_ptr->promise))
+                {
+                    move_to_next_line();
+                }
 
-                   debug_target_odom = (odom_t){0.5, 0, 0};
-                //    debug_target_vel = (cmd_vel_t){0.1, 0.1, 0.1};
-                   debug_target_erro = (odom_t){0.01, 0.01, 0.01};
-                   position_flag++;
-									Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.5, &debug_target_erro, 0);   
-               }
-               break;
-           }
-           case 1:
-           {
-             
-               if (SimpleStatus_t_isResolved(&planner_ptr->promise))
-               {
-                   debug_target_odom = (odom_t){-0.5, -0.5, 0};
-                //    debug_target_vel = (cmd_vel_t){0.1, 0.1, 0.1};
-                   position_flag++;
-									Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.3, &debug_target_erro, 0);   
-               }
-               break;
-           }
-					 case 2:
-					 {
-						   if (SimpleStatus_t_isResolved(&planner_ptr->promise))
-               {
-							 						 begin_flag=0;
-					 position_flag=0;
-							 }
+                break;
+            }
+            case 3:
+            {
+                break;
+            }
+            default:
+                break;
+            }
+        }
 
-					 break;
-					 }
-           default:
-               break;
-           }
-       }
-			}
+        switch (motor_mode)
+        {
+        case 0:
+        {
+            Controller_set_vel_target(ChassisControl_ptr, debug_target_vel, false);
+        }
+        case 1:
+        {
+					         
+        }
+        default:
+            break;
+        }
 
-         
-        vTaskDelay(200);
+        vTaskDelay(100);
     }
 }
 OnPlannerUpdate负责规划路径，当用速度模式时，用不到

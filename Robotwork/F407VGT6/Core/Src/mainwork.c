@@ -22,6 +22,10 @@
 #include "gray.h"
 #define BUZZER_ON HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin, 0);
 #define BUZZER_OFF HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin, 1);
+// 灰度转弯值
+__IO int turn_stop_flag = 0; // 转弯停止标志位
+int turn_dir_all = -1;
+__IO int turn_state = 0;
 // 主函数状态机
 int main_state = 0;
 int motor_mode = 0;
@@ -124,7 +128,7 @@ void main_work(void)
     Controller_Init(ChassisControl_ptr, zdt_stepmotor_ptr, kinematic_ptr);
     Planner_init(planner_ptr, ChassisControl_ptr);
 
-    BaseType_t ok2 = xTaskCreate(OnChassicControl, "Chassic_control", 1000, NULL, 3, &Chassic_control_handle);
+    BaseType_t ok2 = xTaskCreate(OnChassicControl, "Chassic_control", 800, NULL, 3, &Chassic_control_handle);
     BaseType_t ok3 = xTaskCreate(Onmaincpp, "main_cpp", 600, NULL, 4, &main_cpp_handle);
     BaseType_t ok4 = xTaskCreate(OnPlannerUpdate, "Planner_update", 300, NULL, 4, &Planner_update_handle);
     BaseType_t ok5 = xTaskCreate(IMU_Read_task, "IMU_Read_task", 200, NULL, 4, &IMU_read_handle);
@@ -293,6 +297,55 @@ void IMU_Read_task(void *pvParameters)
             }
         }
 
+        if (turn_dir_all == -1)
+        {
+            turn_stop_flag = 0;
+            turn_state = 0;
+        }
+        if ((turn_dir_all == 0) && (real_time_gray_state != all_black))
+        {
+            switch (turn_state)
+            {
+
+            case 0:
+            {
+                if (digital_gray_data[0] == 1)
+                {
+
+                    turn_state++;
+                }
+                break;
+            }
+            case 1:
+            {
+                if (digital_gray_data[1] == 1)
+
+                {
+
+                    turn_state++;
+                }
+
+                break;
+            }
+            case 2:
+            {
+                if (digital_gray_data[2] == 1)
+
+                {
+                    turn_stop_flag = 1;
+                    turn_state = 0;
+                }
+
+                break;
+            }
+
+            default:
+                break;
+            }
+        }
+        else if (turn_dir_all == 1)
+        {
+        }
         vTaskDelay(10);
     }
 }
@@ -304,6 +357,18 @@ static void move_to_next_line()
     if (real_time_gray_state == all_black)
     {
         debug_target_vel = (cmd_vel_t){0, 0, 0};
+        main_state++;
+    }
+}
+static void turn_to_next_line()
+{
+    motor_mode = 0;
+		turn_dir_all=0;
+    debug_target_vel = (cmd_vel_t){0, 0, 0.05};
+    if (turn_stop_flag == 1)
+    {
+        debug_target_vel = (cmd_vel_t){0, 0, 0};
+        turn_dir_all = -1; // 重置转弯状态
         main_state++;
     }
 }
@@ -332,22 +397,55 @@ void Onmaincpp(void *pvParameters)
                 debug_target_odom = (odom_t){0.1, 0, 0};
                 debug_target_erro = (odom_t){0.01, 0.01, 0.01};
                 position_flag++;
-								Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.5, &debug_target_erro, 1);
+                Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.5, &debug_target_erro, 1);
                 main_state++;
                 break;
             }
             case 2:
             {
-				
+
                 if (SimpleStatus_t_isResolved(&planner_ptr->promise))
                 {
                     move_to_next_line();
                 }
-
                 break;
             }
             case 3:
             {
+                motor_mode = 1;
+                debug_target_odom = (odom_t){0.1, 0, 0};
+                debug_target_erro = (odom_t){0.01, 0.01, 0.01};
+                position_flag++;
+                Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.5, &debug_target_erro, 1);
+                main_state++;
+                break;
+            }
+            case 4:
+            {
+
+                if (SimpleStatus_t_isResolved(&planner_ptr->promise))
+                {
+                    move_to_next_line();
+                }
+                break;
+            }
+                        case 5:
+            {
+							                motor_mode = 1;
+                debug_target_odom = (odom_t){0.15, 0, 0};
+                debug_target_erro = (odom_t){0.01, 0.01, 0.01};
+                position_flag++;
+                Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.5, &debug_target_erro, 1);
+                main_state++;
+                break;
+            }
+            case 6:
+            {
+
+                if (SimpleStatus_t_isResolved(&planner_ptr->promise))
+                {
+                    turn_to_next_line();
+                }
                 break;
             }
             default:
@@ -363,7 +461,6 @@ void Onmaincpp(void *pvParameters)
         }
         case 1:
         {
-					         
         }
         default:
             break;
