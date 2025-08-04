@@ -284,11 +284,11 @@ void IMU_Read_task(void *pvParameters)
         safe_flag++;
         if (safe_flag >= 20)
         {
-            __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_3, debug_pwm); // 抬升，500最低，800中间，1800最高
+            __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_3, debug_pwm); //抬升，500最高，1000中间，1200最低
             if (close_flag == 1)
             {
-                __HAL_TIM_SET_COMPARE(&htim9, TIM_CHANNEL_1, 1200); // 夹爪，1800紧，1500松
-                __HAL_TIM_SET_COMPARE(&htim9, TIM_CHANNEL_2, 1800); // 夹爪1100锁紧，1500松
+                __HAL_TIM_SET_COMPARE(&htim9, TIM_CHANNEL_1, 1700); // 夹爪，1800紧，1500松
+                __HAL_TIM_SET_COMPARE(&htim9, TIM_CHANNEL_2, 1300); // 夹爪1100锁紧，1500松
             }
             else
             {
