@@ -20,9 +20,11 @@
 #include "tim.h"
 #include "tcs230.h"
 #include "gray.h"
+#include "Catch.h"
 #define BUZZER_ON HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin, 0);
 #define BUZZER_OFF HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin, 1);
 // 灰度转弯值
+int catch_flag=0;
 __IO int turn_stop_flag = 0; // 转弯停止标志位
 int turn_dir_all = -1;
 __IO int turn_state = 0;
@@ -30,7 +32,7 @@ __IO int turn_state = 0;
 int main_state = 0;
 int motor_mode = 0;
 // 颜色传感器 状态机
-int goods_color = 90;
+__IO int goods_color = -1;
 int read_cololr_flag = 0; // 颜色传感器读取标志位
 int read_color_state = 0; // 颜色传感器读取状态
 int temp_color = -1;
@@ -281,21 +283,12 @@ void IMU_Read_task(void *pvParameters)
     while (1)
     {
         BMI088_read(gyro, accel, &temp);
-        safe_flag++;
-        if (safe_flag >= 20)
-        {
-            __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_3, debug_pwm); //抬升，500最高，1000中间，1200最低
-            if (close_flag == 1)
-            {
-                __HAL_TIM_SET_COMPARE(&htim9, TIM_CHANNEL_1, 1700); // 夹爪，1800紧，1500松
-                __HAL_TIM_SET_COMPARE(&htim9, TIM_CHANNEL_2, 1300); // 夹爪1100锁紧，1500松
-            }
-            else
-            {
-                __HAL_TIM_SET_COMPARE(&htim9, TIM_CHANNEL_1, 1500); // 夹爪，1800紧，1500松
-                __HAL_TIM_SET_COMPARE(&htim9, TIM_CHANNEL_2, 1500); // 夹爪1100锁紧，1500松
-            }
-        }
+
+if(catch_flag)
+{
+Catch();
+catch_flag=0;
+}
 
         if (turn_dir_all == -1)
         {
