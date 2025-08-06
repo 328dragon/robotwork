@@ -24,7 +24,7 @@
 #define BUZZER_ON HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin, 0);
 #define BUZZER_OFF HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin, 1);
 // 灰度转弯值
-int catch_flag=0;
+int catch_flag = 0;
 __IO int turn_stop_flag = 0; // 转弯停止标志位
 int turn_dir_all = -1;
 __IO int turn_state = 0;
@@ -39,10 +39,13 @@ int temp_color = -1;
 // 灰度
 gray_state real_time_gray_state = orgin_gray; // 主灰度状态
 // 前面灰度
+float gray_front_p = -0.002f; // 前面灰度传感器的神秘小参数
+float gray_data_front_middle = 0;
+float gray_data_front_middle_temp = 0;
 int gray_count = 0;      // 前面灰度计数
 int gray_count_last = 0; // 上次前面灰度计数
 uint8_t digital_gray_data[8];
-int sensor_weights[8] = {-7, -4, -3, -2, 2, 3, 4, 7}; // 传感器权重
+int sensor_weights[8] = {-4, -3, -2, -1, 1, 2, 3, 4}; // 传感器权重
 unsigned char Digtal_gray;
 unsigned char Anolog_gray[8] = {0};
 unsigned char Normal[8] = {0};
@@ -66,7 +69,7 @@ float DEBUG3 = 0.0f;
 int position_flag = 0;
 int begin_flag = 1;
 int safe_guard = 0;
-cmd_vel_t debug_target_vel = {0.2, 0, 0};
+cmd_vel_t debug_target_vel = {0, 0, 0};
 odom_t debug_target_odom = {0, 0, 0};
 odom_t debug_target_erro = {0.05, 0.05, 0.05};
 
@@ -245,6 +248,12 @@ void gray_read_task(void *pvParameters)
         }
         IIC_Anolog_Normalize(0xff); // 为了下一次循环是非归一化，所以清零
 
+        for (int i = 0; i < 8; i++)
+        {
+            gray_data_front_middle_temp += digital_gray_data[i] * sensor_weights[i] * gray_front_p; // 计算前面灰度传感器的中间值
+        }
+        gray_data_front_middle = gray_data_front_middle_temp;
+        gray_data_front_middle_temp = 0;
         vTaskDelay(10); // 延时100ms
     }
 }
@@ -284,11 +293,11 @@ void IMU_Read_task(void *pvParameters)
     {
         BMI088_read(gyro, accel, &temp);
 
-if(catch_flag)
-{
-Catch();
-catch_flag=0;
-}
+        if (catch_flag)
+        {
+            Catch();
+            catch_flag = 0;
+        }
 
         if (turn_dir_all == -1)
         {
@@ -325,12 +334,34 @@ catch_flag=0;
                 if (digital_gray_data[2] == 1)
 
                 {
-                    turn_stop_flag = 1;
+
+                    turn_state++;
+                }
+
+                break;
+            }
+            case 3:
+            {
+                if (digital_gray_data[3] == 1)
+
+                {
+
+                         turn_stop_flag = 1;
                     turn_state = 0;
                 }
 
                 break;
             }
+//            case 4:
+//            {
+//                if (digital_gray_data[4] == 1)
+//                {
+//                    turn_stop_flag = 1;
+//                    turn_state = 0;
+//                }
+
+//                break;
+//            }
 
             default:
                 break;
@@ -346,17 +377,18 @@ catch_flag=0;
 static void move_to_next_line()
 {
     motor_mode = 0;
-    debug_target_vel = (cmd_vel_t){0.3, 0, 0};
+    debug_target_vel = (cmd_vel_t){0.2, gray_data_front_middle,0};
     if (real_time_gray_state == all_black)
     {
         debug_target_vel = (cmd_vel_t){0, 0, 0};
         main_state++;
     }
 }
+
 static void turn_to_next_line()
 {
     motor_mode = 0;
-		turn_dir_all=0;
+    turn_dir_all = 0;
     debug_target_vel = (cmd_vel_t){0, 0, 0.05};
     if (turn_stop_flag == 1)
     {
@@ -365,6 +397,17 @@ static void turn_to_next_line()
         main_state++;
     }
 }
+static void move_step_distance(float odom_x,float odom_y,float odom_yaw)
+{
+                motor_mode = 1;
+                debug_target_odom = (odom_t){odom_x, odom_y, odom_yaw};
+                debug_target_erro = (odom_t){0.01, 0.01, 0.01};
+                position_flag++;
+                Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.5, &debug_target_erro, 1);
+                main_state++;
+
+}
+
 void Onmaincpp(void *pvParameters)
 {
 
@@ -377,73 +420,83 @@ void Onmaincpp(void *pvParameters)
         if (safe_count >= 3)
         {
             safe_guard = 1; // 保护锁打开
-            switch (main_state)
-            {
-            case 0:
-            {
-                move_to_next_line();
-                break;
-            }
-            case 1:
-            {
-                motor_mode = 1;
-                debug_target_odom = (odom_t){0.1, 0, 0};
-                debug_target_erro = (odom_t){0.01, 0.01, 0.01};
-                position_flag++;
-                Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.5, &debug_target_erro, 1);
-                main_state++;
-                break;
-            }
-            case 2:
-            {
+             switch (main_state)
+             {
+//             case 0:
+//             {
+//                 move_to_next_line();
+//                 break;
+//             }
+             case 0:
+             {
+							
+ 							move_step_distance(0,0,0.4);
+							 
+ //                motor_mode = 1;
+ //                debug_target_odom = (odom_t){0.1, 0, 0};
+ //                debug_target_erro = (odom_t){0.01, 0.01, 0.01};
+ //                position_flag++;
+ //                Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.5, &debug_target_erro, 1);
+                 main_state++;
+                 break;
+             }
+             case 2:
+             {
 
-                if (SimpleStatus_t_isResolved(&planner_ptr->promise))
-                {
-                    move_to_next_line();
-                }
-                break;
-            }
-            case 3:
-            {
-                motor_mode = 1;
-                debug_target_odom = (odom_t){0.1, 0, 0};
-                debug_target_erro = (odom_t){0.01, 0.01, 0.01};
-                position_flag++;
-                Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.5, &debug_target_erro, 1);
-                main_state++;
-                break;
-            }
-            case 4:
-            {
+                 if (SimpleStatus_t_isResolved(&planner_ptr->promise))
+                 {
+                     move_to_next_line();
+                 }
+                 break;
+             }
+             case 3:
+             {
+ 									move_step_distance(0.1,0,0);
+ //                motor_mode = 1;
+ //                debug_target_odom = (odom_t){0.1, 0, 0};
+ //                debug_target_erro = (odom_t){0.01, 0.01, 0.01};
+ //                position_flag++;
+ //                Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.5, &debug_target_erro, 1);
+ //                main_state++;
+                 break;
+             }
+             case 4:
+             {
 
-                if (SimpleStatus_t_isResolved(&planner_ptr->promise))
-                {
-                    move_to_next_line();
-                }
-                break;
-            }
-                        case 5:
-            {
-							                motor_mode = 1;
-                debug_target_odom = (odom_t){0.15, 0, 0};
-                debug_target_erro = (odom_t){0.01, 0.01, 0.01};
-                position_flag++;
-                Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.5, &debug_target_erro, 1);
-                main_state++;
-                break;
-            }
-            case 6:
-            {
+                 if (SimpleStatus_t_isResolved(&planner_ptr->promise))
+                 {
+                     move_to_next_line();
+                 }
+                 break;
+             }
+             case 5:
+             {
+ 									move_step_distance(0.1,0,0);
+ //                motor_mode = 1;
+ //                debug_target_odom = (odom_t){0.1, 0, 0};
+ //                debug_target_erro = (odom_t){0.01, 0.01, 0.01};
+ //                position_flag++;
+ //                Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.5, &debug_target_erro, 1);
+ //                main_state++;
+                 break;
+             }
+             case 6:
+             {
 
-                if (SimpleStatus_t_isResolved(&planner_ptr->promise))
-                {
-                    turn_to_next_line();
-                }
-                break;
-            }
-            default:
-                break;
-            }
+                 if (SimpleStatus_t_isResolved(&planner_ptr->promise))
+                 {
+                   move_step_distance(0,0,0.2);
+                 }
+                 break;
+             }
+             case 7:
+             {
+ 	move_step_distance(0.1,0,0);
+                 break;
+             }
+             default:
+                 break;
+             }
         }
 
         switch (motor_mode)
@@ -451,9 +504,11 @@ void Onmaincpp(void *pvParameters)
         case 0:
         {
             Controller_set_vel_target(ChassisControl_ptr, debug_target_vel, false);
+					break;
         }
         case 1:
         {
+					break;
         }
         default:
             break;
