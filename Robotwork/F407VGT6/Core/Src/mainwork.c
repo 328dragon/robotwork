@@ -23,6 +23,12 @@
 #include "Catch.h"
 #define BUZZER_ON HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin, 0);
 #define BUZZER_OFF HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin, 1);
+int all_back_flag_finish = 0;
+int all_back_stop_flag = 0;
+int all_back_count = 0;
+int all_back_last_count;
+int all_back_time = 0;
+int can_increase_all_back = 0;
 // 灰度转弯值
 int catch_flag = 0;
 __IO int turn_stop_flag = 0; // 转弯停止标志位
@@ -39,7 +45,7 @@ int temp_color = -1;
 // 灰度
 gray_state real_time_gray_state = orgin_gray; // 主灰度状态
 // 前面灰度
-float gray_front_p = -0.002f; // 前面灰度传感器的神秘小参数
+float gray_front_p = 0.004f; // 前面灰度传感器的神秘小参数
 float gray_data_front_middle = 0;
 float gray_data_front_middle_temp = 0;
 int gray_count = 0;      // 前面灰度计数
@@ -216,6 +222,19 @@ void gray_read_task(void *pvParameters)
     while (1)
     {
         gray_count++;
+          if (all_back_flag_finish == 1)
+        {
+            all_back_time = 0;
+            all_back_count=0;
+        }
+        all_back_count++;
+        //完成时清空标志
+
+        if ((all_back_count - all_back_last_count) > 20)
+        {
+            can_increase_all_back = 1;
+        }
+
         // 读取灰度传感器数据
         Digtal_gray = IIC_Get_Digtal();
 
@@ -229,10 +248,16 @@ void gray_read_task(void *pvParameters)
         {
         }
 
-        if (digital_gray_data[3] == 1 && digital_gray_data[4] == 1 && digital_gray_data[2] == 1 && digital_gray_data[5] == 1) // 中间4个
+        if (digital_gray_data[1] == 1 &&digital_gray_data[3] == 1 && digital_gray_data[4] == 1 && digital_gray_data[2] == 1 && digital_gray_data[5] == 1&&digital_gray_data[6] == 1 ) // 中间4个
         {
             BUZZER_ON
             real_time_gray_state = all_black;
+            if (can_increase_all_back == 1)
+            {
+                all_back_time++;
+                all_back_last_count = all_back_count;
+                can_increase_all_back = 0;
+            }
         }
         else
         {
@@ -346,23 +371,22 @@ void IMU_Read_task(void *pvParameters)
 
                 {
 
-                         turn_stop_flag = 1;
+                    turn_stop_flag = 1;
                     turn_state = 0;
                 }
 
                 break;
             }
-//            case 4:
-//            {
-//                if (digital_gray_data[4] == 1)
-//                {
-//                    turn_stop_flag = 1;
-//                    turn_state = 0;
-//                }
+                //            case 4:
+                //            {
+                //                if (digital_gray_data[4] == 1)
+                //                {
+                //                    turn_stop_flag = 1;
+                //                    turn_state = 0;
+                //                }
 
-//                break;
-//            }
-
+                //                break;
+                //            }
             default:
                 break;
             }
@@ -377,7 +401,7 @@ void IMU_Read_task(void *pvParameters)
 static void move_to_next_line()
 {
     motor_mode = 0;
-    debug_target_vel = (cmd_vel_t){0.2, gray_data_front_middle,0};
+    debug_target_vel = (cmd_vel_t){0.2, 0, 0};
     if (real_time_gray_state == all_black)
     {
         debug_target_vel = (cmd_vel_t){0, 0, 0};
@@ -397,15 +421,14 @@ static void turn_to_next_line()
         main_state++;
     }
 }
-static void move_step_distance(float odom_x,float odom_y,float odom_yaw)
+static void move_step_distance(float odom_x, float odom_y, float odom_yaw)
 {
-                motor_mode = 1;
-                debug_target_odom = (odom_t){odom_x, odom_y, odom_yaw};
-                debug_target_erro = (odom_t){0.01, 0.01, 0.01};
-                position_flag++;
-                Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.5, &debug_target_erro, 1);
-                main_state++;
-
+    motor_mode = 1;
+    debug_target_odom = (odom_t){odom_x, odom_y, odom_yaw};
+    debug_target_erro = (odom_t){0.01, 0.01, 0.01};
+    position_flag++;
+    Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.5, &debug_target_erro, 1);
+    main_state++;
 }
 
 void Onmaincpp(void *pvParameters)
@@ -420,83 +443,108 @@ void Onmaincpp(void *pvParameters)
         if (safe_count >= 3)
         {
             safe_guard = 1; // 保护锁打开
-             switch (main_state)
-             {
-//             case 0:
-//             {
-//                 move_to_next_line();
-//                 break;
-//             }
-             case 0:
-             {
-							
- 							move_step_distance(0,0,0.4);
-							 
- //                motor_mode = 1;
- //                debug_target_odom = (odom_t){0.1, 0, 0};
- //                debug_target_erro = (odom_t){0.01, 0.01, 0.01};
- //                position_flag++;
- //                Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.5, &debug_target_erro, 1);
-                 main_state++;
-                 break;
-             }
-             case 2:
-             {
+            switch (main_state)
+            {
+            case 0:
+            {
+                motor_mode = 0;
+                debug_target_vel = (cmd_vel_t){0.2, 0, 0};
+                all_back_stop_flag = 1;
+                main_state++;
+                break;
+            }
+            case 1:
+            {
+                if (all_back_time == 3)
+                {
+                    debug_target_vel = (cmd_vel_t){0, 0, 0};
+                    all_back_flag_finish = 1;
+                    main_state++;
+                }
+                break;
+            }
+						case 2:
+						{
+						move_step_distance(0.1,0,0);
+						break;
+						}
+						case 3:
+						{
+						    if (SimpleStatus_t_isResolved(&planner_ptr->promise))
+								{
+											move_step_distance(0,0,0.05);
+								}
+						break;
+						}
+						case 4:
+						{
+										    if (SimpleStatus_t_isResolved(&planner_ptr->promise))
+								{
+											move_step_distance(0.25,0,0);
+								}
+						break;
+						}
+            default:
+                break;
+            }
 
-                 if (SimpleStatus_t_isResolved(&planner_ptr->promise))
-                 {
-                     move_to_next_line();
-                 }
-                 break;
-             }
-             case 3:
-             {
- 									move_step_distance(0.1,0,0);
- //                motor_mode = 1;
- //                debug_target_odom = (odom_t){0.1, 0, 0};
- //                debug_target_erro = (odom_t){0.01, 0.01, 0.01};
- //                position_flag++;
- //                Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.5, &debug_target_erro, 1);
- //                main_state++;
-                 break;
-             }
-             case 4:
-             {
+            //            switch (main_state)
+            //            {
+            //            case 0:
+            //            {
+            //                move_to_next_line();
+            //                break;
+            //            }
+            //            case 1:
+            //            {
 
-                 if (SimpleStatus_t_isResolved(&planner_ptr->promise))
-                 {
-                     move_to_next_line();
-                 }
-                 break;
-             }
-             case 5:
-             {
- 									move_step_distance(0.1,0,0);
- //                motor_mode = 1;
- //                debug_target_odom = (odom_t){0.1, 0, 0};
- //                debug_target_erro = (odom_t){0.01, 0.01, 0.01};
- //                position_flag++;
- //                Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.5, &debug_target_erro, 1);
- //                main_state++;
-                 break;
-             }
-             case 6:
-             {
+            //                move_step_distance(0.1, 0, 0);
+            //                break;
+            //            }
+            //            case 2:
+            //            {
+            //                if (SimpleStatus_t_isResolved(&planner_ptr->promise))
+            //                {
+            //                    move_to_next_line();
+            //                }
+            //                break;
+            //            }
+            //            case 3:
+            //            {
+            //                move_step_distance(0.1, 0, 0);
+            //                break;
+            //            }
+            //            case 4:
+            //            {
 
-                 if (SimpleStatus_t_isResolved(&planner_ptr->promise))
-                 {
-                   move_step_distance(0,0,0.2);
-                 }
-                 break;
-             }
-             case 7:
-             {
- 	move_step_distance(0.1,0,0);
-                 break;
-             }
-             default:
-                 break;
-             }
+            //                if (SimpleStatus_t_isResolved(&planner_ptr->promise))
+            //                {
+            //                    move_to_next_line();
+            //                }
+            //                break;
+            //            }
+            //            case 5:
+            //            {
+            //                move_step_distance(0.1, 0, 0);
+            //                break;
+            //            }
+            //            case 6:
+            //            {
+            //                if (SimpleStatus_t_isResolved(&planner_ptr->promise))
+            //                {
+
+            //                    turn_to_next_line();
+            //                }
+            //                break;
+            //            }
+            //            case 7:
+            //            {
+            //                move_step_distance(0.1, 0, 0);
+            //                break;
+            //            }
+            //            default:
+            //                break;
+            //            }
         }
 
         switch (motor_mode)
@@ -504,11 +552,11 @@ void Onmaincpp(void *pvParameters)
         case 0:
         {
             Controller_set_vel_target(ChassisControl_ptr, debug_target_vel, false);
-					break;
+            break;
         }
         case 1:
         {
-					break;
+            break;
         }
         default:
             break;
