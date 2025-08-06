@@ -34,6 +34,7 @@ int can_increase_all_back = 0;
 //IMU结构体
 IMU_t *hwt905_imu={0};
 float hwt905_yaw_true=0;
+float ch040_yaw_last = 0;
 // 灰度转弯值
 int catch_flag = 0;
 __IO int turn_stop_flag = 0; // 转弯停止标志位
@@ -50,13 +51,13 @@ int temp_color = -1;
 // 灰度
 gray_state real_time_gray_state = orgin_gray; // 主灰度状态
 // 前面灰度
-float gray_front_p = 0.004f; // 前面灰度传感器的神秘小参数
+float gray_front_p = 0.006f; // 前面灰度传感器的神秘小参数
 float gray_data_front_middle = 0;
 float gray_data_front_middle_temp = 0;
 int gray_count = 0;      // 前面灰度计数
 int gray_count_last = 0; // 上次前面灰度计数
 uint8_t digital_gray_data[8];
-int sensor_weights[8] = {-4, -3, -2, -1, 1, 2, 3, 4}; // 传感器权重
+int sensor_weights[8] = {-4, -3, -2, 0, 0, 2, 3, 4}; // 传感器权重
 unsigned char Digtal_gray;
 unsigned char Anolog_gray[8] = {0};
 unsigned char Normal[8] = {0};
@@ -240,7 +241,7 @@ void gray_read_task(void *pvParameters)
         all_back_count++;
         //完成时清空标志
 
-        if ((all_back_count - all_back_last_count) > 20)
+        if ((all_back_count - all_back_last_count) > 30)
         {
             can_increase_all_back = 1;
         }
@@ -436,7 +437,7 @@ static void move_step_distance(float odom_x, float odom_y, float odom_yaw)
 {
     motor_mode = 1;
     debug_target_odom = (odom_t){odom_x, odom_y, odom_yaw};
-    debug_target_erro = (odom_t){0.01, 0.01, 0.01};
+    debug_target_erro = (odom_t){0.005, 0.005, 0.005};
     position_flag++;
     Planner_LoactaionCloseControl(planner_ptr, &debug_target_odom, 0.5, &debug_target_erro, 1);
     main_state++;
@@ -454,58 +455,70 @@ void Onmaincpp(void *pvParameters)
         if (safe_count >= 3)
         {
             safe_guard = 1; // 保护锁打开
-					switch(main_state)
-					{
-						case 0:
+//					switch(main_state)
+//					{
+//						case 0:
+//						{
+//							motor_mode = 0;
+//							//move_step_distance(0.6,0,0);					
+//						}
+//						default:break;
+//					}
+            switch (main_state)
+            {
+            case 0:
+            {
+                motor_mode = 0;
+				//debug_target_vel = (cmd_vel_t){0.2,0, 0};
+                debug_target_vel = (cmd_vel_t){0.2,-gray_data_front_middle, 0};
+                all_back_stop_flag = 1;
+                main_state++;
+                break;
+            }
+            case 1:
+            {
+                debug_target_vel = (cmd_vel_t){0.2,-gray_data_front_middle, 0};
+                if (all_back_time == 3)
+                {
+                    debug_target_vel = (cmd_vel_t){0, 0, 0};
+                    all_back_flag_finish = 1;
+                    main_state++;
+                }
+                break;
+            }
+						case 2:
 						{
-							move_step_distance(0.6,0,0);					
+						move_step_distance(0.08,0,0);
+						break;
 						}
-						default:break;
-					}
-//            switch (main_state)
-//            {
-//            case 0:
-//            {
-//                motor_mode = 0;
-//                debug_target_vel = (cmd_vel_t){0.2, 0, 0};
-//                all_back_stop_flag = 1;
-//                main_state++;
-//                break;
-//            }
-//            case 1:
-//            {
-//                if (all_back_time == 3)
-//                {
-//                    debug_target_vel = (cmd_vel_t){0, 0, 0};
-//                    all_back_flag_finish = 1;
-//                    main_state++;
-//                }
-//                break;
-//            }
-//						case 2:
-//						{
-//						move_step_distance(0.1,0,0);
-//						break;
-//						}
-//						case 3:
-//						{
-//						    if (SimpleStatus_t_isResolved(&planner_ptr->promise))
-//								{
-//											move_step_distance(0,0,0.05);
-//								}
-//						break;
-//						}
-//						case 4:
-//						{
-//										    if (SimpleStatus_t_isResolved(&planner_ptr->promise))
-//								{
-//											move_step_distance(0.25,0,0.05);
-//								}
-//						break;
-//						}
-//            default:
-//                break;
-//            }
+						case 3:
+						{
+						    if (SimpleStatus_t_isResolved(&planner_ptr->promise))
+								{
+											move_step_distance(0,0,0.116);
+								}
+						break;
+						}
+						case 4:
+						{
+										    if (SimpleStatus_t_isResolved(&planner_ptr->promise))
+								{
+											move_step_distance(0.19,0,0.116);
+								}
+						break;
+						}
+						case 5:
+						{	  
+							if (SimpleStatus_t_isResolved(&planner_ptr->promise))
+							{
+								catch_flag=1;
+								main_state++;
+							}
+							break;
+						}
+            default:
+                break;
+            }
 
             //            switch (main_state)
             //            {
@@ -581,7 +594,7 @@ void Onmaincpp(void *pvParameters)
             break;
         }
 
-        vTaskDelay(100);
+        vTaskDelay(20);
     }
 }
 
@@ -608,8 +621,14 @@ void OnChassicControl(void *pvParameters)
         last_tick = xTaskGetTickCount();
         if (safe_guard)
         {
-//					hwt905_yaw_true=getyaw(hwt905_imu);
+			/*if(fabsf(ch040_yaw-ch040_yaw_last) >= 0.2)
+			{
+				if(fabs(ch040_yaw+0.47-ch040_yaw_last) >= 0.2)
+					ch040_yaw -= 0.47;
+				else ch040_yaw += 0.47;
+			}*/
             Controller_KinematicAndControlUpdateWithYaw(ChassisControl_ptr, dt,ch040_yaw);
+			//ch040_yaw_last = ch040_yaw;
             // // 步进不需要速度环，此处仅为了读取电机速度
             ChassisControl_ptr->Controller_MotorUpdate(ChassisControl_ptr, dt);
         }

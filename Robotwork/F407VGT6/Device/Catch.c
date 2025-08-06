@@ -36,8 +36,8 @@ void Sort(enum color_enum color)
 	vTaskDelay(1500);
 	__HAL_TIM_SET_COMPARE(&htim5,TIM_CHANNEL_4 ,1850);//小转盘 转到里面
 		vTaskDelay(1500);
-		__HAL_TIM_SET_COMPARE(&htim9,TIM_CHANNEL_1 ,1500);//夹爪，1800紧，1500松
-		__HAL_TIM_SET_COMPARE(&htim9,TIM_CHANNEL_2 ,1500);//夹爪1100锁紧，1500松
+		__HAL_TIM_SET_COMPARE(&htim9,TIM_CHANNEL_1 ,1360);//夹爪，1800紧，1400松
+		__HAL_TIM_SET_COMPARE(&htim9,TIM_CHANNEL_2 ,1640);//夹爪1100锁紧，1600松
 //	__HAL_TIM_SET_COMPARE(&htim5,TIM_CHANNEL_4 ,600);//小转盘 转到外面
 	vTaskDelay(200);
 //	__HAL_TIM_SET_COMPARE(&htim5,TIM_CHANNEL_3 ,600);// 下降

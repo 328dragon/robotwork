@@ -76,10 +76,19 @@ void CubicSpline_Init(CubicSpline_t *spline, Point p0, Point p1, Point slope)
 
 float CubicSpline_Eval(CubicSpline_t *spline, float x)
 {
+//	    // 保持边界检查逻辑
+//    if (x < spline->x0 || x > spline->x1)
+//        return 0;
+//    
+//    // 线性插值实现（替代原三次多项式计算）
+//    // 公式：y = y0 + (y1 - y0) * (x - x0) / (x1 - x0)
+//    float t = (x - spline->x0) / (spline->x1 - spline->x0);
+//    return spline->y0 + t * (spline->y1 - spline->y0);
     if (x < spline->x0 || x > spline->x1)
         return 0;
     float h = x - spline->x0;
-    return spline->a + spline->b * h + spline->c * h * h + spline->d * h * h * h;
+
+   return spline->a + spline->b * h + spline->c * h * h + spline->d * h * h * h;
 }
 
 float CubicSpline_dx(CubicSpline_t *spline, float x)
