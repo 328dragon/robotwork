@@ -21,6 +21,8 @@
 #include "tcs230.h"
 #include "gray.h"
 #include "Catch.h"
+#include "hwt905.h"
+#include "ch040.h"
 #define BUZZER_ON HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin, 0);
 #define BUZZER_OFF HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin, 1);
 int all_back_flag_finish = 0;
@@ -29,6 +31,9 @@ int all_back_count = 0;
 int all_back_last_count;
 int all_back_time = 0;
 int can_increase_all_back = 0;
+//IMU结构体
+IMU_t *hwt905_imu={0};
+float hwt905_yaw_true=0;
 // 灰度转弯值
 int catch_flag = 0;
 __IO int turn_stop_flag = 0; // 转弯停止标志位
@@ -62,9 +67,14 @@ int safe_flag = 0;
 USARTInstance uart6 = {0};
 void usart6_callback(void)
 {
+//   update(hwt905_imu) ;
+	    if (uart6.recv_buff[0] == 0x5A && uart6.recv_buff[1] == 0xA5)
+    {
+        ch040_get_data(uart6.recv_buff);
+    }
 }
 USART_Init_Config_s uart6_cfg = {
-    .recv_buff_size = 90,
+    .recv_buff_size = 100,
     .usart_handle = &huart6,
     .module_callback = usart6_callback,
 };
@@ -291,23 +301,24 @@ void LCD_Show_task(void *pvParameters)
     {
         // 显示
         // 陀螺仪
-        LCD_ShowFloatNum1(0, 20, gyro[0], 4, RED, WHITE, 16);
-        LCD_ShowString(48, 20, ",", RED, WHITE, 16, 0);
-        LCD_ShowFloatNum1(58, 20, gyro[1], 4, RED, WHITE, 16);
-        LCD_ShowString(106, 40, ",", RED, WHITE, 16, 0);
-        LCD_ShowFloatNum1(116, 20, gyro[2], 4, RED, WHITE, 16);
-        // 加速度
-        LCD_ShowFloatNum1(0, 40, accel[0], 4, RED, WHITE, 16);
-        LCD_ShowString(48, 40, ",", RED, WHITE, 16, 0);
-        LCD_ShowFloatNum1(58, 40, accel[1], 4, RED, WHITE, 16);
-        LCD_ShowString(106, 40, ",", RED, WHITE, 16, 0);
-        LCD_ShowFloatNum1(116, 40, accel[2], 4, RED, WHITE, 16);
-        // 显示temp
-        LCD_ShowFloatNum1(10, 60, temp, 4, RED, WHITE, 16);
-        LCD_ShowString(52, 60, ",", RED, WHITE, 16, 0);
-        LCD_ShowString(62, 60, "gyro", RED, WHITE, 16, 0);
-        LCD_ShowString(100, 60, ",", RED, WHITE, 16, 0);
-        LCD_ShowString(106, 60, "accel", RED, WHITE, 16, 0);
+			  LCD_ShowFloatNum1(58, 20,ch040_yaw, 5, RED, WHITE, 16);
+//        LCD_ShowFloatNum1(0, 20, gyro[0], 4, RED, WHITE, 16);
+//        LCD_ShowString(48, 20, ",", RED, WHITE, 16, 0);
+//        LCD_ShowFloatNum1(58, 20, gyro[1], 4, RED, WHITE, 16);
+//        LCD_ShowString(106, 40, ",", RED, WHITE, 16, 0);
+//        LCD_ShowFloatNum1(116, 20, gyro[2], 4, RED, WHITE, 16);
+//        // 加速度
+//        LCD_ShowFloatNum1(0, 40, accel[0], 4, RED, WHITE, 16);
+//        LCD_ShowString(48, 40, ",", RED, WHITE, 16, 0);
+//        LCD_ShowFloatNum1(58, 40, accel[1], 4, RED, WHITE, 16);
+//        LCD_ShowString(106, 40, ",", RED, WHITE, 16, 0);
+//        LCD_ShowFloatNum1(116, 40, accel[2], 4, RED, WHITE, 16);
+//        // 显示temp
+//        LCD_ShowFloatNum1(10, 60, temp, 4, RED, WHITE, 16);
+//        LCD_ShowString(52, 60, ",", RED, WHITE, 16, 0);
+//        LCD_ShowString(62, 60, "gyro", RED, WHITE, 16, 0);
+//        LCD_ShowString(100, 60, ",", RED, WHITE, 16, 0);
+//        LCD_ShowString(106, 60, "accel", RED, WHITE, 16, 0);
         vTaskDelay(100);
     }
 }
@@ -443,50 +454,58 @@ void Onmaincpp(void *pvParameters)
         if (safe_count >= 3)
         {
             safe_guard = 1; // 保护锁打开
-            switch (main_state)
-            {
-            case 0:
-            {
-                motor_mode = 0;
-                debug_target_vel = (cmd_vel_t){0.2, 0, 0};
-                all_back_stop_flag = 1;
-                main_state++;
-                break;
-            }
-            case 1:
-            {
-                if (all_back_time == 3)
-                {
-                    debug_target_vel = (cmd_vel_t){0, 0, 0};
-                    all_back_flag_finish = 1;
-                    main_state++;
-                }
-                break;
-            }
-						case 2:
+					switch(main_state)
+					{
+						case 0:
 						{
-						move_step_distance(0.1,0,0);
-						break;
+							move_step_distance(0.6,0,0);					
 						}
-						case 3:
-						{
-						    if (SimpleStatus_t_isResolved(&planner_ptr->promise))
-								{
-											move_step_distance(0,0,0.05);
-								}
-						break;
-						}
-						case 4:
-						{
-										    if (SimpleStatus_t_isResolved(&planner_ptr->promise))
-								{
-											move_step_distance(0.25,0,0);
-								}
-						break;
-						}
-            default:
-                break;
-            }
+						default:break;
+					}
+//            switch (main_state)
+//            {
+//            case 0:
+//            {
+//                motor_mode = 0;
+//                debug_target_vel = (cmd_vel_t){0.2, 0, 0};
+//                all_back_stop_flag = 1;
+//                main_state++;
+//                break;
+//            }
+//            case 1:
+//            {
+//                if (all_back_time == 3)
+//                {
+//                    debug_target_vel = (cmd_vel_t){0, 0, 0};
+//                    all_back_flag_finish = 1;
+//                    main_state++;
+//                }
+//                break;
+//            }
+//						case 2:
+//						{
+//						move_step_distance(0.1,0,0);
+//						break;
+//						}
+//						case 3:
+//						{
+//						    if (SimpleStatus_t_isResolved(&planner_ptr->promise))
+//								{
+//											move_step_distance(0,0,0.05);
+//								}
+//						break;
+//						}
+//						case 4:
+//						{
+//										    if (SimpleStatus_t_isResolved(&planner_ptr->promise))
+//								{
+//											move_step_distance(0.25,0,0.05);
+//								}
+//						break;
+//						}
+//            default:
+//                break;
+//            }
 
             //            switch (main_state)
             //            {
@@ -589,7 +608,8 @@ void OnChassicControl(void *pvParameters)
         last_tick = xTaskGetTickCount();
         if (safe_guard)
         {
-            Controller_KinematicAndControlUpdate(ChassisControl_ptr, dt);
+//					hwt905_yaw_true=getyaw(hwt905_imu);
+            Controller_KinematicAndControlUpdateWithYaw(ChassisControl_ptr, dt,ch040_yaw);
             // // 步进不需要速度环，此处仅为了读取电机速度
             ChassisControl_ptr->Controller_MotorUpdate(ChassisControl_ptr, dt);
         }
