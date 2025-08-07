@@ -69,10 +69,21 @@ USARTInstance uart6 = {0};
 void usart6_callback(void)
 {
 //   update(hwt905_imu) ;
-	    if (uart6.recv_buff[0] == 0x5A && uart6.recv_buff[1] == 0xA5)
+	if (uart6.recv_buff[0] == 0x5A && uart6.recv_buff[1] == 0xA5)
     {
         ch040_get_data(uart6.recv_buff);
     }
+	//防止yaw角的超范围突变影响
+	if(fabsf(ch040_yaw-ch040_yaw_last) >= 0.2)
+	{
+		if(fabs(ch040_yaw+(360.0*0.0011)-ch040_yaw_last) >= 0.2)
+			ch040_yaw -= (360.0*0.0011);
+		else ch040_yaw += (360.0*0.0011);
+	}
+	ch040_yaw_last = ch040_yaw;
+	//限幅防止疯转
+	if(ch040_yaw >= (360*0.0011))ch040_yaw = (360*0.0011);
+	else if(ch040_yaw <= -(360*0.0011))ch040_yaw = -(360*0.0011);
 }
 USART_Init_Config_s uart6_cfg = {
     .recv_buff_size = 100,
@@ -302,7 +313,7 @@ void LCD_Show_task(void *pvParameters)
     {
         // 显示
         // 陀螺仪
-			  LCD_ShowFloatNum1(58, 20,ch040_yaw, 5, RED, WHITE, 16);
+		LCD_ShowFloatNum1(58, 20,fabs(ch040_yaw), 5, RED, WHITE, 16);
 //        LCD_ShowFloatNum1(0, 20, gyro[0], 4, RED, WHITE, 16);
 //        LCD_ShowString(48, 20, ",", RED, WHITE, 16, 0);
 //        LCD_ShowFloatNum1(58, 20, gyro[1], 4, RED, WHITE, 16);
