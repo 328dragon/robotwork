@@ -60,6 +60,17 @@ float Polynomial3_d3(const Polynomial3_t *poly, float x)
 
 void CubicSpline_Init(CubicSpline_t *spline, Point p0, Point p1, Point slope)
 {
+	// 线性插值只需保存起点和终点，忽略斜率（线性插值斜率固定为 (y1-y0)/(x1-x0)）
+    spline->x0 = p0.x;  // 起点 x
+    spline->y0 = p0.y;  // 起点 y
+    spline->x1 = p1.x;  // 终点 x
+    spline->y1 = p1.y;  // 终点 y
+    // 线性插值无需 a、b、c、d 系数，可忽略或清零
+    spline->a = 0;
+    spline->b = 0;
+    spline->c = 0;
+    spline->d = 0;
+	/*
     spline->x0 = p0.x;
     spline->y0 = p0.y;
     spline->x1 = p1.x;
@@ -72,29 +83,49 @@ void CubicSpline_Init(CubicSpline_t *spline, Point p0, Point p1, Point slope)
     spline->b = spline->m0;
     spline->c = (3 * (spline->y1 - spline->y0) / (h * h)) - (spline->m0 + 2 * spline->m1) / h;
     spline->d = (2 * (spline->y0 - spline->y1) / (h * h * h)) + (spline->m0 + spline->m1) / (h * h);
+	*/
 }
 
 float CubicSpline_Eval(CubicSpline_t *spline, float x)
 {
-//	    // 保持边界检查逻辑
-//    if (x < spline->x0 || x > spline->x1)
-//        return 0;
-//    
-//    // 线性插值实现（替代原三次多项式计算）
-//    // 公式：y = y0 + (y1 - y0) * (x - x0) / (x1 - x0)
-//    float t = (x - spline->x0) / (spline->x1 - spline->x0);
-//    return spline->y0 + t * (spline->y1 - spline->y0);
+	// 边界检查：若 x 超出 [x0, x1] 范围，返回 0（或根据需求返回边界值）
+    if (x < spline->x0 || x > spline->x1)
+        return 0.0f;
+    
+    // 避免除以 0（若起点和终点 x 相同，直接返回起点 y）
+    if (spline->x1 == spline->x0)
+        return spline->y0;
+    
+    // 线性插值公式计算
+    float t = (x - spline->x0) / (spline->x1 - spline->x0);  // 归一化比例（0~1）
+    return spline->y0 + t * (spline->y1 - spline->y0);        // 线性插值结果
+	
+	/*
     if (x < spline->x0 || x > spline->x1)
         return 0;
     float h = x - spline->x0;
 
-   return spline->a + spline->b * h + spline->c * h * h + spline->d * h * h * h;
+	return spline->a + spline->b * h + spline->c * h * h + spline->d * h * h * h;
+	*/
 }
 
 float CubicSpline_dx(CubicSpline_t *spline, float x)
 {
+	// 边界检查：若 x 超出 [x0, x1] 范围，返回 0
+    if (x < spline->x0 || x > spline->x1)
+        return 0.0f;
+    
+    // 避免除以 0
+    if (spline->x1 == spline->x0)
+        return 0.0f;
+    
+    // 线性函数的导数 = 斜率 = (y1 - y0)/(x1 - x0)
+    return (spline->y1 - spline->y0) / (spline->x1 - spline->x0);
+	
+	/*
     if (x < spline->x0 || x > spline->x1)
         return 0;
     float h = x - spline->x0;
     return spline->b + 2 * spline->c * h + 3 * spline->d * h * h;
+	*/
 }
