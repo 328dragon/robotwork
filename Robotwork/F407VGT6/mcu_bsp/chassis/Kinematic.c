@@ -143,7 +143,7 @@ void Kinematic_CalculationUpdateWithYaw(uint16_t dt,  cmd_vel_t *cmd_vel_in, odo
 void Kinematic_ClearOdometry(Kinematic_t *_Kinematic) {
     _Kinematic->current_odom.x = 0;
     _Kinematic->current_odom.y = 0;
-    _Kinematic->current_odom.yaw = 0;
+    //_Kinematic->current_odom.yaw = 0;
 }
 
 /**

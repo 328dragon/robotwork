@@ -91,8 +91,43 @@ vTaskDelay(500);
 		}
 	vTaskDelay(200);
 	}
+}
 
+enum color_enum Catch_dragout(int delay_time)
+{
+    __HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_1,1850);// 先让红色在中间
+            __HAL_TIM_SET_COMPARE(&htim5,TIM_CHANNEL_3 ,500);// 抬升 保证不干涉
+        vTaskDelay(500);
+    __HAL_TIM_SET_COMPARE(&htim5,TIM_CHANNEL_4 ,600);// 保证夹爪朝外
+    vTaskDelay(1000);
+    __HAL_TIM_SET_COMPARE(&htim5,TIM_CHANNEL_3 ,1300);// 下降
+    vTaskDelay(200);
+	catch_finish_flag = 1;							  // 抓取标志位置1
+    vTaskDelay(delay_time);
+    vTaskDelay(650);
+    __HAL_TIM_SET_COMPARE(&htim9,TIM_CHANNEL_2 ,1100);// 夹紧
+    __HAL_TIM_SET_COMPARE(&htim9,TIM_CHANNEL_1 ,1800);// 夹紧
+    vTaskDelay(850);
+    __HAL_TIM_SET_COMPARE(&htim5,TIM_CHANNEL_3 ,500);// 抬升
+    // 去识别颜色
+vTaskDelay(500);
+    __HAL_TIM_SET_COMPARE(&htim5,TIM_CHANNEL_4 ,1520);//小转盘 转到里面
+    vTaskDelay(500);
+    __HAL_TIM_SET_COMPARE(&htim5,TIM_CHANNEL_3 ,800);// 下降
 
+//    color_return = Get_Color();
+    read_cololr_flag = 1;
+    vTaskDelay(1500);
+    while(1)
+    {    
+        if(goods_color != -1)
+    {
+    Sort(goods_color);
+        goods_color = -1;
+    return 0;
+    }
+    vTaskDelay(200);
+    }
 }
 
 void Drop(enum color_enum color)

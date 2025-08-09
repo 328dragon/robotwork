@@ -79,7 +79,8 @@ SimpleStatus_t *Planner_LoactaionOpenControl(Planner_t *self, const odom_t *targ
     {
         targetx = target_odom->x;
         targety = target_odom->y;
-        targetyaw = target_odom->yaw;
+        //targetyaw = target_odom->yaw;
+        targetyaw = target_odom->yaw - self->controller->kinematic->current_odom.yaw;
         Kinematic_ClearOdometry(self->controller->kinematic);
     }
     float target_t;

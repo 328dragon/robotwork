@@ -26,7 +26,7 @@
 #define BUZZER_ON HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin, 0);
 #define BUZZER_OFF HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin, 1);
 int all_back_flag_finish = 0;
-int all_back_stop_flag = 0;
+//int all_back_stop_flag = 0;
 int all_back_count = 0;
 int all_back_last_count;
 int all_back_time = 0;
@@ -35,6 +35,7 @@ int can_increase_all_back = 0;
 IMU_t *hwt905_imu={0};
 float hwt905_yaw_true=0;
 float ch040_yaw_last = 0;
+float ch040_yaw_update=0;
 // 灰度转弯值
 int catch_flag = 0;
 __IO int turn_stop_flag = 0; // 转弯停止标志位
@@ -44,6 +45,7 @@ __IO int turn_state = 0;
 int main_state = 0;
 int motor_mode = 0;
 int question_one_catch_count = 0;	//前三个物料抓取计数
+int question_two_catch_count = 0;	//后五个物料抓取计数(F处和G处可分为两波)
 // 颜色传感器 状态机
 __IO int goods_color = -1;
 int read_cololr_flag = 0; // 颜色传感器读取标志位
@@ -52,13 +54,13 @@ int temp_color = -1;
 // 灰度
 gray_state real_time_gray_state = orgin_gray; // 主灰度状态
 // 前面灰度
-float gray_front_p = 0.003f; // 前面灰度传感器的神秘小参数
+float gray_front_p = 0.002f; // 前面灰度传感器的神秘小参数
 float gray_data_front_middle = 0;
 float gray_data_front_middle_temp = 0;
-int gray_count = 0;      // 前面灰度计数
-int gray_count_last = 0; // 上次前面灰度计数
-uint8_t digital_gray_data[8];
-int sensor_weights[8] = {-4, -3, -2, -1, 1, 2, 3, 4}; // 传感器权重
+//int gray_count = 0;      // 前面灰度计数
+//int gray_count_last = 0; // 上次前面灰度计数
+uint8_t digital_gray_data[8];							//存储八路灰度数字量
+int sensor_weights[8] = {-4, -3, -2, -1, 1, 2, 3, 4}; 	// 灰度传感器权重
 unsigned char Digtal_gray;
 unsigned char Anolog_gray[8] = {0};
 unsigned char Normal[8] = {0};
@@ -244,23 +246,26 @@ void gray_read_task(void *pvParameters)
     }
     while (1)
     {
-        gray_count++;
+        //gray_count++;
+		//若全黑寻找标志位为1则不寻找全黑状态
         if (all_back_flag_finish == 1)
         {
+			//完成时清空标志
             all_back_time = 0;
             all_back_count=0;
+			all_back_last_count = 0;
         }
+		
+		//全黑死区计数
         all_back_count++;
-        //完成时清空标志
-
-        if ((all_back_count - all_back_last_count) > 25)
+        if ((all_back_count - all_back_last_count) > 20)
         {
+			//只有计数达到一定数量才允许全黑状态自加，防止连续自加
             can_increase_all_back = 1;
         }
 
         // 读取灰度传感器数据
         Digtal_gray = IIC_Get_Digtal();
-
         for (int i = 0; i < 8; i++)
         {
             digital_gray_data[i] = 1 - ((Digtal_gray >> i) & 0x01); // 读取数 �灰度传感器数据
@@ -271,15 +276,16 @@ void gray_read_task(void *pvParameters)
         {
         }
 
-        if (digital_gray_data[1] == 1 && digital_gray_data[3] == 1 && digital_gray_data[4] == 1 && digital_gray_data[2] == 1 && digital_gray_data[5] == 1&&digital_gray_data[6] == 1 ) // 中间4个
+		//若为全黑
+        if (digital_gray_data[1] == 1 && digital_gray_data[3] == 1 && digital_gray_data[4] == 1 && digital_gray_data[2] == 1 && digital_gray_data[5] == 1&&digital_gray_data[6] == 1 ) // 中间6个
         {
-            real_time_gray_state = all_black;
-            if (can_increase_all_back == 1)
+            real_time_gray_state = all_black;				//灰度实时状态置为全黑
+            if (can_increase_all_back == 1)					//若允许自加
             {
 				BUZZER_ON
                 all_back_time++;
                 all_back_last_count = all_back_count;
-                can_increase_all_back = 0;
+                can_increase_all_back = 0;					//允许自加标志位清零
             }
         }
         else
@@ -314,7 +320,8 @@ void LCD_Show_task(void *pvParameters)
     {
         // 显示
         // 陀螺仪
-		LCD_ShowFloatNum1(58, 20,fabs(ch040_yaw)*10.0, 5, RED, WHITE, 16);
+		LCD_ShowIntNum(0,20,main_state,2,RED,WHITE,16);
+		LCD_ShowFloatNum1(64, 20,fabs(ch040_yaw)*10.0, 5, RED, WHITE, 16);
 		LCD_ShowIntNum(16,40,digital_gray_data[0],1,RED,WHITE,16);
 		LCD_ShowIntNum(16*2,40,digital_gray_data[1],1,RED,WHITE,16);
 		LCD_ShowIntNum(16*3,40,digital_gray_data[2],1,RED,WHITE,16);
@@ -323,7 +330,10 @@ void LCD_Show_task(void *pvParameters)
 		LCD_ShowIntNum(16*6,40,digital_gray_data[5],1,RED,WHITE,16);
 		LCD_ShowIntNum(16*7,40,digital_gray_data[6],1,RED,WHITE,16);
 		LCD_ShowIntNum(16*8,40,digital_gray_data[7],1,RED,WHITE,16);
-		LCD_ShowIntNum(66,60,main_state,2,RED,WHITE,16);
+		LCD_ShowIntNum(0,60,all_back_time,2,RED,WHITE,16);
+		LCD_ShowFloatNum1(64,60,fabs(ch040_yaw_update)*10.0,5,RED,WHITE,16);
+		
+		
 //        LCD_ShowFloatNum1(0, 20, gyro[0], 4, RED, WHITE, 16);
 //        LCD_ShowString(48, 20, ",", RED, WHITE, 16, 0);
 //        LCD_ShowFloatNum1(58, 20, gyro[1], 4, RED, WHITE, 16);
@@ -351,11 +361,16 @@ void IMU_Read_task(void *pvParameters)
     {
         BMI088_read(gyro, accel, &temp);
 
-        if (catch_flag)
+        if (catch_flag == 1)
         {
             Catch();
             catch_flag = 0;
         }
+		else if(catch_flag == 2)
+		{
+			Catch_dragout(850);
+            catch_flag = 0;
+		}
 
         if (turn_dir_all == -1)
         {
@@ -466,7 +481,6 @@ static void move_step_distance(float odom_x, float odom_y, float odom_yaw,bool c
 
 void Onmaincpp(void *pvParameters)
 {
-
     int safe_count = 0; // 保护锁
     while (1)
     {
@@ -482,7 +496,7 @@ void Onmaincpp(void *pvParameters)
             {
                 motor_mode = 0;
                 debug_target_vel = (cmd_vel_t){0.2, 0,-gray_data_front_middle};
-                all_back_stop_flag = 1;
+                //all_back_stop_flag = 1;
                 main_state++;
                 break;
             }
@@ -503,6 +517,10 @@ void Onmaincpp(void *pvParameters)
 			{
 				//清除里程计，向前走一小段修正姿态
 				move_step_distance(0.07,0,0,1);
+				//更新yaw角，认为此时yaw角是车的零点
+				ch040_yaw_update = ch040_yaw;
+				
+				//main_state = 11;
 				break;
 			}
 			case 3:
@@ -515,21 +533,28 @@ void Onmaincpp(void *pvParameters)
 					else if(question_one_catch_count == 1)	//不转动，朝向C点方向
 						move_step_distance(0,0,0,1);
 					else if(question_one_catch_count == 2)	//向右转90度，朝向E点方向
-						move_step_distance(0,0,-0.103,1);
+						move_step_distance(0,0,-0.097,1);
 				}
 				break;
 			}
 			case 4:
 			{
-				//不清除里程计，使用灰度巡线行至物料存放处
+				//不清除里程计，不使用灰度巡线行至物料存放处
 				if (SimpleStatus_t_isResolved(&planner_ptr->promise))
 				{
-					if(question_one_catch_count == 0)
-						move_step_distance(0.2,0,0.103-gray_data_front_middle,0);	//A点
+					/*if(question_one_catch_count == 0)
+						move_step_distance(0.198,0,0.103-gray_data_front_middle,0);	//A点
 					else if(question_one_catch_count == 1)
 						move_step_distance(0.2,0,-gray_data_front_middle,0);		//C点
 					else if(question_one_catch_count == 2)
-						move_step_distance(0.2,0,-0.103-gray_data_front_middle,0);	//E点
+						move_step_distance(0.21,0,-0.103-gray_data_front_middle,0);	//E点
+					*/
+					if(question_one_catch_count == 0)
+						move_step_distance(0.205,0,0.103,0);	//A点
+					else if(question_one_catch_count == 1)
+						move_step_distance(0.2,0,0,0);			//C点
+					else if(question_one_catch_count == 2)
+						move_step_distance(0.205,0,-0.097,0);	//E点
 				}
 			break;
 			}
@@ -539,11 +564,11 @@ void Onmaincpp(void *pvParameters)
 				if (SimpleStatus_t_isResolved(&planner_ptr->promise))
 				{
 					if(question_one_catch_count == 0)
-						move_step_distance(0.21,-2.0*gray_data_front_middle,0.103,0);	//A点
+						move_step_distance(0.205,-2.7*gray_data_front_middle,0.103,0);	//A点
 					else if(question_one_catch_count == 1)
-						move_step_distance(0.2,-2.0*gray_data_front_middle,0,0);		//C点
+						move_step_distance(0.195,-2.7*gray_data_front_middle,0,0);		//C点
 					else if(question_one_catch_count == 2)
-						move_step_distance(0.2,-2.0*gray_data_front_middle,-0.103,0);	//E点
+						move_step_distance(0.205,-2.7*gray_data_front_middle,-0.097,0);	//E点
 				}
 				break;
 			}
@@ -567,7 +592,7 @@ void Onmaincpp(void *pvParameters)
 					else if(question_one_catch_count == 1)
 						move_step_distance(-0.05,0,0,0);		//C点
 					else if(question_one_catch_count == 2)
-						move_step_distance(-0.05,0,-0.103,0);	//E点
+						move_step_distance(-0.05,0,-0.097,0);	//E点
 					
 					catch_finish_flag = 0;
 				}
@@ -599,70 +624,202 @@ void Onmaincpp(void *pvParameters)
 					move_step_distance(0,0,0,1);
 					main_state = 3;
 					question_one_catch_count ++;
+					//若三个物料收集完成则到下一个状态
+					if(question_one_catch_count == 3)
+						main_state = 11;
 				}
+				break;
+			}
+			/*
+			case 11:
+			{
+				if (SimpleStatus_t_isResolved(&planner_ptr->promise))
+				{
+					move_step_distance(-0.29,0.29,0,1);
+				}
+				break;
+			}
+			case 12:
+			{
+				if (SimpleStatus_t_isResolved(&planner_ptr->promise))
+				{
+					move_step_distance(-0.29,0.29,0.153,0);				//向左转到F点
+				}
+				break;
+			}
+			case 13:
+			{
+				if (SimpleStatus_t_isResolved(&planner_ptr->promise))
+				{
+					motor_mode = 0;
+					all_back_flag_finish = 0;
+					debug_target_vel = (cmd_vel_t){0.05, 0,-gray_data_front_middle};
+					main_state++;
+				}
+				break;
+			}
+			case 14:
+			{
+				motor_mode = 0;
+				debug_target_vel = (cmd_vel_t){0.05, 0,-gray_data_front_middle};
+				if(all_back_time == 1)
+				{
+					motor_mode = 0;
+					debug_target_vel = (cmd_vel_t){0,0,0};
+					all_back_flag_finish = 1;
+					main_state++;
+				}
+				break;
+			}
+			case 15:
+			{
+				move_step_distance(-0.1,0,0.153,1);
+			}*/
+			case 11:
+			{
+				//清除里程计，转向 
+			    if (SimpleStatus_t_isResolved(&planner_ptr->promise))
+				{
+					move_step_distance(0,0,0.153,1);				//向左转到F点方向
+				}
+				break;
+			}
+			case 12:
+			{
+				//若完成，则进入到下一个状态
+				if(SimpleStatus_t_isResolved(&planner_ptr->promise))
+				{
+					main_state++;
+				}
+				break;
+			}
+			case 13:
+			{
+				//使用灰度巡线行至累计识别到2次"十字"后停下
+                motor_mode = 0;
+                debug_target_vel = (cmd_vel_t){0.15, 0,-gray_data_front_middle};
+				all_back_flag_finish = 0;
+				if(question_two_catch_count == 0)
+				{
+					if(all_back_time == 2)
+					{
+						motor_mode = 0;
+						debug_target_vel = (cmd_vel_t){0,0,0};
+						all_back_flag_finish = 1;
+						main_state++;
+					}
+				}
+				else
+				{
+					if(real_time_gray_state == all_black)
+					{
+						motor_mode = 0;
+						debug_target_vel = (cmd_vel_t){0,0,0};
+						all_back_flag_finish = 1;
+						main_state++;
+					}
+				}
+				break;
+			}
+			case 14:
+			{
+				//清除里程计，后退一段距离
+				if(SimpleStatus_t_isResolved(&planner_ptr->promise))
+				{
+					move_step_distance(-0.05,0,0.153,1);
+				}
+				break;
+			}	
+			case 15:
+			{
+				//清除里程计，修正车体Y方向
+				if(SimpleStatus_t_isResolved(&planner_ptr->promise))
+				{
+					move_step_distance(0,-2.7*gray_data_front_middle,0.153,1);
+				}
+				break;
+			}
+			case 16:
+			{
+				//微调至5个物料处
+				if(SimpleStatus_t_isResolved(&planner_ptr->promise))
+				{
+					switch(question_two_catch_count)
+					{
+						case 0:			//B
+							move_step_distance(0.03,0.03,0.153,1);
+							break;
+						case 1:			//A
+							move_step_distance(0.03,-0.03,0.153,1);
+							break;
+						case 2:			//C
+							move_step_distance(0.06,0.05,0.153,1);
+							break;
+						case 3:			//E
+							move_step_distance(0.06,-0.05,0.153,1);
+							break;
+						case 4:			//D
+							move_step_distance(0.1,0,0.153,1);
+							break;
+						default:break;
+					}
+				}
+				break;
+			}
+			case 17:
+			{
+				//抓取
+				if(SimpleStatus_t_isResolved(&planner_ptr->promise))
+				{
+					catch_flag = 2;
+					main_state++;
+				}
+				break;
+			}
+			case 18:
+			{
+				//若抓到则，清除里程计，后退
+				if(catch_finish_flag == 1)
+				{
+					switch(question_two_catch_count)
+					{
+						case 0:			//B
+						case 1:			//A
+						case 4:			//D
+							move_step_distance(-0.1,0,0.153,1);
+							break;
+						//CD多退一点
+						case 2:			//C
+							move_step_distance(-0.1,-0.04,0.153,1);
+							break;
+						case 3:			//E
+							move_step_distance(-0.1,0.04,0.153,1);
+							break;
+						default:break;
+					}
+					catch_finish_flag = 0;
+				}
+				break;
+			}
+			case 19:
+			{
+				if(SimpleStatus_t_isResolved(&planner_ptr->promise))
+				{
+					question_two_catch_count++;
+					if(question_two_catch_count == 5)
+						main_state = 20;
+					else main_state = 13;
+				}
+				break;
+			}
+			case 20:
+			{
+				
 				break;
 			}
             default:
                 break;
             }
-
-            //            switch (main_state)
-            //            {
-            //            case 0:
-            //            {
-            //                move_to_next_line();
-            //                break;
-            //            }
-            //            case 1:
-            //            {
-
-            //                move_step_distance(0.1, 0, 0);
-            //                break;
-            //            }
-            //            case 2:
-            //            {
-            //                if (SimpleStatus_t_isResolved(&planner_ptr->promise))
-            //                {
-            //                    move_to_next_line();
-            //                }
-            //                break;
-            //            }
-            //            case 3:
-            //            {
-            //                move_step_distance(0.1, 0, 0);
-            //                break;
-            //            }
-            //            case 4:
-            //            {
-
-            //                if (SimpleStatus_t_isResolved(&planner_ptr->promise))
-            //                {
-            //                    move_to_next_line();
-            //                }
-            //                break;
-            //            }
-            //            case 5:
-            //            {
-            //                move_step_distance(0.1, 0, 0);
-            //                break;
-            //            }
-            //            case 6:
-            //            {
-            //                if (SimpleStatus_t_isResolved(&planner_ptr->promise))
-            //                {
-
-            //                    turn_to_next_line();
-            //                }
-            //                break;
-            //            }
-            //            case 7:
-            //            {
-            //                move_step_distance(0.1, 0, 0);
-            //                break;
-            //            }
-            //            default:
-            //                break;
-            //            }
         }
 
         switch (motor_mode)
@@ -679,7 +836,6 @@ void Onmaincpp(void *pvParameters)
         default:
             break;
         }
-
         vTaskDelay(20);
     }
 }
@@ -707,7 +863,7 @@ void OnChassicControl(void *pvParameters)
         last_tick = xTaskGetTickCount();
         if (safe_guard)
         {
-            Controller_KinematicAndControlUpdateWithYaw(ChassisControl_ptr, dt,ch040_yaw);
+            Controller_KinematicAndControlUpdateWithYaw(ChassisControl_ptr, dt,ch040_yaw-ch040_yaw_update);
             // // 步进不需要速度环，此处仅为了读取电机速度
             ChassisControl_ptr->Controller_MotorUpdate(ChassisControl_ptr, dt);
         }
