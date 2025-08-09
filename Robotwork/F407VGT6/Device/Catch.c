@@ -138,7 +138,7 @@ void Drop(enum color_enum color)
 		case green_color: __HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_1,1970); break; // 绿色
 		case white_color: __HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_1,2300); break;// 白
 		case red_color:   __HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_1,2630); break; // 红
-    case blue_color:  __HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_1,1300); break; // 蓝
+		case blue_color:  __HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_1,1300); break; // 蓝
 		case black_color: __HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_1,960);  break;// 黑色
 	}
 	vTaskDelay(850);

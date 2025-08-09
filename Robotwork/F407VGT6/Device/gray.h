@@ -10,11 +10,12 @@ back=1,
 };
 typedef enum gray_state
 {
-    orgin_gray=0,
-     all_black,//全黑
-   primary_gray,
+	orgin_gray=0,
+    all_black,//全黑
+    primary_gray,
     senior_gray,
-    undetermined_gray
+    undetermined_gray,
+	edge_black
    
 } gray_state;
 unsigned char Ping(void);
