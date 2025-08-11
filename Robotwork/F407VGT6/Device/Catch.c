@@ -59,7 +59,9 @@ void Sort(enum color_enum color)
 }
 enum color_enum Catch()
 {
-        __HAL_TIM_SET_COMPARE(&htim5,TIM_CHANNEL_4 ,1520);
+	__HAL_TIM_SET_COMPARE(&htim9,TIM_CHANNEL_1 ,1360);//夹爪，1800紧，1400松
+	__HAL_TIM_SET_COMPARE(&htim9,TIM_CHANNEL_2 ,1640);//夹爪1100锁紧，1600松
+    __HAL_TIM_SET_COMPARE(&htim5,TIM_CHANNEL_4 ,1520);
             vTaskDelay(100);
     __HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_1,1850);// 先让红色在中间
             __HAL_TIM_SET_COMPARE(&htim5,TIM_CHANNEL_3 ,500);// 抬升 保证不干涉
@@ -82,21 +84,23 @@ vTaskDelay(500);
 //    color_return = Get_Color();
     read_cololr_flag = 1;
     vTaskDelay(1500);
-    while(1)
+	for(uint8_t i = 0;i < 5;i++)
     {    
         if(goods_color != -1)
-    {
-    Sort(goods_color);
-        goods_color = -1;
-    return 0;
-    }
-    vTaskDelay(200);
+		{
+		Sort(goods_color);
+			goods_color = -1;
+		return 0;
+		}
+		vTaskDelay(200);
     }
 }
 
 
 enum color_enum Catch_dragout(int delay_time)
 {
+	__HAL_TIM_SET_COMPARE(&htim9,TIM_CHANNEL_1 ,1360);//夹爪，1800紧，1400松
+	__HAL_TIM_SET_COMPARE(&htim9,TIM_CHANNEL_2 ,1640);//夹爪1100锁紧，1600松
     __HAL_TIM_SET_COMPARE(&htim5,TIM_CHANNEL_4 ,1520);
             vTaskDelay(100);
     __HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_1,1850);// 先让红色在中间
@@ -122,21 +126,22 @@ vTaskDelay(500);
 //    color_return = Get_Color();
     read_cololr_flag = 1;
     vTaskDelay(1500);
-    while(1)
+	for(uint8_t i = 0;i < 5;i++)
     {    
         if(goods_color != -1)
-    {
-    Sort(goods_color);
-        goods_color = -1;
-    return 0;
-    }
-    vTaskDelay(200);
+		{
+		Sort(goods_color);
+			goods_color = -1;
+		return 0;
+		}
+		vTaskDelay(200);
     }
 }
 
 void Drop(enum color_enum color)
 {
 
+    __HAL_TIM_SET_COMPARE(&htim5,TIM_CHANNEL_4 ,1520);
 	switch(color)
 	{
 		case green_color: __HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_1,1970); break; // 绿色

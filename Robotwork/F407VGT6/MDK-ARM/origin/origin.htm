@@ -3,7 +3,7 @@
 <title>Static Call Graph - [origin\origin.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image origin\origin.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Sun Aug 10 20:39:51 2025
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Tue Aug 12 00:54:42 2025
 <BR><P>
 <H3>Maximum Stack Usage =        400 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -796,8 +796,8 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f407xx.o(RESET)
 </UL>
-<P><STRONG><a name="[a0]"></a>Catch</STRONG> (Thumb, 218 bytes, Stack size 16 bytes, catch.o(.text.Catch))
-<BR><BR>[Stack]<UL><LI>Max Depth = 120<LI>Call Chain = Catch &rArr; Sort &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
+<P><STRONG><a name="[a0]"></a>Catch</STRONG> (Thumb, 248 bytes, Stack size 24 bytes, catch.o(.text.Catch))
+<BR><BR>[Stack]<UL><LI>Max Depth = 128<LI>Call Chain = Catch &rArr; Sort &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
 <LI><a href="#[a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Sort
@@ -805,8 +805,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IMU_Read_task
 </UL>
 
-<P><STRONG><a name="[a3]"></a>Catch_dragout</STRONG> (Thumb, 240 bytes, Stack size 24 bytes, catch.o(.text.Catch_dragout))
-<BR><BR>[Stack]<UL><LI>Max Depth = 128<LI>Call Chain = Catch_dragout &rArr; Sort &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
+<P><STRONG><a name="[a3]"></a>Catch_dragout</STRONG> (Thumb, 274 bytes, Stack size 32 bytes, catch.o(.text.Catch_dragout))
+<BR><BR>[Stack]<UL><LI>Max Depth = 136<LI>Call Chain = Catch_dragout &rArr; Sort &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
 <LI><a href="#[a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Sort
@@ -926,7 +926,7 @@ Global Symbols
 <P><STRONG><a name="[7]"></a>DebugMon_Handler</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, stm32f4xx_it.o(.text.DebugMon_Handler))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f407xx.o(RESET)
 </UL>
-<P><STRONG><a name="[b8]"></a>Drop</STRONG> (Thumb, 160 bytes, Stack size 32 bytes, catch.o(.text.Drop))
+<P><STRONG><a name="[b8]"></a>Drop</STRONG> (Thumb, 176 bytes, Stack size 32 bytes, catch.o(.text.Drop))
 <BR><BR>[Stack]<UL><LI>Max Depth = 128<LI>Call Chain = Drop &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
@@ -1535,7 +1535,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[6f]"></a>IMU_Read_task</STRONG> (Thumb, 232 bytes, Stack size 0 bytes, mainwork.o(.text.IMU_Read_task))
-<BR><BR>[Stack]<UL><LI>Max Depth = 136<LI>Call Chain = IMU_Read_task &rArr; BMI088_read &rArr; BMI088_read_write_byte &rArr; HAL_SPI_TransmitReceive &rArr; SPI_WaitFlagStateUntilTimeout
+<BR><BR>[Stack]<UL><LI>Max Depth = 136<LI>Call Chain = IMU_Read_task &rArr; Catch_dragout &rArr; Sort &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Catch_dragout
 <LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Catch
@@ -1941,13 +1941,13 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> mainwork.o(.text.main_work)
 </UL>
-<P><STRONG><a name="[6d]"></a>Onmaincpp</STRONG> (Thumb, 3904 bytes, Stack size 0 bytes, mainwork.o(.text.Onmaincpp))
+<P><STRONG><a name="[6d]"></a>Onmaincpp</STRONG> (Thumb, 3928 bytes, Stack size 0 bytes, mainwork.o(.text.Onmaincpp))
 <BR><BR>[Stack]<UL><LI>Max Depth = 200<LI>Call Chain = Onmaincpp &rArr; Planner_LoactaionCloseControl &rArr; Planner_LoactaionOpenControl &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
 <BR>[Calls]<UL><LI><a href="#[b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Drop
+<LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SimpleStatus_t_isResolved
 <LI><a href="#[88]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dmul
 <LI><a href="#[b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Controller_set_vel_target
-<LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SimpleStatus_t_isResolved
 <LI><a href="#[12a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Planner_LoactaionCloseControl
 <LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
 <LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2f
@@ -2010,8 +2010,8 @@ Global Symbols
 <P><STRONG><a name="[129]"></a>Planner_update</STRONG> (Thumb, 392 bytes, Stack size 56 bytes, planner.o(.text.Planner_update))
 <BR><BR>[Stack]<UL><LI>Max Depth = 112<LI>Call Chain = Planner_update &rArr; __aeabi_ui2d &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Controller_set_vel_target
-<LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SimpleStatus_t_isResolved
+<BR>[Calls]<UL><LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SimpleStatus_t_isResolved
+<LI><a href="#[b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Controller_set_vel_target
 <LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2f
 <LI><a href="#[131]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CubicSpline_Eval
 <LI><a href="#[130]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CubicSpline_dx
@@ -2234,7 +2234,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ZDTController_MotorUpdate
 </UL>
 
-<P><STRONG><a name="[72]"></a>gray_read_task</STRONG> (Thumb, 586 bytes, Stack size 0 bytes, mainwork.o(.text.gray_read_task))
+<P><STRONG><a name="[72]"></a>gray_read_task</STRONG> (Thumb, 620 bytes, Stack size 0 bytes, mainwork.o(.text.gray_read_task))
 <BR><BR>[Stack]<UL><LI>Max Depth = 152 + In Cycle
 <LI>Call Chain = gray_read_task &rArr;  gray_read_task (Cycle)
 </UL>

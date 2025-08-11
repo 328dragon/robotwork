@@ -61,7 +61,7 @@ int temp_color = -1;
 // 灰度
 gray_state real_time_gray_state = orgin_gray; // 主灰度状态
 // 前面灰度
-float gray_front_p = 0.002f; // 前面灰度传感器的神秘小参数
+float gray_front_p = 0.004f; // 前面灰度传感器的神秘小参数
 float gray_data_front_middle = 0;
 float gray_data_front_middle_temp = 0;
 //int gray_count = 0;      // 前面灰度计数
@@ -247,6 +247,7 @@ void tcs230_read_task(void *pvParameters)
 }
 void gray_read_task(void *pvParameters)
 {
+	uint8_t black_count = 0;	//八路灰度黑色个数计数
     while (Ping())
     {
         vTaskDelay(5);
@@ -280,7 +281,7 @@ void gray_read_task(void *pvParameters)
         }
 		//全黑死区计数
         all_back_count++;
-        if ((all_back_count - all_back_last_count) > 20)
+        if ((all_back_count - all_back_last_count) > 12)
         {
 			//只有计数达到一定数量才允许全黑状态自加，防止连续自加
             can_increase_all_back = 1;
@@ -336,11 +337,14 @@ void gray_read_task(void *pvParameters)
         }
         IIC_Anolog_Normalize(0xff); // 为了下一次循环是非归一化，所以清零
 
+		black_count = 0;		//计数先清零
         for (int i = 0; i < 8; i++)
         {
-            gray_data_front_middle_temp += digital_gray_data[i] * sensor_weights[i] * gray_front_p; // 计算前面灰度传感器的中间值
+			if(digital_gray_data[i] == 1)
+				black_count++;
+            gray_data_front_middle_temp += gray_front_p * digital_gray_data[i] * sensor_weights[i]; // 计算前面灰度传感器的中间值
         }
-        gray_data_front_middle = gray_data_front_middle_temp;
+        gray_data_front_middle = gray_data_front_middle_temp/(float)black_count;					//均值化处理
         gray_data_front_middle_temp = 0;
         vTaskDelay(10); // 延时100ms
     }
@@ -519,32 +523,24 @@ void Onmaincpp(void *pvParameters)
     int safe_count = 0; // 保护锁
     while (1)
     {
-        // 纯速度式验证没问题
-        //      Controller_set_vel_target(ChassisControl_ptr, debug_target_vel, false);
+        //纯速度式验证没问题
+        //Controller_set_vel_target(ChassisControl_ptr, debug_target_vel, false);
         safe_count++;
         if (safe_count >= 3)
         {
             safe_guard = 1; // 保护锁打开
 			
-			//0~2:车体行至中心点
-			//3~10:抓取A、C、E处物料
-			//11~20:抓取F、G处物料
-			//21~ :放置物料至靶子处
+			//0~1:车体行至中心点
+			//2~9::抓取A、C、E处物料
+			//10~19:抓取F处物料
+			//20~ :放置物料至靶子处
             switch (main_state)
             {
             case 0:
             {
-                motor_mode = 0;
-                debug_target_vel = (cmd_vel_t){0.2, 0,-gray_data_front_middle};
-                //all_back_stop_flag = 1;
-                main_state++;
-                break;
-            }
-            case 1:
-            {
 				//首先使用灰度巡线闭环行走，直到识别累计3次"十字"后停止
                 motor_mode = 0;
-                debug_target_vel = (cmd_vel_t){0.2, 0,-gray_data_front_middle};
+                debug_target_vel = (cmd_vel_t){0.3, 0,-gray_data_front_middle};
                 if (all_back_time == 3)
                 {
                     debug_target_vel = (cmd_vel_t){0, 0, 0};
@@ -553,18 +549,19 @@ void Onmaincpp(void *pvParameters)
                 }
                 break;
             }
-			case 2:
+			case 1:
 			{
 				//清除里程计，向前走一小段修正姿态
 				move_step_distance(0.07,0,0,1);
 				//更新yaw角，认为此时yaw角是车的零点
 				ch040_yaw_update = ch040_yaw;
 				
-				//main_state = 11;
+				//main_state = 21;
 				break;
 			}
 			
-			case 3:
+			
+			case 2:
 			{
 				//清除里程计，转向 
 			    if (SimpleStatus_t_isResolved(&planner_ptr->promise))
@@ -578,7 +575,7 @@ void Onmaincpp(void *pvParameters)
 				}
 				break;
 			}
-			case 4:
+			case 3:
 			{
 				//不清除里程计，不使用灰度巡线行至物料存放处
 				if (SimpleStatus_t_isResolved(&planner_ptr->promise))
@@ -586,13 +583,13 @@ void Onmaincpp(void *pvParameters)
 					if(question_one_catch_count == 0)
 						move_step_distance(0.205,0,0.103,0);	//A点
 					else if(question_one_catch_count == 1)
-						move_step_distance(0.2,0,0,0);			//C点
+						move_step_distance(0.19,0,0,0);			//C点
 					else if(question_one_catch_count == 2)
 						move_step_distance(0.205,0,-0.097,0);	//E点
 				}
-			break;
+				break;
 			}
-			case 5:
+			case 4:
 			{
 				//不清除里程计，使用灰度纠正车身Y方向
 				if (SimpleStatus_t_isResolved(&planner_ptr->promise))
@@ -600,13 +597,13 @@ void Onmaincpp(void *pvParameters)
 					if(question_one_catch_count == 0)
 						move_step_distance(0.205,-2.8*gray_data_front_middle,0.103,0);	//A点
 					else if(question_one_catch_count == 1)
-						move_step_distance(0.195,-2.8*gray_data_front_middle,0,0);		//C点
+						move_step_distance(0.19,-2.8*gray_data_front_middle,0,0);		//C点
 					else if(question_one_catch_count == 2)
 						move_step_distance(0.205,-2.8*gray_data_front_middle,-0.097,0);	//E点
 				}
 				break;
 			}
-			case 6:
+			case 5:
 			{	  
 				//动作执行完成后 夹取物料
 				if (SimpleStatus_t_isResolved(&planner_ptr->promise))
@@ -616,7 +613,7 @@ void Onmaincpp(void *pvParameters)
 				}
 				break;
 			}
-			case 7:
+			case 6:
 			{
 				//若抓取到物料，不清除里程计，返回到中心点(多给一点-0.05防止回不去)
 				if(catch_finish_flag == 1)
@@ -632,7 +629,7 @@ void Onmaincpp(void *pvParameters)
 				}
 				break;
 			}
-			case 8:
+			case 7:
 			{
 				//识别到黑线，清除里程计，回正停车
 				if(real_time_gray_state == all_black)
@@ -641,42 +638,42 @@ void Onmaincpp(void *pvParameters)
 				}
 				break;
 			}
-			case 9:
+			case 8:
 			{
-				//向前走
+				//向前走，用于修正车体，使之在中心
 				if(SimpleStatus_t_isResolved(&planner_ptr->promise))
 				{
-					move_step_distance(0.2,0,0,1);
+					move_step_distance(0.3,0,0,1);
 				}
 				break;
 			}
-			case 10:
+			case 9:
 			{
 				//直到识别不到黑线，停车，即认为是中心点
 				if(real_time_gray_state != all_black)
 				{
 					move_step_distance(0,0,0,1);
-					main_state = 3;
+					main_state = 2;
 					question_one_catch_count ++;
-					//若三个物料收集完成则到下一个状态
+					//若A、C、E三个物料收集完成则到下一个状态
 					if(question_one_catch_count == 3)
-						main_state = 11;
+						main_state = 10;
 				}
 				break;
 			}
 			
-			case 11:
+			case 10:
 			{
 				//清除里程计，转向 
 			    if (SimpleStatus_t_isResolved(&planner_ptr->promise))
 				{
 					if(question_two_catch_count <= 4)
-						move_step_distance(0,0,0.153,1);				//转到F点方向
+						move_step_distance(0,0,0.152,1);				//转到F点方向
 					else move_step_distance(0,0,-0.150,1);				//转到G点方向
 				}
 				break;
 			}
-			case 12:
+			case 11:
 			{
 				//若完成，则进入到下一个状态
 				if(SimpleStatus_t_isResolved(&planner_ptr->promise))
@@ -685,11 +682,11 @@ void Onmaincpp(void *pvParameters)
 				}
 				break;
 			}
-			case 13:
+			case 12:
 			{
 				//使用灰度巡线行至累计识别到2次"十字"后停下
                 motor_mode = 0;
-                debug_target_vel = (cmd_vel_t){0.15, 0,-1.1*gray_data_front_middle};
+                debug_target_vel = (cmd_vel_t){0.3, 0,-1.1*gray_data_front_middle};
 				all_back_flag_finish = 0;
 				if(question_two_catch_count == 0 || question_two_catch_count == 5)
 				{
@@ -713,29 +710,29 @@ void Onmaincpp(void *pvParameters)
 				}
 				break;
 			}
-			case 14:
+			case 13:
 			{
 				//清除里程计，后退一段距离
 				if(SimpleStatus_t_isResolved(&planner_ptr->promise))
 				{
 					if(question_two_catch_count <= 4)
-						move_step_distance(-0.05,0,0.153,1);		//在F点处
+						move_step_distance(-0.05,0,0.152,1);		//在F点处
 					else move_step_distance(-0.05,0,-0.150,1);		//在G点处
 				}
 				break;
 			}	
-			case 15:
+			case 14:
 			{
 				//清除里程计，修正车体Y方向
 				if(SimpleStatus_t_isResolved(&planner_ptr->promise))
 				{
 					if(question_two_catch_count <= 4)
-						move_step_distance(0,-2.9*gray_data_front_middle,0.153,1);		//在F点处
+						move_step_distance(0,-2.9*gray_data_front_middle,0.152,1);		//在F点处
 					else move_step_distance(0,-2.9*gray_data_front_middle,-0.150,1);	//在G点处
 				}
 				break;
 			}
-			case 16:
+			case 15:
 			{
 				//微调至5个物料处
 				if(SimpleStatus_t_isResolved(&planner_ptr->promise))
@@ -744,19 +741,19 @@ void Onmaincpp(void *pvParameters)
 					{
 						//F处
 						case 0:			//F处B点
-							move_step_distance(0.03,0.03,0.153,1);
+							move_step_distance(0.03,0.025,0.152,1);
 							break;
 						case 1:			//F处A点
-							move_step_distance(0.03,-0.03,0.153,1);
+							move_step_distance(0.03,-0.025,0.152,1);
 							break;
 						case 2:			//F处C点
-							move_step_distance(0.06,0.05,0.153,1);
+							move_step_distance(0.06,0.05,0.152,1);
 							break;
 						case 3:			//F处E点
-							move_step_distance(0.06,-0.05,0.153,1);
+							move_step_distance(0.06,-0.03,0.152,1);
 							break;
 						case 4:			//D
-							move_step_distance(0.1,0,0.153,1);
+							move_step_distance(0.1,0,0.152,1);
 							break;
 						
 						//G处
@@ -780,17 +777,17 @@ void Onmaincpp(void *pvParameters)
 				}
 				break;
 			}
-			case 17:
+			case 16:
 			{
 				//抓取
 				if(SimpleStatus_t_isResolved(&planner_ptr->promise))
 				{
-					catch_flag = 2;
+					catch_flag = 2;		//该抓取标志位为爪子伸进去向后拖拽一段距离，防止干扰紧邻的物料
 					main_state++;
 				}
 				break;
 			}
-			case 18:
+			case 17:
 			{
 				//若抓到则，清除里程计，后退
 				if(catch_finish_flag == 1)
@@ -799,9 +796,13 @@ void Onmaincpp(void *pvParameters)
 					{
 						//F处
 						case 0:			//B
+							move_step_distance(-0.1,-0.02,0.152,1);
+							break;
 						case 1:			//A
+							move_step_distance(-0.1,0.02,0.152,1);
+							break;
 						case 4:			//D
-							move_step_distance(-0.1,0,0.153,1);
+							move_step_distance(-0.1,0,0.152,1);
 							break;
 						//G处
 						case 5:			//B
@@ -811,10 +812,10 @@ void Onmaincpp(void *pvParameters)
 							break;
 						//CD多退一点
 						case 2:			//C
-							move_step_distance(-0.1,-0.04,0.153,1);
+							move_step_distance(-0.1,-0.04,0.152,1);
 							break;
 						case 3:			//E
-							move_step_distance(-0.1,0.04,0.153,1);
+							move_step_distance(-0.1,0.04,0.152,1);
 							break;
 						case 7:			//C
 							move_step_distance(-0.1,-0.04,-0.150,1);
@@ -828,114 +829,130 @@ void Onmaincpp(void *pvParameters)
 				}
 				break;
 			}
-			case 19:
+			case 18:
 			{
 				//根据已抓取物料个数决定是再次抓取还是返回中心点
 				if(SimpleStatus_t_isResolved(&planner_ptr->promise))
 				{
 					question_two_catch_count++;
+					
+					//不抓D点的物料了
+					if(question_two_catch_count == 4)
+						question_two_catch_count = 5;
+					
 					if(question_two_catch_count == 5 || question_two_catch_count == 10)
-						main_state = 20;
-					else main_state = 13;
+						main_state = 19;
+					else main_state = 12;
 				}
 				break;
 			}
-			case 20:
+			case 19:
 			{
 				//返回中心点
                 motor_mode = 0;
 				//由于是倒车，故这里的yaw角矫正应相反
-                debug_target_vel = (cmd_vel_t){-0.15, 0,gray_data_front_middle};
+                debug_target_vel = (cmd_vel_t){-0.3, 0,gray_data_front_middle};
 				all_back_flag_finish = 0;
+				//识别到两次全黑停车
 				if(all_back_time == 2)
 				{
 					motor_mode = 0;
 					debug_target_vel = (cmd_vel_t){0,0,0};
 					all_back_flag_finish = 1;
 					main_state++;
-					if(question_two_catch_count == 5)
-						main_state = 11;
+					//不抓G处的5个物料了
+					//if(question_two_catch_count == 5)
+					//	main_state = 10;
 				}
 				break;
 			}
 			
-			case 21:
+			case 20:
 			{
 				//转弯至靶子处
 				if(SimpleStatus_t_isResolved(&planner_ptr->promise))
 				{
 					switch(drop_count)
 					{
-						case 0:					//转弯至绿色靶子处
-							move_step_distance(0,0,0.103,1);
-							break;
-						case 1:					//转弯至白色靶子处
-							move_step_distance(0,0,0.052,1);
-							break;
-						case 2:					//转弯至红色靶子处
-							move_step_distance(0,0,0,1);
-							break;
-						case 3:					//转弯至黑色靶子处
-							move_step_distance(0,0,-0.052,1);
-							break;
-						case 4:					//转弯至蓝色靶子处
+						case 0:					//转弯至背朝绿色靶子处
 							move_step_distance(0,0,-0.103,1);
+							break;
+						case 1:					//转弯至背朝白色靶子处
+							move_step_distance(0,0,-0.152,1);
+							break;
+						case 2:					//转弯至背朝红色靶子处
+							move_step_distance(0,0,-0.198,1);
+							break;
+						case 3:					//转弯至背朝黑色靶子处
+							move_step_distance(0,0,-0.25,1);
+							break;
+						case 4:					//转弯至背朝蓝色靶子处
+							move_step_distance(0,0,-0.302,1);
 							break;
 						default:break;
 					}
 				}
 				break;
 			}
-			case 22:
+			case 21:
 			{
 				//若完成，则进入到下一个状态
 				if(SimpleStatus_t_isResolved(&planner_ptr->promise))
 				{
-					main_state++;
+					//main_state++;
+					main_state = 22;
+				}
+				break;
+			}
+			case 22:
+			{
+				//if(catch_finish_flag == 1 || drop_count == 1 || drop_count == 3)
+				{
+					//使用灰度巡线行至累计识别到2次"边缘黑"或者一次“边缘黑”一次“全黑”后停下(由于有黑色靶心)
+					motor_mode = 0;
+					debug_target_vel = (cmd_vel_t){-0.3, 0,gray_data_front_middle};
+					if(real_time_gray_state == orgin_gray)		//当识别不到全黑才允许识别
+					{
+						edge_black_flag_finish = 0;
+						//all_back_flag_finish = 0;
+					}
+					if(edge_black_time == 1)
+					{
+						motor_mode = 0;
+						debug_target_vel = (cmd_vel_t){0,0,0};
+						edge_black_flag_finish = 1;
+						//all_back_flag_finish = 1;
+						main_state++;
+						catch_finish_flag = 0;
+					}
 				}
 				break;
 			}
 			case 23:
 			{
-				//使用灰度巡线行至累计识别到2次"边缘黑"后停下
-                motor_mode = 0;
-                debug_target_vel = (cmd_vel_t){0.15,-2.9*gray_data_front_middle, 0};
-				if(real_time_gray_state == orgin_gray)		//当识别不到全黑才允许识别
-					edge_black_flag_finish = 0;
-				if(edge_black_time == 2)
-				{
-					motor_mode = 0;
-					debug_target_vel = (cmd_vel_t){0,0,0};
-					edge_black_flag_finish = 1;
-					main_state++;
-				}
-				break;
-			}
-			case 24:
-			{
-				//转身
+				//倒退至靶子处
 				switch(drop_count)
 				{
 					case 0:					//绿色靶子处
-						move_step_distance(0,0,-0.097,1);
+						move_step_distance(-0.24,0,-0.097,1);
 						break;
 					case 1:					//白色靶子处
-						move_step_distance(0,0,-0.152,1);
+						move_step_distance(-0.24,0,-0.152,1);
 						break;
 					case 2:					//红色靶子处
-						move_step_distance(0,0,-0.205,1);
+						move_step_distance(-0.24,0,-0.198,1);
 						break;
 					case 3:					//黑色靶子处
-						move_step_distance(0,0,0.152,1);
+						move_step_distance(-0.24,0,-0.25,1);
 						break;
 					case 4:					//蓝色靶子处
-						move_step_distance(0,0,0.097,1);
+						move_step_distance(-0.24,0,-0.302,1);
 						break;
 					default:break;
 				}
 				break;
 			}
-			case 25:
+			case 24:
 			{
 				//调整位置
 				if(SimpleStatus_t_isResolved(&planner_ptr->promise))
@@ -943,26 +960,26 @@ void Onmaincpp(void *pvParameters)
 					switch(drop_count)
 					{
 						case 0:					//绿色靶子处
-							move_step_distance(0.1,-2.8*gray_data_front_middle,-0.097,1);
+							move_step_distance(0,-2.8*gray_data_front_middle,-0.097,1);
 							break;
 						case 1:					//白色靶子处
-							move_step_distance(0.1,-2.8*gray_data_front_middle,-0.152,1);
+							move_step_distance(0,-2.8*gray_data_front_middle,-0.152,1);
 							break;
 						case 2:					//红色靶子处
-							move_step_distance(0.1,-2.8*gray_data_front_middle,-0.205,1);
+							move_step_distance(0,-2.8*gray_data_front_middle,-0.198,1);
 							break;
 						case 3:					//黑色靶子处
-							move_step_distance(0.1,-2.8*gray_data_front_middle,0.152,1);
+							move_step_distance(0,-2.8*gray_data_front_middle,-0.25,1);
 							break;
 						case 4:					//蓝色靶子处
-							move_step_distance(0.1,-2.8*gray_data_front_middle,0.097,1);
+							move_step_distance(0,-2.8*gray_data_front_middle,-0.302,1);
 							break;
 						default:break;
 					}
 				}
 				break;
 			}
-			case 26:
+			case 25:
 			{
 				//直接开始随地拉一坨大的
 				if(SimpleStatus_t_isResolved(&planner_ptr->promise))
@@ -990,12 +1007,12 @@ void Onmaincpp(void *pvParameters)
 				}
 				break;
 			}
-			case 27:
+			case 26:
 			{
 				//使用灰度巡线行至中心点
                 motor_mode = 0;
                 //debug_target_vel = (cmd_vel_t){0.15, 0,-1.2*gray_data_front_middle};
-				debug_target_vel = (cmd_vel_t){0.15,-2.8*gray_data_front_middle,0};
+				debug_target_vel = (cmd_vel_t){0.3,0,-gray_data_front_middle};
 				edge_black_flag_finish = 0;
 				if(edge_black_time == 1)		//先经过一次“边缘黑”
 				{
@@ -1005,10 +1022,10 @@ void Onmaincpp(void *pvParameters)
 				}
 				break;
 			}
-			case 28:
+			case 27:
 			{
                 motor_mode = 0;
-				debug_target_vel = (cmd_vel_t){0.15,-2.8*gray_data_front_middle,0};
+				debug_target_vel = (cmd_vel_t){0.3,-2.8*gray_data_front_middle,0};
 				if(all_back_time == 1)		//再经过一次全黑，到达中心点
 				{
 					all_back_flag_finish = 1;
@@ -1019,7 +1036,7 @@ void Onmaincpp(void *pvParameters)
 				}
 				break;
 			}
-			case 29:
+			case 28:
 			{
 				//清除里程计，向前走一小段修正姿态
 				switch(drop_count)
@@ -1031,19 +1048,45 @@ void Onmaincpp(void *pvParameters)
 						move_step_distance(0.06,0,-0.152,1);
 						break;
 					case 2:					//红色靶子处
-						move_step_distance(0.06,0,-0.205,1);
+						move_step_distance(0.06,0,-0.198,1);
 						break;
 					case 3:					//黑色靶子处
-						move_step_distance(0.06,0,0.152,1);
+						move_step_distance(0.06,0,-0.25,1);
 						break;
 					case 4:					//蓝色靶子处
-						move_step_distance(0.06,0,0.097,1);
+						move_step_distance(0.06,0,-0.302,1);
 						break;
 					default:break;
 				}
-				drop_count++;
-				//判断是继续放置物料还是进入下一状态
-				if(drop_count != 5)main_state = 21;
+				break;
+			}
+			case 29:
+			{
+				if(SimpleStatus_t_isResolved(&planner_ptr->promise))
+				{
+					//本来用于纠正方向的，结果效果不太好
+					switch(drop_count)
+					{
+						case 0:					//绿色靶子处
+							//ch040_yaw_update = ch040_yaw + 0.097;
+							break;
+						case 1:					//白色靶子处
+							//ch040_yaw_update = ch040_yaw + 0.152;
+							break;
+						case 2:					//红色靶子处
+							//ch040_yaw_update = ch040_yaw + 0.205;
+							break;
+						case 3:					//黑色靶子处
+							break;
+						case 4:					//蓝色靶子处
+							break;
+						default:break;
+					}
+					main_state++;
+					drop_count++;			//放置物料累计计数
+					//判断是继续放置物料还是进入下一状态
+					if(drop_count != 5)main_state = 20;
+				}
 				break;
 			}
             default:break;
