@@ -6,6 +6,12 @@
 extern int read_cololr_flag;
 extern int goods_color;
 
+extern uint8_t red_color_flag;
+extern uint8_t green_color_flag;
+extern uint8_t blue_color_flag;
+extern uint8_t black_color_flag;
+extern uint8_t white_color_flag;
+
 int catch_finish_flag = 0;
 //__HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_1,0);//大转盘，950刚好一个对齐屁股，
 // __HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_3,1250);//1250卡住，2200松开，左小蓝机
@@ -85,12 +91,31 @@ vTaskDelay(500);
     read_cololr_flag = 1;
     vTaskDelay(1500);
 	for(uint8_t i = 0;i < 5;i++)
-    {    
+    {   
         if(goods_color != -1)
 		{
-		Sort(goods_color);
+			switch(goods_color)
+			{
+				case red_color:
+					red_color_flag = 1;
+					break;
+				case blue_color:
+					blue_color_flag = 1;
+					break;
+				case white_color:
+					white_color_flag = 1;
+					break;
+				case black_color:
+					black_color_flag = 1;
+					break;
+				case green_color:
+					green_color_flag = 1;
+					break;
+				default:break;
+			}
+			Sort(goods_color);
 			goods_color = -1;
-		return 0;
+			return 0;
 		}
 		vTaskDelay(200);
     }
@@ -130,9 +155,28 @@ vTaskDelay(500);
     {    
         if(goods_color != -1)
 		{
-		Sort(goods_color);
+			switch(goods_color)
+			{
+				case red_color:
+					red_color_flag = 1;
+					break;
+				case blue_color:
+					blue_color_flag = 1;
+					break;
+				case white_color:
+					white_color_flag = 1;
+					break;
+				case black_color:
+					black_color_flag = 1;
+					break;
+				case green_color:
+					green_color_flag = 1;
+					break;
+				default:break;
+			}
+			Sort(goods_color);
 			goods_color = -1;
-		return 0;
+			return 0;
 		}
 		vTaskDelay(200);
     }
@@ -140,7 +184,8 @@ vTaskDelay(500);
 
 void Drop(enum color_enum color)
 {
-
+	__HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_3,1000);//1000卡住，2300松开，左小蓝机
+	__HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_4,950); //950卡住，1800松开，右小蓝机
     __HAL_TIM_SET_COMPARE(&htim5,TIM_CHANNEL_4 ,1520);
 	switch(color)
 	{
@@ -151,7 +196,7 @@ void Drop(enum color_enum color)
 		case black_color: __HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_1,960);  break;// 黑色
 	}
 	vTaskDelay(850);
-	int steps = (2200 - 1250) > (1950 - 900) ? (2200 - 1250) : (1950 - 900);
+	/*int steps = (2200 - 1250) > (1950 - 900) ? (2200 - 1250) : (1950 - 900);
 	steps = abs(steps);  // 确保步数是正数
 
 	// 同时缓慢移动两个舵机
@@ -167,9 +212,26 @@ void Drop(enum color_enum color)
 			__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, right_pos);
 			
 			HAL_Delay(1);  // 调整这个延时可以改变整体速度（单位：毫秒）
+	}*/
+	int steps = (2300 - 1000) > (1800 - 950) ? (2300 - 1000) : (1800 - 950);
+	steps = abs(steps);  // 确保步数是正数
+
+	// 同时缓慢移动两个舵机
+	for(int i = 0; i <= steps; i+=3) {
+			// 计算左舵机当前值（从1700到2500）
+			int left_pos = 1000 + (2300 - 1000) * i / steps;
+			
+			// 计算右舵机当前值（从900到1800）
+			//int right_pos = 950 + (1800 - 900) * i / steps;
+			
+			// 设置PWM占空比
+			__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, left_pos);
+			//__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, right_pos);
+			
+			HAL_Delay(1);  // 调整这个延时可以改变整体速度（单位：毫秒）
 	}
 
 	// 确保最终到达目标值
-	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, 2200);
-	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, 900);	
+	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, 2300);
+	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, 1800);	
 }

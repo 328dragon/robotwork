@@ -132,8 +132,8 @@ int main(void)
 		HAL_TIM_PWM_Start(&htim9,TIM_CHANNEL_2);
 	//这时候板子的pwm还是上一版                   
 	__HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_1,0);//大转盘，950刚好一个对齐屁股，
-	__HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_3,1800);//1800卡住，2500松开，左小蓝机
-	__HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_4,1800);//1800卡住，900松开，右小蓝机	
+	__HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_3,1000);//1000卡住，2300松开，左小蓝机
+	__HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_4,950); //950卡住，1800松开，右小蓝机
 	__HAL_TIM_SET_COMPARE(&htim5,TIM_CHANNEL_4 ,0);//小转盘，2000为里，600为外
 		__HAL_TIM_SET_COMPARE(&htim5,TIM_CHANNEL_3 ,0 );//抬升，500最高，1000中间，1200最低
 		__HAL_TIM_SET_COMPARE(&htim9,TIM_CHANNEL_1 ,1360);//夹爪，1800紧，1400松
